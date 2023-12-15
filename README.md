@@ -1,1 +1,1 @@
-[Supervised Learning](Supervised Learning.md)
+[Supervised Learning](supervised_learning.md)

@@ -1,5 +1,8 @@
 Knowledge Base
 
+## General comp science
+[Distributed Systems](distributed.md)
+
 ## AI
 [Supervised Learning](supervised_learning.md)
 

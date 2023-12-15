@@ -1,3 +1,5 @@
+# Cryptography
+
 TL;DR
 - SHA-3 for cryptographic hashing
 - MD5 is fine for checksum and other non-cryptographic purposes

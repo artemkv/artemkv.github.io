@@ -1,6 +1,7 @@
 Knowledge Base
 
 ## General comp science
+[Algorithm Design and Analysis](algorithms.md)
 [Distributed Systems](distributed.md)
 
 ## AI

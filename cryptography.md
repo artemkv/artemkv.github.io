@@ -39,7 +39,7 @@ TL;DR
 - You can use openssl to compute the file hash:
 
 ```
-	openssl dgst -sha512
+openssl dgst -sha512
 ```
 
 
@@ -83,9 +83,9 @@ TL;DR
 - You can generate the random key and encrypt-decrypt the file using openssl:
 
 ```
-	openssl rand -hex 32
-	openssl enc -aes-256-cbc -in xxx.bmp -K XXXXXXXXXXXX > xxx.enc
-	openssl enc -aes-256-cbc -in xxx.enc -K XXXXXXXXXXXX -d > xxx.bmp
+openssl rand -hex 32
+openssl enc -aes-256-cbc -in xxx.bmp -K XXXXXXXXXXXX > xxx.enc
+openssl enc -aes-256-cbc -in xxx.enc -K XXXXXXXXXXXX -d > xxx.bmp
 ```
 
 
@@ -98,8 +98,8 @@ TL;DR
 - Encrypting-decrypting using openssl and pbkdf2 (with default number of iterations and generating random salt):
 
 ```
-	openssl enc -aes-256-cbc -in xxx.bmp -pbkdf2 > xxx.enc
-	openssl enc -aes-256-cbc -in xxx.enc -pbkdf2 -d > xxx.bmp
+openssl enc -aes-256-cbc -in xxx.bmp -pbkdf2 > xxx.enc
+openssl enc -aes-256-cbc -in xxx.enc -pbkdf2 -d > xxx.bmp
 ```
 
 - The command will prompt for the passphrase
@@ -121,7 +121,7 @@ TL;DR
 - If Bob uses secret (a private key) `a`, he can produce `f(a)` (public key); if Alice uses secret `b`, she can produce `f(b)`. Now, by using a function `h` so that:
 
 ```
-	h(a, f(b)) == h(b, f(a))
+h(a, f(b)) == h(b, f(a))
 ```
 
 - ...Bob and Alice can both calculate it using only their respective private keys and the other party's public keys. They can use the calculated value as a symmetric key for the further communication. (`f` has to be a trapdoor function, and also have the corresponding `h`)
@@ -131,23 +131,23 @@ TL;DR
 - openssl can be used to generate a parameter file (containing `g` and `p`), and (from the parameter file) public and private keys:
 
 ```
-	openssl genpkey -genparam -algorithm DH -out params.pem
-	openssl genpkey -paramfile params.pem -out alice_private_key.pem
-	openssl pkey -in alice_private_key.pem -pubout -out alice_public_key.pem
+openssl genpkey -genparam -algorithm DH -out params.pem
+openssl genpkey -paramfile params.pem -out alice_private_key.pem
+openssl pkey -in alice_private_key.pem -pubout -out alice_public_key.pem
 ```
 
 - Parameter file then have to be shared with the other party (over an open channel), so that party can also use it to generate their private and public keys:
 
 ```
-	openssl genpkey -paramfile params.pem -out bob_private_key.pem
-	openssl pkey -in bob_private_key.pem -pubout -out bob_public_key.pem
+openssl genpkey -paramfile params.pem -out bob_private_key.pem
+openssl pkey -in bob_private_key.pem -pubout -out bob_public_key.pem
 ```
 
 - Public keys are exchanged (over an open channel)
 - "pkeyutl -derive" can then be used to derive the shared secret for the symmetric encryption from the private key and other party's public key:
 
 ```
-	openssl pkeyutl -derive -inkey bob_private_key.pem -peerkey alice_public_key.pem -out shared_secret.bin
+openssl pkeyutl -derive -inkey bob_private_key.pem -peerkey alice_public_key.pem -out shared_secret.bin
 ```
 
 - Hash the derived shared secret to produce an actual AES key!
@@ -183,13 +183,13 @@ TL;DR
 - You can generate public and private keys for RSA using openssl:
 
 ```
-	openssl genpkey -algorithm RSA -out private_key.pem
+openssl genpkey -algorithm RSA -out private_key.pem
 ```
 
 - To analyze the generated private key:
 
 ```
-	openssl rsa -in private_key.pem -text -noout
+openssl rsa -in private_key.pem -text -noout
 ```
 
 - modulus is `n`, prime1 and prime2 are the `p` and `q`, public exponent is `e`, private exponent is `d`, coefficient is `h`
@@ -197,13 +197,13 @@ TL;DR
 - To extract the public key from the private key:
 
 ```
-	openssl rsa -in private_key.pem -pubout -out public_key.pem
+openssl rsa -in private_key.pem -pubout -out public_key.pem
 ```
 
 - To analyze the extracted public key:
 
 ```
-	openssl rsa -pubin -in public_key.pem -text -noout
+openssl rsa -pubin -in public_key.pem -text -noout
 ```
 
 - modulus is `n`, exponent is `e`
@@ -215,7 +215,7 @@ TL;DR
 - This can be done with openssl:
 
 ```
-	openssl dgst -sha256 -sign private_key.pem -out signature.bin document.doc
+openssl dgst -sha256 -sign private_key.pem -out signature.bin document.doc
 ```
 
 - Share the original document (document.doc) and the signature (signature.bin) with someone who has the corresponding public key
@@ -223,7 +223,7 @@ TL;DR
 - This can be done with openssl:
 
 ```
-	openssl dgst -sha256 -verify public_key.pem -signature signature.bin document.doc
+openssl dgst -sha256 -verify public_key.pem -signature signature.bin document.doc
 ```
 
 - As the private key is only known the sender, and the message can only be decrypted by the corresponding pubic key, only the sender could create the correct signature
@@ -278,27 +278,27 @@ TL;DR
 - You can create a request for a new certificate using openssl:
 
 ```
-	openssl req -new -key private_key.pem -days 60 -out csr.pem
+openssl req -new -key private_key.pem -days 60 -out csr.pem
 ```
 
 - To analyze the request:
 
 ```
-	openssl req -in csr.pem -text -noout
+openssl req -in csr.pem -text -noout
 ```
 
 - Then you send the request to a certificate authority and receive a certificate
 - Once you receive the certificate, you can use openssl to analyze it:
 
 ```
-	openssl x509 -in certificate.cer -text -noouts
+openssl x509 -in certificate.cer -text -noouts
 ```
 
 - To install the certificate to the web server (e.g. IIS), you need to combine the received certificate with your private key
 - You can do it using openssl:
 
 ```
-	openssl pkcs12 -export -in certificate.cer -inkey private_key.pem -out combined.pfx
+openssl pkcs12 -export -in certificate.cer -inkey private_key.pem -out combined.pfx
 ```
 
 - The combined file can be installed in IIS, for example

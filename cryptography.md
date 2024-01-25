@@ -5,7 +5,7 @@
 - MD5 is fine for checksum and other non-cryptographic purposes
 - PBKDF2 (Salt + repeated hashing) for storing password hashes (or when deriving a secret key from a passphrase)
 - AES (+ 256bit CBC as a default choice) for symmetric encryption
-- Diffie–Hellman if you need to securely communicate the shared key (for a single use) for symmetric encryption and you can only use the public channel
+- Diffie–Hellman if you need to securely communicate the shared key (for a single use) for symmetric encryption, and you can only use the public channel
 - RSA for asymmetric encryption
 - Encrypt hash (digest) using private key to produce a digital signature
 - Encrypt session keys using public key for a secure session
@@ -61,11 +61,11 @@ openssl dgst -sha512
 - Based on shared secret
 - The key is used both for encryption and decryption
 - The input text is called **plain text**
-- The encrypted text is called **cyphertext**
-- The shared secred should be protected by limiting the audience with whom it is shared, sharing the key using different channel, re-generating the compromised keys, using the key only for short period of time and avoiding revealing the plain text (as the attacker could reverse-engineering the key from it)
+- The encrypted text is called **ciphertext**
+- The shared secret should be protected by limiting the audience with whom it is shared, sharing the key using different channel, re-generating the compromised keys, using the key only for short period of time and avoiding revealing the plain text (as the attacker could reverse-engineering the key from it)
 - Ideally, the symmetric key should only be used once (in which case it is called **Session key**)
 - Don't encrypt data from third parties, to avoid your key to be reverse-engineered. If you absolutely must do so, add some random prefix
-- Naive symmetric key encryption can be broken by statistical analysis of the cyphertext. You could calculate a probability of a certain key to have been used to encrypt the plain text
+- Naive symmetric key encryption can be broken by statistical analysis of the ciphertext. You could calculate a probability of a certain key to have been used to encrypt the plain text
 - To combat statistical analysis, **confusion** and **diffusion** are used
 - **Confusion** means that each bit of the ciphertext should depend on several parts of the key
 - So, confusion hides the relationship between the ciphertext and the key
@@ -75,8 +75,8 @@ openssl dgst -sha512
 - DES used to be the most popular algorithm based on Feistel's research
 - However, the DES used a very small key (56 bit), which made the brute-force attack quite cheap
 - To combat this weakness, the workaround of applying DES 3 times was commonly used ("Triple DES")
-- New "Advanced Encryption Standard" (AES) replases DES
-- To ensure diffusion, ecryption is done in blocks, using the previous block to encrypt the next one
+- New "Advanced Encryption Standard" (AES) replaces DES
+- To ensure diffusion, encryption is done in blocks, using the previous block to encrypt the next one
 - Various modes of applying diffusion can be used with AES
 - In ECB mode, each block is encrypted separately. This basically means "no diffusion"
 - With ECB, the same plaintext block will result in the same ciphertext block (repeated characters of the plaintext will produce repeated characters of the ciphertext)
@@ -127,7 +127,7 @@ h(a, f(b)) == h(b, f(a))
 ```
 
 - ...Bob and Alice can both calculate it using only their respective private keys and the other party's public keys. They can use the calculated value as a symmetric key for the further communication. (`f` has to be a trapdoor function, and also have the corresponding `h`)
-- In this scenario, the attacker can clearly see `f(a)`, `f(b)` and knows how to calculate `f(x)`, but he cannot reverse-engineere `a` or `b`
+- In this scenario, the attacker can clearly see `f(a)`, `f(b)` and knows how to calculate `f(x)`, but he cannot reverse-engineer `a` or `b`
 - Function `f(a)` in Diffie–Hellman algorithm is `f(a) = g^a mod p`, where `g` and `p` are public and shared between two parties
 - To make the key difficult to break, we need to make sure `f(a)` produces all possible values; for that `g` and `p` have to be properly selected (the exact rules are quite complicated, but in short, they are based on prime numbers)
 - openssl can be used to generate a parameter file (containing `g` and `p`), and (from the parameter file) public and private keys:
@@ -154,7 +154,7 @@ openssl pkeyutl -derive -inkey bob_private_key.pem -peerkey alice_public_key.pem
 
 - Hash the derived shared secret to produce an actual AES key!
 - Don't reuse keys!
-- Be aware that this process is heavy so it become a potential target for DOS attack
+- Be aware that this process is heavy that it becomes a potential target for DOS attack
 
 
 ## Public Key Infrastructure (PKI)
@@ -170,7 +170,7 @@ openssl pkeyutl -derive -inkey bob_private_key.pem -peerkey alice_public_key.pem
 - Calculate `n = pq`. `n` is the modulus for the public key and the private keys
 - It is very easy to find `n` but is very difficult to find `p` and `q` from `n`
 - Choose `e` having no common factor with `(p-1)(q-1)`. Easiest way to do it is to use a prime for `e`
-- `e` doesn't have to be a secret, popular choise is 65537
+- `e` doesn't have to be a secret, popular choice is 65537
 - `e` is the public key exponent
 - Find `d` to satisfy `ed-1 = h(p-1)(q-1)`
 - This step can be done iteratively, trying different `h` and gradually moving towards the correct one (extended Euclidean algorithm)
@@ -213,7 +213,7 @@ openssl rsa -pubin -in public_key.pem -text -noout
 
 ### Digital signatures
 
-- Apply hash function (SHA-256) to the original document to produce digest, the encrypt the digest using the private key. The encrypted digest is the signature
+- Apply hash function (SHA-256) to the original document to produce digest, then encrypt the digest using the private key. The encrypted digest is the signature
 - This can be done with openssl:
 
 ```
@@ -228,7 +228,7 @@ openssl dgst -sha256 -sign private_key.pem -out signature.bin document.doc
 openssl dgst -sha256 -verify public_key.pem -signature signature.bin document.doc
 ```
 
-- As the private key is only known the sender, and the message can only be decrypted by the corresponding pubic key, only the sender could create the correct signature
+- As the private key is only known the sender, and the message can only be decrypted by the corresponding public key, only the sender could create the correct signature
 - This not only confirms the document is coming from the correct source, but also that it wasn't modified in transit
 - Only sign the document you yourself issue!
 
@@ -263,7 +263,7 @@ openssl dgst -sha256 -verify public_key.pem -signature signature.bin document.do
 ### Digital Certificates
 
 - x.509 is a standard
-- **Subject** is the web site or an app that a certificate protects (e.g. example.com)
+- **Subject** is the website or an app that a certificate protects (e.g. example.com)
 - **Issuer** is an authority that issued the certificate (e.g. "CertSign CA")
 - **Validity** denotes the time during which the certificate is valid
 - **Public Key** is the one of a subject
@@ -275,7 +275,7 @@ openssl dgst -sha256 -verify public_key.pem -signature signature.bin document.do
 - But before you use the issuer's certificate, you have to validate it too
 - So you basically have to follow the chain of the certificates up to the **Root Certificate**
 - The Root Certificate is signed by itself
-- There is a very small number of root certificates and they come preinstalled with your OS by the OS vendor
+- There is a very small number of root certificates, and they come preinstalled with your OS by the OS vendor
 - In the end, you have to trust someone
 - You can create a request for a new certificate using openssl:
 

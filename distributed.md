@@ -285,9 +285,9 @@
 - You can see where it is going: the infinite exchange of acks, never being able to know for sure when it is safe to attack
 - So in the omission model, it's impossible for Bob and Alice to know when they can attack
 - Workaround: make a plan in advance, before splitting (formally, "common knowledge")
-- **Common knowledge** of some piece of information P:
-	- Everyone knows P
-	- Everyone knows that everyone knows P
+- **Common knowledge** of some piece of information `P`:
+	- Everyone knows `P`
+	- Everyone knows that everyone knows `P`
 	- Everyone knows that everyone knows... and so on, infinitely
 - Another workaround, probability-based: Alice keeps sending the same message until getting an ack, after which she stops sending. This does not make it completely safe, but the more Bob waits, the more certain he gets about Alice getting an ack
 

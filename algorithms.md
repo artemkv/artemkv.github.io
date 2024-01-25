@@ -152,7 +152,7 @@
 - Cache access is considered for free, all we focus on is the number of blocks read/written from/to disk, and that is what we analyze
 - In this model, we have explicit operations for reading/writing pages from/to disk
 - Note: usually OS tries to do that transparently, but is not always doing a good job and there are software systems that allow you to have a fine control over this
-- It is a bit annoying to know M and B and manually handle it, especially when `M` and `B`epend on the hardware implementation
+- It is a bit annoying to know `M` and `B` and manually handle it, especially when `M` and `B` depend on the hardware implementation
 - Also, as stated above, this model is only good for 2 levels, and it is very difficult to apply it to multiple levels of caches (and provide a good analysis)
 
 ### Cache-oblivious model

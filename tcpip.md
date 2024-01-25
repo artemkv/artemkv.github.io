@@ -34,7 +34,7 @@ and retransmissions
 ## TCP/IP Layers
 
 - **Physical Layer:** N/A
-- **Data Link Layer:** normally handled by the local area network (LAN) technology (Ethernet, Token Ring etc), but can be handled by SLIP or PPP
+- **Data Link Layer:** normally handled by the local area network (LAN) technology (Ethernet, Token Ring etc.), but can be handled by SLIP or PPP
 - **Network Layer:** IP
 - **Transport Layer:** TCP/UDP
 - **Session Layer, Presentation Layer, Application Layer:** combined: HTTP, FTP, SMTP etc.
@@ -78,7 +78,7 @@ Routers provide a separate broadcast domain for each interface.
 
 ## ARP (TCP/IP Address Resolution Protocol)
 
-- **Address resolution:** MAC address <-> IP Address
+- **Address resolution:** MAC address ↔ IP Address
 - **Direct Mapping**: incorporate MAC address as a part of IP Address. Could work if IP address was big enough, but is not done that way
 - **Dynamic Address Resolution**: use the protocol to find out mappings (think "Limousine driver waiting to pick up a person at the airport")
 - Alice wants to send message to Bob (129.168.0.5), but she does not know Bob's address (MAC Address)
@@ -86,7 +86,7 @@ Routers provide a separate broadcast domain for each interface.
 - Only Bob replies, sending his address (MAC Address)
 - Improvements:
     - **Caching:** store the reply and don't ask again (expires automatically in 10-20 minutes)
-    - **Cross-resolution:** send your own address when asking for the someone else's address
+    - **Cross-resolution:** send your own address when asking for someone else's address
 
 
 ## IP
@@ -109,7 +109,7 @@ Routers provide a separate broadcast domain for each interface.
 
 #### Classful Addressing (legacy)
 
-- Original scheme. Class defines number of bit for a network and number of bits for a host. Innefficient, inflexible, huge routing tables.
+- Original scheme. Class defines number of bit for a network and number of bits for a host. Inefficient, inflexible, huge routing tables.
 - **Class A:** Very large organizations with hundreds of thousands or millions of hosts
 
     `0### #### **** **** **** **** **** ****`
@@ -136,7 +136,7 @@ Routers provide a separate broadcast domain for each interface.
 
 #### Subnetted Classful Addressing (legacy)
 
-- Same as in classful scheme, class defines number of bit for a network. The rest of bits are used for a **subnet** and a host. The number of bits used for subnet can only be known given a subnet mask.
+- Same as in classful scheme, class defines number of bit for a network. The rest of bits is used for a **subnet** and a host. The number of bits used for subnet can only be known given a subnet mask.
 
 ```
 Example for Class B address:
@@ -149,7 +149,7 @@ Subnet mask:    1111 1111 1111 1111 1111 1111 1000 0000
 - Subnets are invisible for the external world
 - Subnets are undetectable without a subnet mask
 - You can subnet multiple times creating hierarchy of subnets
-- Organisations still have to buy IP addresses in blocks bound to classes
+- Organizations still have to buy IP addresses in blocks bound to classes
 
 #### Classless Addressing
 
@@ -202,7 +202,7 @@ Destination          Netmask            Gateway            Interface
     - *Source Address*, like 192.168.0.7
     - *Destination Address*, like 192.168.0.5
     - *Header Checksum*
-    - *Protocol:* simply put, TCP or UDP? (can also be other like ICMP, but not something high level like HTTP)
+    - *Protocol:* simply put, TCP or UDP? (can also be some other like ICMP, but not something high level like HTTP)
     - *TTL (time to live):* specifies how long the datagram is allowed to live on the network, in router hops. Each router decrements the value of the TTL field (reduces it by one) prior to transmitting it. If the TTL field drops to zero, the datagram is assumed to have taken too long a route and is discarded.
 
 #### IP Datagram Fragmentation
@@ -262,7 +262,7 @@ Intermediate devices do not perform reassembly; reassembly happens only at the m
 
 #### Port-Based NAT
 
-- IP addresses can be futher shared using ports (TCP/UDP).
+- IP addresses can be further shared using ports (TCP/UDP).
 - IP Addresses 10.0.0.207 and 10.0.0.208 can be mapped to the same IP address 194.54.21.11, using different ports, e.g. 10.0.0.207:7000 maps to 194.54.21.11:7224 and 10.0.0.208:7000 maps to 194.54.21.11:7225
 - Original Datagram
     - Source Address: 10.0.0.207 : 7000
@@ -346,7 +346,7 @@ New payload contains just first N bytes from original payload.
 - Info:
     - *Echo and Echo Reply Message* - ping
     - *Traceroute Message* - traceroute. Each router that sees that option while the test message is conducted along the route responds back to the original source with an ICMP Traceroute message.
-- You could send multiple messages pogressivly increasing TTL from 1 to N, but that is not reliable
+- You could send multiple messages progressivly increasing TTL from 1 to N, but that is not reliable
 
 
 ### TCP (Transmission Control Protocol)
@@ -360,7 +360,7 @@ New payload contains just first N bytes from original payload.
 
 #### TCP Ports
 
-- When an IP datagram is received, the Protocol field in the header indicates whether the datagram is destined for TCP or UDP protocol. Many processes on client machine with the same IP address send and receive data using TCP/UDP. To know to which process pass the data, we use ports.
+- When an IP datagram is received, the Protocol field in the header indicates whether the datagram is destined for TCP or UDP protocol. Many processes on client machine with the same IP address send and receive data using TCP/UDP. To know which process to pass the data, we use ports.
 - In UDP and TCP messages two addressing fields appear: a **source port** and a **destination port**. They identify the originating process on the source machine and the destination process on the destination machine.
 
 ```
@@ -376,7 +376,7 @@ TCP/IP application program interface (API) is called **sockets** (Windows Socket
 
 - Upper layer protocols like HTTP just "pump" the data into TCP.
 - For TCP the data that it receives is just a stream of bytes. It does not know where every HTTP message begins or ends.
-- But it has to split the stream into descrete messages to pass to IP. These messages are called TCP Segments.
+- But it has to split the stream into discrete messages to pass to IP. These messages are called TCP Segments.
 - TCP tries to pick the segment size so to avoid unnecessary fragmentation at the IP layer.
 - A parameter called the **maximum segment size (MSS)** governs this size limit. Devices communicate MSS when establishing a connection.
 - So one segment can contain pieces from 2 different HTTP messages.
@@ -400,7 +400,7 @@ TCP/IP application program interface (API) is called **sockets** (Windows Socket
     - *Destination Port*
     - *Sequence Number:* number of the first byte of data in this segment or ISN in case of SYN
     - *Acknowledgment Number:* the sequence number the source is next expecting the destination to send
-    - *Window:* urrent size of the buffer allocated to accept data for this connection (size of the Send Window for the sender)
+    - *Window:* current size of the buffer allocated to accept data for this connection (size of the Send Window for the sender)
     - *Checksum:* computed over the entire TCP datagram, plus a special pseudo header of fields.
     - *Data:* payload
 
@@ -462,7 +462,7 @@ Each time an acknowledgment is received, the Send Window slides across the strea
 - Your local DNS server IP address is a part of your IP configuration. It actually doesn't store the DNS database records (except in cache), and only knows how to query actual DNS servers with records. So it is a DNS resolver.
 - When you try to resolve example.com, you send the request to your local DNS server (DNS resolver).
 - The local DNS server will send the request to 1 out of 13 root DNS servers.
-- The root server will respond saying that you should ask another DNS server that is responsible for all .com domains (TLD Server). This is what NS record is used for: the root server will have an NS record for .com pointing to ns.server-for-com.net. It will also have an A record to tell you where that ns.server-for-com.net is.
+- The root server will respond saying that you should ask another DNS server that is responsible for all .com domains (TLD Server). This is what NS record is used for: the root server will have an NS record for .com pointing to `ns.server-for-com.net`. It will also have an A record to tell you where that `ns.server-for-com.net` is.
 - TLD Server responsible for .com domains will respond with the address of the authoritative name server responsible for example.com domain
 - So, in essence, you repeat the question until you reach the DNS server that has an A record for example.com. That server is called authoritative name server.
 

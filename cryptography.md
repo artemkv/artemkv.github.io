@@ -1,6 +1,6 @@
 # Cryptography
 
-TL;DR
+**TL;DR**
 - SHA-3 for cryptographic hashing
 - MD5 is fine for checksum and other non-cryptographic purposes
 - PBKDF2 (Salt + repeated hashing) for storing password hashes (or when deriving a secret key from a passphrase)

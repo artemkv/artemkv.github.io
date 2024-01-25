@@ -12,20 +12,20 @@
 
 ## Runtime analysis
 
-- Big Theta notation is about **bounding** the curve of a running time of the algorithm as a function of the input size N
+- Big Theta notation is about **bounding** the curve of a running time of the algorithm as a function of the input size `N`
 - `Big Theta of N^2` means that the running time of the algorithm as a function of the input size is a curve that can be bound **above AND below** by the curve `g(N)=c*N^2`
-- Meaning, there exist such constants `c1` and `c2` that the running time curve lays strictly between `c1*N^2` and `c2*N^2`, starting from input size `N` > some `n`
-- We need the condition `N > n` because sometimes, at very small inputs, the curve may wiggle outside of the boundaries, but we are not really concerned about that (e.g. a line bounded by 2 other straight but non-parallel lines)
+- Meaning, there exist such constants `c1` and `c2` that the running time curve lays strictly between `c1*N^2` and `c2*N^2`, starting from input size `N > some n`
+- We need the condition `N > n` because sometimes, at very small inputs, the curve may wiggle outside the boundaries, but we are not really concerned about that (e.g. a line bounded by 2 other straight but non-parallel lines)
 - The actual running time curve can be something like `3+5N+2.5N^2`, if expressed in the number of instructions (and the actual time 1 instruction takes will depend on the hardware!), but we are only interested in the bounds
 - Big O notation is about the worst case analysis, i.e. the upper bound on the worst possible ("unlucky") input
-- The upper bound should be a useful upper bound, meaning the lowest one. You might claim every algorithm is bounded by N^999999 but that's useless
+- The upper bound should be a useful upper bound, meaning the lowest one. You might claim every algorithm is bounded by N^999999, but that's useless
 - Similarly, Big Omega is about the lower bound, i.e. the best case analysis
 
 
 ## Greedy
 
 - Maximize 1 step ahead
-- The performance of a greedy algorithm depends on a selected greedy heuristics (what you maximize on)
+- The performance of a greedy algorithm depends on a selected greedy heuristic (what you maximize on)
 
 
 ## Divide & conquer
@@ -45,7 +45,7 @@
 - Sometimes using this method is not straightforward, i.g. in case of array doubling/halving, you don't know how many inserts/deletes you may have in the future. In that case, other methods may be more convenient to use
 - **Accounting method:** allow an operation "store credit in a bank account (>=0)", allow an operation to "pay for the time using credit in the bank"
 - You should make sure your balance never goes negative; so the number of ops that use credit should be bounded by the number of ops that deposit
-- In case of array doubling, you insert a coin every time you add an item to an array, and they you use those coins to double the array
+- In case of array doubling, you insert a coin every time you add an item to an array, and then you use those coins to double the array
 - But you need to prove that you will have those coins when you need them, and you will not use them more than once, so that may get tricky
 - **Charging method:** allow operations to charge the cost retroactively to the past (but not future). So when you calculate the cost per op, consider actual cost + total cost of all charges from the future
 - In case of array doubling/halving, you know how many future inserts you need to require doubling and how many future deletes to require deletion; so you can calculate the total charge from the future
@@ -53,7 +53,7 @@
 - **Potential method:** similar to accounting method, but you define your "bank balance" as a potential function `phi` (non-negative). Think about storing potential energy that can be converted into a kinetic one
 - The potential function tells you "how bad is the current state of the data structure"
 - Amortized cost in this case is the `actual cost + change in phi`
-- Example is binary counter, where the work can be measured in number of bits you need to change. `phi` is number of set bits, insert at max increases `phi` by 1 (and many times actually decreases it by `t`, number of set bits at the end of the number)
+- Example is binary counter, where the work can be measured in number of bits you need to change. `phi` is the number of set bits, insert at max increases `phi` by 1 (and many times actually decreases it by `t`, number of set bits at the end of the number)
 - The work on increment is `1 + t`, change in `phi` is `1 - t`, so total cost is `1 + t - t + 1 = 2`, i.e. constant; in this case is very easy to calculate
 
 
@@ -92,7 +92,7 @@
 ### Universal & Perfect Hashing
 
 - Good hash function maps keys into slots evenly, meaning `Pr(h(k1) = h(k2)) = 1/m`, if `k1 != k2`, where `m` is a number of slots in a hashtable
-- With simple uniform hashing analysis we assume the keys `k1` and `k2` are random, and this would be a "average case analysis"
+- With simple uniform hashing analysis we assume the keys `k1` and `k2` are random, and this would be an "average case analysis"
 - "Average case analysis" should be avoided, since it's unreasonable to expect the input to be random
 - **Universal hashing:** choose the hash function randomly from a universe of hash functions ("universal hash family")
 - The condition of universality is very similar to the criteria for the "goodness" from above, `Pr(h(k1) = h(k2)) <= 1/m`
@@ -100,10 +100,10 @@
 - The expectation on the number of colliding keys is now over the distribution of hash functions
 - So the idea is very similar to the randomized quicksort
 - There are various universal hash families to pick from
-- My note: it is not completely clear how, after you picked `h` randomly, you make sure you pick the same one for the same key every time. It seem that you pick a hash function when initializing the hash table, not on every insertion. You might also re-hash if you detect the number of collisions being too big
+- My note: it is not completely clear how, after you picked `h` randomly, you make sure you pick the same one for the same key every time. It seems that you pick a hash function when initializing the hash table, not on every insertion. You might also re-hash if you detect the number of collisions being too big
 - **Perfect hashing:** instead of linked lists for colliding items, use second level hash tables
 - First level hash table hash function is picked from the universal hash family, so the first level is basically doing hashing with chaining, as usual
-- Lets take `lj` to be a number of keys hashing to the same slot
+- Let's take `lj` to be a number of keys hashing to the same slot
 - Second level hash table hash function is also picked from the universal hash family, but it maps it into the hashtable of size `lj^2`; this makes second-level collision probability very low
 - To make all of this work, you need a static (known upfront) set of keys, so that you can pre-compute all this stuff (and actually start over if didn't work the first time)
 - And all of this can be analyzed in terms of build time and space complexity
@@ -139,7 +139,7 @@
 - Typically you match the block_size with the bandwidth on the hardware side, so you can focus on latency only
 - And even if you cannot control the latency, it really becomes latency amortized over the whole block, but for that you need better algorithms
 - First, the algorithm need to take advantage of all the elements in the block: **spacial locality**
-- Also, we want to re-use the same data elements tha we already fetched for as long as possible: **temporal locality**
+- Also, we want to re-use the same data elements that we already fetched for as long as possible: **temporal locality**
 - The essence of the algorithm analysis from this point of view becomes estimating the number of block transfers
 - The way we store data in memory and the order we access it now really matters!
 
@@ -147,23 +147,23 @@
 
 - It is not easy to think about multiple levels of caches at once
 - External-memory model allows you to focus on just 2 levels at once
-- The model: CPU with `O(1)` registers with a very fast access to the cache of size M, divided into N/B blocks of size B, with a very slow access to the disk, also divided into blocks of the same size B
+- The model: CPU with `O(1)` registers with very fast access to the cache of size `M`, divided into `N/B` blocks of size `B`, with very slow access to the disk, also divided into blocks of the same size `B`
 - When you need one word in any block, the whole block is brought into the cache from the disk
 - Cache access is considered for free, all we focus on is the number of blocks read/written from/to disk, and that is what we analyze
 - In this model, we have explicit operations for reading/writing pages from/to disk
-- Note: usually OS tries to do  that transparently, but is not always doing a good job and there are software systems that allow you to have a fine control over this
-- It is a bit annoying to know M and B and manually handle it, especially when M and B depend of the hardware implementation
+- Note: usually OS tries to do that transparently, but is not always doing a good job and there are software systems that allow you to have a fine control over this
+- It is a bit annoying to know M and B and manually handle it, especially when `M` and `B`epend on the hardware implementation
 - Also, as stated above, this model is only good for 2 levels, and it is very difficult to apply it to multiple levels of caches (and provide a good analysis)
 
 ### Cache-oblivious model
 
-- Very similar to an external-memory model, but the algorithm is unaware of values of M or B (so it has to work well with any values of M and B)
+- Very similar to an external-memory model, but the algorithm is unaware of values of `M` or `B` (so it has to work well with any values of `M` and `B`)
 - Since we don't know how big the blocks are, there is no explicit operations for reading/writing the block
 - This means we can analyze the algorithm on all levels of caches
 - My note: this probably also means this is closer to the real life, where OS actually does manage this transparently
 - The whole memory space is split into logical blocks, and once you access a word in memory, the whole block is fetched (implicitly)
-- When there is no more free blocks left in the cache, some of the blocks need to be evicted, and different strategies can be used (e.g. evict least recently used block)
-- Since none of the classic algorithms we dealt before cared about M or B, all of them are cache-oblivious in this sense. But not all of them will look good _when analyzed under this model_
+- When there is no more free blocks left in the cache, some blocks need to be evicted, and different strategies can be used (e.g. evict least recently used block)
+- Since none of the classic algorithms we dealt before cared about `M` or `B`, all of them are cache-oblivious in this sense. But not all of them will look good _when analyzed under this model_
 - So we need algorithms that are good under this model
 
 ### Example 1: scanning

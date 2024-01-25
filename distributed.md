@@ -8,6 +8,25 @@ TL;DR
 - Strong consistency requires consensus
 - Paxos is a consensus protocol
 - Consistent hashing allows to achieve re-sharding in a minimal possible amount of movements
+- "Two nines" = 99% up = down 3.7 days/year
+- "Three nines" = 99.9% up = down 8.8 hours/year
+- "Four nines" = 99.99% up = down 53 minutes/year
+- "Five nines" = 99.999% up = down 5.3 minutes/year
+
+
+## Topic outline
+
+- Ordering of events: Lamport clocks, Vector clocks
+- Delivery guarantees: FIFO, Causal, Totally-ordered
+- FIFO delivery: same process, for free when using TCP
+- Causal delivery: vector clocks + broadcast
+- Fault models: which kind of faults you are willing to deal with
+- Reliable delivery: at least once
+- Replication: the context for consistency discussion
+- Consistency as safety property: Whatever -> RYW -> FIFO -> Causal -> Strong
+- Consensus: when strong consistency is required
+- Consistency as liveness property: eventual consistency
+- Sharding: data partitioning (orthogonal to replication)
 
 
 ## Definition
@@ -31,7 +50,7 @@ TL;DR
 - Measuring intervals of time (e.g. timeout)
 - Computers have 2 types of physical clocks: time-of-day clocks and monotonic clocks
 - **Time-of-day clocks** tell you what time it is, synchronized across machines over NTP, bad for measuring durations precisely (for things like leap seconds etc.), okeyish for timestamps
-- **Monotonic clocks** only go forward, a counter (e.g. milliseconds since the machine was restarted), good for intervals and timestamps
+- **Monotonic clocks** only go forward, a counter (e.g. milliseconds since the machine was restarted), good for intervals and timestamps, can be used to time the code execution (System.nanoTime() is Java)
 - In distributed systems we also need **logical clocks**
 - **Logical clocks** only provide the ordering of events
 - A -> B: "A happened before B", important to determine potential causality
@@ -61,7 +80,7 @@ TL;DR
 - Messages can arrive to a process out of order, and cause "causal anomaly" (Message "Fuck you Alice" from Bob arrives before "Bob smells" message from Alice)
 - In a an asynchronous network the latency is unbounded, so we cannot rely on the max delay for ordering of events
 - But we can use our rules for determining the "happened before" relationship to solve this anomaly
-- If we cannot infer "happened before" relation from any of 3 rules, the order between those events is undefined, and we say that the 3 events are "concurrent" or "independent", denoted as A || B
+- If we cannot infer "happened before" relation from any of 3 rules, the order between those events is undefined, and we say that the 3 events are "concurrent" or "independent" or "causally unrelated", denoted as A || B
 - Now we need an algorithm for ordering events based on "happened before" relationship
 
 ### Lamport clocks
@@ -72,7 +91,7 @@ TL;DR
 	- 1) Every process has a counter, initialized to 0
 	- 2) On every event, a process will increment its counter by 1
 	- 3) When sending a message, a process first increments the counter and then sends it along with the message
-	- 4) When receiving a message, a process sets its counter to the max of [local counter and the message counter] + 1
+	- 4) When receiving a message, a process sets its counter to the max of [local counter, the message counter] + 1
 - In some cases you may not consider "message received" as an event, then you don't need to +1 in rule 4
 - Unfortunately, the rules do not work in another direction, meaning if LC(A) < LC(B), we cannot say for sure that A -> B
 - We say that lamport clocks **do not characterize causality**
@@ -81,6 +100,9 @@ TL;DR
 - Basically, causality is graph reachability in space-time
 - My thought: so instead of LC value, it sounds like you need to store prev event id, then build a graph and then analyze reachability
 - The only thing you can say using Lamport clocks is that, if !(LC(A) < LC(B)), then for sure !(A -> B). This can be useful when debugging
+- That said, you can use lamport timestamps to create a total ordering of events, using some arbitrary mechanism to break ties (e.g. node name, process id)
+- Creating a total order can be useful for many reasons, e.g. scheduling an access to a shared resource
+- However, this order is artificial, and cannot be used to imply causality
 
 ### Vector clocks
 
@@ -97,7 +119,7 @@ TL;DR
 - Comparing vectors is also component-wise
 - VC(A) < VC(B) when VC(A)i <= VC(B)i for all i and VC(A) != VC(B)
 - Basically, all the components of two vectors have to be less or equal, with at least one strictly smaller
-- If none of the two events is smaller than the other, they are considered to be "concurrent", "independent" or "causally unrelated"
+- If none of the two events is smaller than the other, they are considered to be concurrent (causally unrelated)
 - So this time, to find out whether 2 events are in "happened before" relationship, instead of thinking about graph reachability all you can do is to compare 2 vectors
 
 
@@ -156,12 +178,14 @@ TL;DR
 - If we want to enforce total order, you would have to do something else
 - But normally, consider whether you really need to enforce total order, or you might actually be fine with simply causal delivery
 
-### Chandy-Lamport snapshots
+
+## Chandy-Lamport snapshots
 
 - Consistent global snapshots capture the global state of the system, i.e. all processes
 - Uses of snaphots: checkpointing (useful initial state for when process restarts), deadlock detection (see if there is a deadlock anywhere in the system), general debugging etc.
 - We cannot rely on time-of-day clock to take a snapshot at a particular time (because the clocks cannot be perfectly synchronized)
 - If we did that, we could get a snaphot that "doesn't make sense", i.e. it contains event B, but not event A that is supposed to have happened before
+- Tamir and Sequin Global Checkpointing Protocol allows to produce a set of consistent checkpoints; however, it is a blocking protocol (normal execution is suspended during each round of global checkpointing)
 - Instead, we will use Chandy-Lamport snapshot algorithm
 - Analogy: you cannot take a picture of the whole sky at once, but you don't want to miss any bird or that bird to appear on the photos twice
 - For that, we need to introduce some terminology
@@ -212,18 +236,40 @@ TL;DR
 - **Omission fault:** message gets lost (process fails to send or receive a message)
 - **Timing fault:** message is slow (process responds too late), mostly ignored for the fault modeling
 - **Crash fault:** process crashes or halts (stops sending or receiving messages)
-- **Bizantine fault:** malicious or arbitrary behavior (process lies, drops or corrupts messages etc.)
-- "Bizantine fault" terms comes from a paper on "bizantine generals", a name picked for no particular reason
+- **Byzantine fault:** malicious or arbitrary behavior (process lies, drops or corrupts messages etc.)
+- "Byzantine fault" terms comes from a paper on "byzantine generals", a name picked for no particular reason
 - These are not fixed categories, you could split further
 - Different protocols can be designed to tolerate different faults
-- Faults can be organized into a hierarchy, top to bottom: bizantine faults -> timing faults -> omission faults -> crash faults
+- Faults can be organized into a hierarchy, top to bottom: byzantine faults -> timing faults -> omission faults -> crash faults
 - Faults higher in the hierarchy include faults lower in the hierarchy. You can say the faults lower in the hierarchy are special cases of the faults higher in the hierarchy
 - By consequence, the protocol that tolerates faults higher in the hierarchy also tolerates all the faults lower in the hierarchy
 - **Fault model** is a specification that specifies what kinds of faults a system may exhibit (and thus defines what kind of faults are to be tolerated by the system)
 - So the omission model assumes the message can be lost, but crash model only assumes the process can crash
 - The way I understand this is as follows: of course, if process can crash, it can also lose messages (by fault hierarchy), but if we assume crash model, then we ignore anything that is not a crash, leaving it to the user to deal with
 
-### Two general's problem
+### System model (a different take on fault models from Martin Kleppmann's lectures)
+
+- There are typically 3 areas to consider: network behavior (e.g. message lost), node behavior (e.g. crashes), timing behavior (e.g. latency)
+- For the network behavior, we assume bidirectional point-to-point communication between 2 nodes
+- **Reliable link:** a message is received if and only if is sent. Messages still may be reordered!
+- **Fair-loss link**: messages may get lost, duplicated or reordered
+- **Arbitrary link**: a malicious adversary may interfere with messages (eavesdrop, modify, drop, spoof, replay)
+- You can turn fair-loss link into a reliable link, using retries, deduplication etc.
+- You can turn (to some degree) an arbitrary link into a fair-loss link, using cryptography, e.g. TLS
+- Nodes can fail in several different ways
+- **Crash-stop** (or fail-stop): node can crash at any moment, once crashed, it stops executing forever
+- **Crash-recovery** (or fail-recovery): node can crash at any moment, losing its in-memory state; it may resume executing sometime later
+- **Byzantine** (or fail-arbitrary): node deviates from the algorithm. Such node may do anything, including crashes or malicious behavior
+- You may also make several synchrony assumptions
+- **Synchronous**: upper bound on message latency, nodes execute algorithm at a known speed
+- **Asynchronous**: messages can get delayed arbitrarily, nodes can pause execution arbitrarily, no timing guarantees at all
+- **Partially synchronous**: asynchronous for some finite (but unknown) periods of time, synchronous otherwise
+- Partially synchronous model allows to assume synchronous model for most of the time, but relax the assumptions when convenient
+- Network usually have predictable latency, which can occasionaly increase due to: message lost, congestion, bad configuration etc.
+- Nodes usually execute code at predictable speed, with  occasional pauses due to: OS scheduling issues, GC stop-the-world pauses, page swaps etc.
+- When you design an algorithm, you need to be explicit about the kinds of faults that you are willing to tolerate, the faults that you are not prepared for will destroy your algorithm
+
+### Two generals problem
 
 - 2 generals are on the top of 2 hills with their armies, with the enemy's army being in the valley between 2 hills
 - To beat the enemy, they both need to attack at the same time
@@ -244,6 +290,13 @@ TL;DR
 	- Everyone knows that everyone knows P
 	- Everyone knows that everyone knows... and so on, infinitely
 - Another workaround, probability-based: Alice keeps sending the same message until getting an ack, after which she stops sending. This does not make it completely safe, but the more Bob waits, the more certain he gets about Alice getting an ack
+
+### The byzantine generals problem
+
+- The version of the problem with 3 generals, where some (up to f) generals might be traitors; the goal, for all honest generals, is to agree on time to attack
+- Honest generals don't know who the malicious ones are, but malicious generals may collude
+- There is a theorem that proves that you can tolerate f malicious generals with 3f+1 total generals (i.e. <1/3 generals have to be malicious for the problem to be solvable)
+- Using digital signatures helps, but the problem remains hard
 
 
 ## Reliable delivery
@@ -278,9 +331,10 @@ TL;DR
 
 ## Replication
 
-- Reasons: fault tolerance (prevent data loss), data locality (geo-distribution, i.e. having the data close to the clients that need it), dividing up the work (spead the load across machines)
+- Reasons: improve availability (extend the mean time to failure), fault tolerance (prevent data loss), data locality (geo-distribution, i.e. having the data close to the clients that need it), dividing up the work (spead the load across machines)
 - Downsides: expensive (you need more machines), need to keep the copies consistent (often true, but in many cases you actually don't need a strong consistency)
 - **Strong consistency** (informal definition): a replicated storage system is strongly consistent if clients cannot tell that the data is replicated
+- Strong consistency is basically an informal term, and generally used instead of **Linearizability**, the term that has a strict definition (Herlihy and Wang 1991) but is more difficult to understand
 - **Primary-backup replication** and **Chain replication** are both strongly consistent replication protocols
 
 ### Primary-backup replication
@@ -329,7 +383,7 @@ TL;DR
 
 - There are times when you really do need a strong consistency
 - This happens when you have a bunch of processes and you are trying to solve one of the following problems:
-- **Totally-ordered broadcast (also known as atomic broadcast): all the processes need to deliver the same messages in the same order
+- **Totally-ordered broadcast (also known as atomic broadcast)**: all the processes need to deliver the same messages in the same order
 - **Group membership:** all the processes need to know what other processes exist and keep those lists up-to-date
 - **Leader election:** one of processes needs to play a particular role, and everyone else need to know about it
 - **Distributed mutual exclusion:** processes need to take turns getting access to a shared resource
@@ -453,7 +507,7 @@ TL;DR
 - Passive replication: execute operation on one replica and send the state update to other replicas ("New account balance is 70$")
 - Passive replication is preferred if the operation is expensive to execute
 - Active replication is preferred when the size of the state is huge
-- To implement active replication you can use strongly consistent replication protocols or consesus
+- To implement active replication you can use strongly consistent replication protocols or consensus
 
 
 ## Eventual consistency

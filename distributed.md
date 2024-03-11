@@ -1,6 +1,11 @@
 # Distributed Systems
 
-**TL;DR**
+## References
+
+- [Lindsey Kuper: CSE138 Distributed Systems](https://www.youtube.com/playlist?list=PLNPUF5QyWU8PydLG2cIJrCvnn5I_exhYx)
+- [Martin Kleppmann: Distributed Systems lecture series](https://www.youtube.com/playlist?list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB)
+
+## TL;DR
 - Totally-ordered delivery is hard to achieve, but probably not needed, causal delivery is often good enough
 - Use vector clocks for causal delivery guarantee
 - You need both safety and liveness
@@ -8,13 +13,15 @@
 - Strong consistency requires consensus
 - Paxos is a consensus protocol
 - Consistent hashing allows achieving re-sharding in a minimal possible amount of movements
-- "Two nines" = 99% up = down 3.7 days/year
-- "Three nines" = 99.9% up = down 8.8 hours/year
-- "Four nines" = 99.99% up = down 53 minutes/year
-- "Five nines" = 99.999% up = down 5.3 minutes/year
 
+```
+"Two nines" = 99% up = down 3.7 days/year
+"Three nines" = 99.9% up = down 8.8 hours/year
+"Four nines" = 99.99% up = down 53 minutes/year
+"Five nines" = 99.999% up = down 5.3 minutes/year
+```
 
-## Topic outline
+## Topic map
 
 - Ordering of events: **Lamport clocks**, **Vector clocks**
 - Delivery guarantees: **FIFO**, **Causal**, **Totally-ordered**
@@ -153,7 +160,7 @@
 - If you are using TCP to communicate between services, then you basically have it for free, no need to implement anything
 - Typical approach is to use sequence numbers
 - Messages get tagged with a sequence number from the sender, and the sender id; sender increments its sequence number after sending
-- The receiver checks the sequence number, and only delivers message if the sequence number is [sequence number of the previously delivered message from the same sender] + 1; otherwise queues it
+- The receiver checks the sequence number, and only delivers message if the sequence number is `[sequence number of the previously delivered message from the same sender] + 1`; otherwise queues it
 - This would break if there is a possibility for a message to get lost, which would make all the subsequent messages queued forever
 - So this only works together with reliable message delivery
 - You might decide to queue the out-of-order messages for a while, and then deliver them anyway (after a certain grace period) even if there is a gap in a sequence. But then, if the lower sequence number message somehow arrives, you would need to discard it
@@ -168,7 +175,7 @@
 	1. if a message sent by `P1` is delivered at `P2`, increment `P2`'s local clock in the `P1`'s position
 	2. if a message is sent by a process, first increment its own position in its local clock, then include the local clock alone with the message
 	3. A message sent by `P1` is only delivered at `P2` if, for the message's timestamp `T` (the vector clock attached to it), `T[P1] == local VC[P1] + 1` and `T[Pk] <= local VC[Pk]` for all `k` except `k` at `P1`
-- The condition `T[P1] == local VC[P1] + 1` makes it a "next expected message" from P1
+- The condition `T[P1] == local VC[P1] + 1` makes it a "next expected message" from `P1`
 - The condition `T[Pk] <= local VC[Pk]` for all `k` except `k` at `P1` means "there are no messages missing from other processes"
 - In other words, we ensure that the sender "does not have more information than a receiver about the other processes"
 - With this approach, all sends have to be broadcasts (causal broadcast)
@@ -289,7 +296,7 @@
 	- Everyone knows `P`
 	- Everyone knows that everyone knows `P`
 	- Everyone knows that everyone knows... and so on, infinitely
-- Another workaround, probability-based: Alice keeps sending the same message until getting an ack, after which she stops sending. This does not make it completely safe, but the more Bob waits, the more certain he gets about Alice getting an ack
+- Another workaround, probability-based: Alice keeps sending the same message until getting an `ack`, after which she stops sending. This does not make it completely safe, but the more Bob waits, the more certain he gets about Alice getting an `ack`
 
 ### The Byzantine generals problem
 
@@ -301,7 +308,7 @@
 
 ## Reliable delivery
 
-- Implementation: Alice sends and re-sends the message until Bob sends an ack. Once Alice receives an ack, she considers the message delivered
+- Implementation: Alice sends and re-sends the message until Bob sends an `ack`. Once Alice receives an `ack`, she considers the message delivered
 - Problem: Bob's acks can get lost, so Bob can receive the same message more than once
 - That is why reliable delivery is sometimes called "at least once delivery"
 - Duplicate messages are not the problem per se, it really depends on the meaning of the message
@@ -368,11 +375,11 @@
 - Ideally, the clients should never know there is more than one replica (strong consistency)
 - There are different ways replicas can disagree, and several properties (consistency guarantees) that can be violated:
 - **Read your writes (RYW)**
-- Example of violation: Alice writes x=3, write gets acknowledged by primary, Alice reads the value of x and the stale replica returns 2
+- Example of violation: Alice writes `x=3`, write gets acknowledged by primary, Alice reads the value of `x` and the stale replica returns 2
 - **FIFO consistency** (writes done by a single process are seen by all the processes in the order they are issued)
-- Example of violation: Alice writes x=3, write gets acknowledged by primary, Alice writes x=5, write gets acknowledged by primary, but the writes replicate in a wrong order, so when the Bob asks for the value of x, the replica returns 3
+- Example of violation: Alice writes `x=3`, write gets acknowledged by primary, Alice writes `x=5`, write gets acknowledged by primary, but the writes replicate in a wrong order, so when the Bob asks for the value of `x`, the replica returns 3
 - **Causal consistency** (writes that are related by "happens before" relationship must be seen in the same causal order by all processes)
-- Example of violation: Alice writes x=3, write gets acknowledged by primary, and replicates to replica A, but not replica B, Bob asks for the value of x, replica A responds with 3, but when Bob asks again, stale replica B responds with 2
+- Example of violation: Alice writes `x=3`, write gets acknowledged by primary, and replicates to replica `A`, but not replica `B`, Bob asks for the value of `x`, replica `A` responds with 3, but when Bob asks again, stale replica `B` responds with 2
 - For the consistency guarantees discussed here, the stronger ones encompass the weaker ones, the order is: Whatever → RYW → FIFO → Causal → Strong
 - Some people define as much as 50 levels of consistency guarantees, those do not nest nicely; but you don't necessarily need to know all of those
 - It is very hard to maintain strong consistency, but you probably do not need it

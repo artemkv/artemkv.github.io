@@ -8,6 +8,10 @@ Knowledge Base
 
 [Distributed Systems](distributed.md)
 
+## Math
+
+[Probability theory](probability_core.md)
+
 ## AI
 
 [Supervised Learning](supervised_learning.md)

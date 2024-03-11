@@ -12,14 +12,14 @@
 
 ## Runtime analysis
 
-- Big Theta notation is about **bounding** the curve of a running time of the algorithm as a function of the input size `N`
+- **Big Theta notation** is about **bounding** the curve of a running time of the algorithm as a function of the input size `N`
 - `Big Theta of N^2` means that the running time of the algorithm as a function of the input size is a curve that can be bound **above AND below** by the curve `g(N)=c*N^2`
 - Meaning, there exist such constants `c1` and `c2` that the running time curve lays strictly between `c1*N^2` and `c2*N^2`, starting from input size `N > some n`
 - We need the condition `N > n` because sometimes, at very small inputs, the curve may wiggle outside the boundaries, but we are not really concerned about that (e.g. a line bounded by 2 other straight but non-parallel lines)
 - The actual running time curve can be something like `3+5N+2.5N^2`, if expressed in the number of instructions (and the actual time 1 instruction takes will depend on the hardware!), but we are only interested in the bounds
-- Big O notation is about the worst case analysis, i.e. the upper bound on the worst possible ("unlucky") input
+- **Big O notation** is about the worst case analysis, i.e. the upper bound on the worst possible ("unlucky") input
 - The upper bound should be a useful upper bound, meaning the lowest one. You might claim every algorithm is bounded by N^999999, but that's useless
-- Similarly, Big Omega is about the lower bound, i.e. the best case analysis
+- Similarly, **Big Omega** is about the lower bound, i.e. the best case analysis
 
 
 ## Greedy
@@ -37,11 +37,55 @@
 - Merge solutions for subproblems (the tricky part!)
 
 
+## Hash tables (dictionaries)
+
+- Semantics: `Insert(item)`, `Delete(item)`, `Search(key)`
+- Items have unique keys, last insert wins, search reports "does not exist" if an item with the specified key does not exist
+- Using binary tree you could achieve `O(lg(n))`
+- The goal is to get to `O(1)` with high probability
+- Simple approach: direct access table, use key as an index into an array
+- This requires keys to be integers and this requires reserving a full array upfront
+- **Prehashing** maps keys to non-negative integers, solves the first problem
+- Prehashing function has to be stable (should not change over time) or you will be never able to find your items
+- However, if you have a universe `U` of all possible keys, the can potentially map to a huge amount of integers
+- **Hashing** maps universe `U` of all possible integer keys to a set of non-negative integers of a "reasonable" size `m`
+- We want `m` to be `Theta(n)`, so proportional to a number of keys stored in the table
+- This, of course, means hashing can produce collisions (no magic here)
+- This problem is solved by chaining: if 2 item keys hash into the same integer, store them as a linked list ("Hashing with chaining")
+- This produces the worst case `Theta(n)` (all the keys map to the same hash)
+- Under assumption that every key is equally likely to be hashed into any slot of the table ("Uniform hashing"), independently of any other key, the expected length of a chain for `n` keys is `n/m = alpha` ("load factor")
+- This is because every key has a probability of `1/m` to get into any of `m` slots, and there are `n` keys
+- As long as you keep `m` proportional to `n`, `n/m` is a constant
+- Since search has to walk the entire list (worst case), and that is constant, it has `O(1)` complexity
+- In real world, uniform hashing is not a realistic assumption
+- Do not use `h(k) = k mod m`, that is bad!
+- Better approach is to use **Universal hashing**: `h(k) = [(a*k + b) mod p] mod m`
+- `a` and `b` are random numbers between 0 and `p-1`, where `p` is a prime number that is larger than your universe `U` of keys
+- Universal hashing has a property that, in the worst case (bad choice of `a` and `b`), the probability of 2 keys collide is `1/m`
+
+### Table doubling
+
+- In practice, we don't know `n`, so we don't know how to choose `m`
+- We want a small table, but also short chains
+- Idea: start with some size (at least `n`), and grow and shrink if necessary
+- You can't grow in-place, you need to allocate a new table (`O(m)`) and re-hash (for all items in the initial table, insert into a new table, `O(n)`)
+- Typically you would allocate the new table to be double the size of an initial one
+- In that case, to insert `n` numbers, starting from an empty table, you would need `log(n)` doublings
+- In total, you would have to do `(1+2+4+8+ ... +n)` inserts, which is `O(n)`, so divided by `n`, you would get `O(1)` per operation, "on average"
+- This is idea of **amortization**: instead of estimating the cost of individual operation, you estimate the total cost per `n` operations
+- This only makes sense when doing many operations (e.g. for data structures), so you would tolerate "spreading" the costs evenly across those
+- However, you should remember that some individual operations will take longer (those that trigger the doubling), and it may be important (e.g. in a real time system)
+- The good news is that you would only need `log(n)` of those operations
+- Delete works in a similar way, but we need to make sure that we avoid doubling and halving the table all the time when doing repeated insert-delete at `n=m`
+- This would make each of those operations be `O(n)`, and ruin the whole idea
+- The solution is to half the table once `n` gets to `m/4`, that can be proven to maintain `O(1)` per operation amortized
+
+
 ## Amortized cost per operation
 
 - **Aggregate method:** `[total cost of k ops] / k`
 - This is how you get to constant amortized time for the hashtable operations, even though some ops may result in array doubling and copying
-- With collections, you can delete at most the number of elements you insert, and when insert and delete have the same O, the delete operation is essentially "for free"
+- With collections, you can delete at most the number of elements you insert, and when insert and delete have the same `O`, the delete operation is essentially "for free"
 - Sometimes using this method is not straightforward, i.g. in case of array doubling/halving, you don't know how many inserts/deletes you may have in the future. In that case, other methods may be more convenient to use
 - **Accounting method:** allow an operation "store credit in a bank account (>=0)", allow an operation to "pay for the time using credit in the bank"
 - You should make sure your balance never goes negative; so the number of ops that use credit should be bounded by the number of ops that deposit
@@ -61,17 +105,17 @@
 
 - Depends on a random number, analyzed in terms of expectation
 - **Monte Carlo:** probably correct, fixed time
-- Example: verify that matrix C is a product of matrices A and B, fast and with a desired degree of probability of correctness
+- Example: verify that matrix `C` is a product of matrices `A` and `B`, fast and with a desired degree of probability of correctness
 - **Las Vegas:** probably fast, correct result
-- Example: sorting an array, will produce a correct result, but not always in exactly n*log(n) time
+- Example: sorting an array, will produce a correct result, but not always in exactly `n*log(n)` time
 - If some algorithm's probability of returning a wrong answer is bound by some value <= 0.5, you can run it again and again (provided the runs are independent) to get that probability arbitrary low
 - Paranoid quicksort pick the pivot element at random, then checks the size of partitions; if the partitions are not balanced enough, it repeats the partitioning
 - If you define "balanced enough" as "left and right partitions should contain at least 1/4 of all elements", the probability of picking bad partition is 0.5; by repeating the process you can get the probability of getting balanced partitions arbitrary high
 
 ### Skip list
 
-- Idea: sorted doubly-linked list L0 at the bottom, when you need to search for an element, it's `O(n)`
-- But you can build a second level list L1 on top of L0, which would be similar to an express line (with fewer "stops" comparing to the bottom list)
+- Idea: sorted doubly-linked list `L0` at the bottom, when you need to search for an element, it's `O(n)`
+- But you can build a second level list `L1` on top of `L0`, which would be similar to an express line (with fewer "stops" comparing to the bottom list)
 - You "travel" as far as you can on the "express line", then "jump to the local train" and continue your "journey" there
 - So your search would require `O(|L1| + |L0|/|L1|)` moves
 - The expression is minimized when `|L1|` is `sqrt(|L0|)`
@@ -82,12 +126,12 @@
 - Insert: start from the bottom, insert in the current list, flip a fair coin, if heads, promote to the next level, continue until you get tails. Worst case scenario: you promote infinitely :D
 - Delete: delete from the bottom level and all the levels above
 - Now we need to analyze this search based on probability. We don't want a simple expectation on search, we want some bound "with high probability"
-- "With high probability" means that probability grows as n grows
+- "With high probability" means that probability grows as `n` grows
 - For example, the number of levels, using the insert algorithm, can be shown to be bounded to `O(log(n))` with high probability. Meaning the bound is `O(c*log(n))` with probability `(1 - 1/n^alpha)`, where `alpha = c - 1`; the bigger the `n` and `c`, the narrower is the confidence interval
 - When you search, you can only make as many level jumps as many levels there are. Your probability to jump level is 1/2 (corresponds to heads upon insert). The total number of levels is bounded as stated above
 - So the total number of moves is a number of trials until you get a number of heads that equals number of levels (at which point you are out of levels)
 - Note: as usually with probability, you could simplify this whole argument and say that expected number of horizontal moves equals number of vertical jumps (as this is determined by a fair coin flip, which is 50/50), so you could arrive to the conclusion that the expected total number of moves is `O(log(n))`, but what you lose is this notion of "with high probability"
-- So instead we introduce random variables, apply Chernoff bound, and through a bunch of math be able to state that search is "O(log(n)) with high probability"
+- So instead we introduce random variables, apply Chernoff bound, and through a bunch of math be able to state that search is "`O(log(n))` with high probability"
 
 ### Universal & Perfect Hashing
 
@@ -119,7 +163,7 @@
 - So in some way DP is recursion + memoization
 - `Time for the problem = # of subproblems * time per subproblem`
 - And count each subproblem only once
-- Conversion to **bottom-up approach**: completely automatic###
+- Conversion to **bottom-up approach**: completely automatic!!!
 - I.e. `fib[n] = fib[n-1] + fib[n-2]`, where fib is now an array (of course, take care of a base case, just like in the recursive version)
 - Make sure you compute the array in the right (increasing) order, and you are good
 - Since the array stores all the previously calculated values, it acts like a lookup, so no need to do memoization explicitly
@@ -136,7 +180,7 @@
 - However it is quite possible to match the bandwidth with the size of the data layer
 - So caches mitigate latency by "blocking": when fetching one word of data, get the whole block
 - So you amortize the cost of data retrieval over the whole block, the cost is: `latency/block_size + 1/bandwidth`
-- Typically you match the block_size with the bandwidth on the hardware side, so you can focus on latency only
+- Typically you match the `block_size` with the `bandwidth` on the hardware side, so you can focus on latency only
 - And even if you cannot control the latency, it really becomes latency amortized over the whole block, but for that you need better algorithms
 - First, the algorithm need to take advantage of all the elements in the block: **spacial locality**
 - Also, we want to re-use the same data elements that we already fetched for as long as possible: **temporal locality**
@@ -175,8 +219,8 @@ for i in range(N):
     sum += A[i]
 ```
 
-- The cost (in cache-oblivious model) is `O(N/B + 1)`; +1 from the fact that you could be unlucky and go across the block boundary even when N < B
-- In external-memory model, where you control the block boundaries, the cost is O(N/B)
+- The cost (in cache-oblivious model) is `O(N/B + 1)`; `+1` from the fact that you could be unlucky and go across the block boundary even when `N < B`
+- In external-memory model, where you control the block boundaries, the cost is `O(N/B)`
 
 ### Example 2: parallel scan
 

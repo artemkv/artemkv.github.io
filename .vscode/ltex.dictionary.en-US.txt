@@ -79,3 +79,5 @@ Winsock
 internetworking
 Diffie
 openssl
+Prehashing
+doublings

@@ -1,3 +1,5 @@
+[<img src="bmc/bmc-full-logo-no-background.png" width="166" height="36" style="float: right;">](https://www.buymeacoffee.com/artemkvE)
+
 Knowledge Base
 
 ## General comp science

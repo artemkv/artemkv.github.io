@@ -149,7 +149,7 @@
 - The expectation on the number of colliding keys is now over the distribution of hash functions
 - So the idea is very similar to the randomized quicksort
 - There are various universal hash families to pick from
-- My note: it is not completely clear how, after you picked `h` randomly, you make sure you pick the same one for the same key every time. It seems that you pick a hash function when initializing the hash table, not on every insertion. You might also re-hash if you detect the number of collisions being too big
+- _My note: it is not completely clear how, after you picked `h` randomly, you make sure you pick the same one for the same key every time. It seems that you pick a hash function when initializing the hash table, not on every insertion. You might also re-hash if you detect the number of collisions being too big_
 - **Perfect hashing:** instead of linked lists for colliding items, use second level hash tables
 - First level hash table hash function is picked from the universal hash family, so the first level is basically doing hashing with chaining, as usual
 - Let's take `lj` to be a number of keys hashing to the same slot
@@ -209,7 +209,7 @@
 - Very similar to an external-memory model, but the algorithm is unaware of values of `M` or `B` (so it has to work well with any values of `M` and `B`)
 - Since we don't know how big the blocks are, there is no explicit operations for reading/writing the block
 - This means we can analyze the algorithm on all levels of caches
-- My note: this probably also means this is closer to the real life, where OS actually does manage this transparently
+- _My note: this probably also means this is closer to the real life, where OS actually does manage this transparently_
 - The whole memory space is split into logical blocks, and once you access a word in memory, the whole block is fetched (implicitly)
 - When there is no more free blocks left in the cache, some blocks need to be evicted, and different strategies can be used (e.g. evict least recently used block)
 - Since none of the classic algorithms we dealt before cared about `M` or `B`, all of them are cache-oblivious in this sense. But not all of them will look good _when analyzed under this model_

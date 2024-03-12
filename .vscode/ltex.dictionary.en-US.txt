@@ -81,3 +81,8 @@ Diffie
 openssl
 Prehashing
 doublings
+Memoryless
+interarrival
+memoryless
+timeseries
+aposteriory

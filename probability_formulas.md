@@ -1,0 +1,40 @@
+# Probability, useful formulas
+
+- For any event `E`, `0 <= Pr(E) <= 1`
+- `Pr(omega) = 1`, `omega` is a sample space
+- `A` and `B` mutually disjoint: `Pr(A or B) = Pr(A) + Pr(B)`
+- Two events `A` and `B` are independent if and only if `Pr(A&B) = Pr(A)*Pr(B)`
+- `Pr(A|B) = Pr(A&B)/Pr(B)`
+- `Pr(A&B) = Pr(A|B)*Pr(B)`
+- `A` and `B` independent: `Pr(A|B) = Pr(A)`
+- Bayes' rule: `Pr(A|B) = Pr(B|A)*Pr(A)/Pr(B)`
+- `Pr(A,B) = Pr(A|B)*Pr(B)`
+- `E[X] = sum of x*Pr(X = x) for all x`
+- Linearity of expectations: `E[X+Y] = E[X] + E[Y]`
+- `E[c] = c`
+- `E[c*X] = c*E[X]`
+- `E[c*X + b] = c*E[X] + b`
+- Jensen’s Inequality: if `f` is a convex function, `E[f(X)] >= f(E[X])`
+- `Var[X] = E[(X − E[X])^2]`
+- `Var[X] = E[X^2] − (E[X])^2`
+- `Var(aX) = a^2*Var(X)`
+- `Var(X + b) = Var(X)`
+- `Cov(X,Y) = E[(X − E[X])*(Y − E[Y])]`
+- `Cov(X,Y) = E[X*Y] - E[X]*E[Y]`
+- `Var(X) = Cov(X,X)`
+- `Var[X+Y] = Var[X] + Var[Y] + 2*Cov(X,Y)`
+- `X` and `Y` independent: `E[X*Y] = E[X]*E[Y]`
+- `X` and `Y` independent: `E[g(X)*h(Y)] = E[g(X)]*E[h(Y)]`
+- `X` and `Y` independent: `Cov(X,Y) = 0`
+- `X` and `Y` independent: `Var[X+Y] = Var[X] + Var[Y]`
+- Bernoulli: `E[X] = p = Pr(X=1); Var(X) = p*(1-p)`
+- Binomial: `E[X] = np; Var(X) = np*(1-p)`
+- Geometric: `E[X] = 1/p; Var(X) = (1-p)/p^2`
+- The `kth` moment of `X` is `E[X^k]`
+- Mean `E[X]` is the 1st moment
+- The moment generating function: `M(t) = E[e^tX]`
+- The `kth` central moment of `X` is `E[(X − E[X])^k]`
+- Variance `Var(X)` is the second central moment
+- Markov's Inequality: `Pr(X >= a) <= E[X]/a` (`X` assumes only non-negative values, `a > 0`)
+- Chebyshev's Inequality: `Pr([X − E[X]] >= a) <= Var(X)/a^2`
+- Chernoff bound: apply Markov's inequality to `e^tX` for some well-chosen value `t`

@@ -10,7 +10,17 @@ Knowledge Base
 
 ## Math
 
-[Probability theory](probability_core.md)
+[Probability, core modules](probability_core.md)
+
+[Probability, random processes](probability_random_processes.md)
+
+[Probability, basics of inference](probability_inference.md)
+
+[Probability, useful formulas](probability_formulas.md)
+
+[Statistics](statistics.md)
+
+[Practical statistics](statistical_Inference.md)
 
 ## AI
 

@@ -1,12 +1,18 @@
 # Cryptocurrencies
 
+## References
+
+- [MIT MAS.S62 Cryptocurrency Engineering and Design](https://www.youtube.com/playlist?list=PLUl4u3cNGP61KHzhg3JIJdK08JLSlcLId)
+
+## Intro
+
 - Things are valuable when we commonly decide that they are valuable. The fact that something is rare or backed by an institution are all factors in making that decision, but in the end what matters is our decision
 
 
 ## Traditional Payments
 
 - Alice and Bob both have a bank account
-- Bank has records (paper or digital), tracking the amount of money on each account: e.g. Alice has 10$ and Bob have 0$
+- Bank has records (paper or digital), tracking the amount of money on each account: e.g. Alice has $10 and Bob have $0
 - Alice wants to buy a sandwich from Bob. Alice contacts the bank, bank transfers the money, Alice tells Bob, Bob checks with his bank, sees the money and gives sandwich to Alice
 - Bank has a central role in this exchange
 
@@ -21,14 +27,14 @@
 - Privacy: bank sees everything, including very sensitive information
 - Censure: bank has a power to refuse or accept transactions
 - This is a real-life issue: many merchants have their funds frozen on PayPal because of being marked as "fraudulent"
-- Delays in transactions and roadblocks for innovations: you depend on the bank to process the transactions and you need to comply with a lot of legacy rules
+- Delays in transactions and roadblocks for innovations: you depend on the bank to process the transactions, and you need to comply with a lot of legacy rules
 
 
 ## Traditional e-cash
 
 - Alice contacts a bank and asks for a **digital representation of a coin**, in exchange to some money on Alice's account
 - Banks creates a digital representation of a coin (basically a serial number, SN) and gives it to Alice
-- It should be possible to verify the coin is indeed issed by the bank (done using digital signatures), and it should be possible to only use it once (ensure by bank records)
+- It should be possible to verify the coin is indeed issued by the bank (done using digital signatures), and it should be possible to only use it once (ensure by bank records)
 - Alice gives the coin to Bob
 - Bob contacts the bank to verify that the coin is valid and not double-spent, and in that case gives sandwich to Alice
 - This scheme brings us one step closer to peer-to-peer transactions, but all the same cons are still preserved
@@ -93,7 +99,7 @@
 - Now, using these allowed operations, we could construct a one-way function in a following way:
 - Pick some random point G (a generator point)
 - Pick some random 256-bit scalar a to be your private key
-- Public key A is a*G (32-byte x coord, 32-byte y coord)
+- Public key A is a*G (32-byte x coordinate, 32-byte y coordinate)
 - Note: since the curve is symmetrical about the x-axis, you can encode y with only 1 bit (which would specify whether the point is above or below the x axis)
 - G is public, A is the public key, so also public, the only thing that is a secret is a, the multiplier of G
 - Having the first and final points, the only way to find out a is to repeatedly "dot" (in our case, "+") the initial point until you finally have the matching final point
@@ -130,7 +136,7 @@
 - This is NOT the way Bitcoin works
 - Bitcoin has a concept of a coin
 - Coins are not the same, each coin can have different nominal. E.g. you can have 1BTC coin, 3BTC, 5BTC coin etc.
-- When spending, you are refering to a specific coin
+- When spending, you are referring to a specific coin
 - Coin can only be be spent once
 - You cannot spend part of a coin, when spent, the whole coin is consumed, it splits and creates new coins
 - So if you want to spend 4BTC coin, one option is to simply use 4BTC coin
@@ -168,7 +174,7 @@
 - This leads to a general problem of maintaining a distributed database, which is normally solved by **distributed consensus** (Paxos, Zookeeper, Raft)
 - The main idea of distributed consensus is maintaining a globally ordered log of transactions
 - The global log allows every participant to see the past transactions and see whether the money was already spent
-- With distributed consensus, the system can tolerate a certain amount of failing nodes: if some of the machines are not available, we can rely on others to give the answers
+- With distributed consensus, the system can tolerate a certain amount of failing nodes: if some machines are not available, we can rely on others to give the answers
 - However, these algorithms are not designed to deal with actively malicious behavior
 - **Byzantine fault tolerance (BFT) distributed consensus** algorithms are designed to protect against actively malicious behavior
 - "The Byzantine Generals Problem" was first formulated in 1982, so it is a very old problem
@@ -183,20 +189,20 @@
 
 ## Proof of work
 
-- Work should be time consuming: O(n)
+- Work should be time-consuming: O(n)
 - Verification should be deterministic and require O(1)
 - Memoryless: when the computation depends on a previous computation, the fastest player always wins. What we want is the setup in which if I am 10% as fast as you, I should be able to still win 10% of a time
 - Example: forge a lamport signature
 - Basically, given a public key and 4 lamport signatures, created a message that contains some pre-defined text and a valid signature for it
 - Every lamport signature reveals part of a private key, maybe a block from the first row, maybe from the second row, or maybe from both
 - If for any block, both rows are revealed, you don't care what value the hash will produce for the corresponding bit
-- So your goal is basically constuct your message in a way so that when you hash it, the bits in the hash match the revealed blocks
+- So your goal is basically construct your message in a way so that when you hash it, the bits in the hash match the revealed blocks
 - Having 4 signatures, and knowing that on average half of the bits of a hash function will be different, you will only care about 32 bits out of 256
 - Since hash is a one way function, the only way to find such x is to brute-force. With 32 bits constrained, you will need to try about 2^32 messages
 - This task should take about 3 min on AMD Ryzen 7 1700 CPU, using 8 cores
 - The way to estimate the work, you need to look at the constraints (in this case 32 bits of hash that have to match)
 - The real work in a given specific case may be less (if you are lucky), but with many attempts numbers will average out
-- In the real world, who would be responsible to come up with 4 signatures, private and public keys etc? We need something much simpler
+- In the real world, who would be responsible to come up with 4 signatures, private and public keys etc.? We need something much simpler
 - For example, find a partial collision with 0
 - This was tried in the past to limit email spam: to be able to send an email, you have to compute a number which, appended to email header, will result in hash for the header having lower 20 bits being zeroes
 - You find the number by starting with some initial value (e.g. 0) and if that does not work, you increment the number by one and try again, until you manage to get the result
@@ -206,7 +212,7 @@
 - Transactions are already cryptographically signed, so you would not be able to forge a transaction from someone else, and re-playing some previous transaction would not help, as anyone would be able to detect the duplicate and reject it
 - However, without proof of work you would be able to create and sign 2 valid **different** transactions (double-spend): one sending money to Alice and one sending money to Bob. Everyone would be able to detect double-spend, but no one would be able to tell which one is correct. The consensus would be able to eventually decide on a valid one, but you could overpower the consensus by creating millions of nodes
 - In Bitcoin, 2 different nodes could find 2 blocks roughly at the same time, and it will take time for those 2 blocks to propagate through the system
-- So you may end up with a **fork**: 2 blocks biulding off the same parent, creating 2 versions of the history. This is normal and happens all the time
+- So you may end up with a **fork**: 2 blocks building off the same parent, creating 2 versions of the history. This is normal and happens all the time
 - These 2 blocks cannot both be valid, as it might lead to double-spends
 - However, until it's decided which side of the fork is valid, people may start building off both blocks
 - But since the mining is a probabilistic process, one of the side of the fork will eventually grow bigger; it's very unrealistic for the next 2 blocks to be mined again at the same time and be appended again each on each side of the fork
@@ -225,7 +231,7 @@
 - Memoryless: when you do work, you are not making progress, you chance of finding a nonce are proportional to number of attempts. This allows slower participants to still win periodically
 - Scalable: it adapts to number of participants
 - Non-interactive: you do all the work offline
-- Tied to real world: re-writing the history has a cost, even if majority of participants agree on it
+- Tied to real world: re-writing the history has a cost, even if the majority of participants agree on it
 
 ### Cons
 
@@ -273,7 +279,7 @@
 - Once you process every transaction and delete all the redeemed inputs, you end up with about 3.2GB of UTXOs (unspent transaction output)
 - Bitcoin promoted a lot of research to optimize these numbers
 - Once you joined, you may and will, in turn, receive requests for blocks from new members who joined after you, and to maintain the system working, you should provide them with that data
-- So you should keep at least some of the downloaded blocks, even if it takes up space (this is similar to torrents, you don't really want to seed, but someone has to)
+- So you should keep at least some downloaded blocks, even if it takes up space (this is similar to torrents, you don't really want to seed, but someone has to)
 - To submit a new transaction, you define inputs and outputs, sign and broadcast to peers (using Wallet)
 - Peers who receive the transaction, broadcast further
 - Everyone keeps accumulating those transactions (in mempool.dat)
@@ -297,13 +303,13 @@
 - In case of Ethereum, the network bug was exploited and the hacker stole 50 million worth of Ether. The fork was introduced to re-write the history and return the money to their owners, but not everyone went with the change. This resulted in split into Ethereum and Ethereum Classic, with 2 valid histories. In one history, the hacker has the money and in another one, he does not
 - What happens if people don't validate blocks and just build on top? More generic question is: what if miners do not agree with your rules and keep mining and building on top? Some people might reject those blocks, some people might accept those blocks. Again, it might create a fork with different parts of a community supporting different sides of the fork. One side can be re-orged, or it will lead to a permanent split
 - There can be quite a few different scenarios happening, depending on how many miners adapted the new rule and how many full nodes that are not mining have adapted the new rule. This makes forks quite tricky
-- And the most fun is, there is no real governance or single software, anyone can sumbit changes or come up with new software with new rules, it's all up to your peers to accept it or not
+- And the most fun is, there is no real governance or single software, anyone can submit changes or come up with new software with new rules, it's all up to your peers to accept it or not
 - Sometimes you can't predict what will create hard fork. It happened that changing the underlying db implementation for storing UTXOs (from LevelDB to BerkeleyDB) started to fail for some blocks, which introduced hard fork
 - There is a lot of opinions on how the things have to be done, and different people are pulling into different directions
 - Some people might try introducing "evil" forks
 - The better way to introduce new rules is to use sort of feature flag to activate it once the majority has agreed on it
-- When you sumbit the new transaction, you might not know which side of the fork it is going to be added. If it's valid for both sides, it might be added on boths sides. You might want to try to re-play it and make sure it's added on both sides, since that duplicates your money
-- This is the way exchanges might get screwd: imagine you deposit coin A, then the fork happens, you replay your transaction, withdraw your money and suddenly you balance has coin A and coin B
+- When you submit the new transaction, you might not know which side of the fork it is going to be added. If it's valid for both sides, it might be added on both sides. You might want to try to re-play it and make sure it's added on both sides, since that duplicates your money
+- This is the way exchanges might get screwed: imagine you deposit coin A, then the fork happens, you replay your transaction, withdraw your money, and suddenly you balance has coin A and coin B
 - To prevent that, forks can provide replay protection, basically setting the rules in that way that no transaction can be added on both sides
 - Forks are very complicated, many people are unaware of forks, and this creates legal issues
 
@@ -326,7 +332,7 @@
 - Coin selection is NP problem. You want to minimize the size of your transaction, and since the input is a biggest part, you minimize number of inputs
 - Using several different coins as inputs to produce 1 output creates a privacy issues: it links your two input accounts together
 - Once you sign your transaction, you have to wait for it to get in the block to be sure you have actually spent your coin
-- If you using different devices, they will not know about each other's transactions, so you need to listen to your own UTXOs gettings spent in every block
+- If you are using different devices, they will not know about each other's transactions, so you need to listen to your own UTXOs getting spent in every block
 
 ### SPV
 
@@ -348,16 +354,16 @@
 - This transaction is created by the miner of the block and usually is a reward to himself, it generates new coins and takes fees from all other transactions in the block
 - There is a consensus rule that caps the amount of this transaction
 - The mining fees get lower and lower all the time, and in around 100 years all the blocks will be mined (there is, by design, a limit of 21 million blocks)
-- The transaction fee is implicit. The rule for the transaction is output amount <= input amount. If the output is less than input, the rest is a fee, and it goes to whoever produced the block
+- The transaction fee is implicit. The rule for the transaction is output amount ≤ input amount. If the output is less than input, the rest is a fee, and it goes to whoever produced the block
 - So essentially the person who creates a transaction is the one who decides which fee to pay. But it is up to the nodes to accept this transaction or not
 - So if fee is too low or zero, your transaction might not be accepted
 - The fee is not proportional to the amount of money that you are moving
 - It used to be time that fee was zero, but there was also a period in time that fees were crazily high
 - In the end, it is up to miners to accept your fee or not, and they are trying to select the transactions with the highest fees
-- However, selecting the transactions with highest fees is not easy, as you must respect the dependencies and put them in order: the parent transactions must come before the children, and the parent transactions might have lower fees. So you might benefit from including low fee transaction to be able to chain high fee transaction on top of it
+- However, selecting the transactions with the highest fees is not easy, as you must respect the dependencies and put them in order: the parent transactions must come before the children, and the parent transactions might have lower fees. So you might benefit from including low fee transaction to be able to chain high fee transaction on top of it
 - Some transactions may get stuck for weeks (or months) before they are finally confirmed, if no miners want to include them in a block
 - It is really tricky to determine a "good" fee to include in the transaction: you may include loo low and have to wait or may include too high without need
-- If your transaction gets stuck, you might want to try to create a new transaction with high fee on top of previous one. But this behavior promotes many transactions, which will aggravate the problem in general (less transactions, less time to wait)
+- If your transaction gets stuck, you might want to try to create a new transaction with high fee on top of previous one. But this behavior promotes many transactions, which will aggravate the problem in general (fewer transactions, less time to wait)
 - If you have millions of transactions, and everyone free to include any transactions in the block, how do people coordinate what they mine for? They don't. The one who finds the block always wins. Since every block has to be appended to the top of the chain, every time the new block gets appended, it makes all other blocks in the process of mining invalid, as you need to use the new value for the prev hash
 - It does happen that miners try to build the next block without validating the previous one, and it happened that 6-7 new blocks were added to the chain before the miners realized it was invalid. Those blocks get re-orged by the majority
 - It is very important to give miners right incentives. Without block reward and only fees, miners may start fighting for the same and already mined block. If the miner is lucky and gets 2 blocks very quickly, the will re-org the last block and get the fees to themselves. In that setup, the more powerful miners will always overpower smaller ones, and eventually monopolize the network
@@ -369,7 +375,7 @@
 - An encryption algorithm is "malleable" if it is possible to transform a ciphertext into another ciphertext which decrypts to a new plaintext
 - The attacker in this case is not able to read the original encrypted message, nor decrypt the new ciphertext
 - This, however, allows the attacker to tamper with the message
-- In case of Bitcoing, this would apply to signatures: if the attacker could produce a new valid signature from existing signature, he could change the transaction in the way that it is still valid
+- In case of Bitcoin, this would apply to signatures: if the attacker could produce a new valid signature from existing signature, he could change the transaction in the way that it is still valid
 - You cannot sign the signature itself recursively, so in Bitcoin, you sign the transaction with the signature field zeroed, and then you put the resulting signature into the signature field
 - At the same time, you reference the previous transaction by hash, and that hash is from the whole transaction, including signature
 - The signature is used to confirm that transaction didn't change, but how would you confirm that signature itself didn't change?
@@ -408,14 +414,14 @@
 - How to select the next node to sign? If, when you sign, you can somehow influence who signs next, you will try to make yourself the next signer. Once people start gaming the system, it quickly devolves into proof of work
 - Another issue with proof of stake is that when to people chain off the same block, there is no randomness that make 2 alternative chains differ in size and potentially no incentive to build off the longest chain
 - Reasoning: if there is no cost of signing the wrong block, I will just sign both; if I would pick one, I might pick the wrong one ("Nothing-at-stake" problem)
-- One ways to mitigate "nothing-at-stake": if you see someone signed both blocks, you are allowed to slash one off and take the reward to yourself
+- One way to mitigate "nothing-at-stake": if you see someone signed both blocks, you are allowed to slash one off and take the reward to yourself
 - So you need to carefully design incentives that encourage the "good" behavior and punish the "bad" one. But in general, it is more difficult to resolve conflicts with proof of stake
-- Another issue: someone might go to the genesis block and rewrite the whole history from the very beginning ("long range attack"). It is also possible in Bitcoin, but you would need 51% of the network and it would take from weeks to months, depending on the power of the network
+- Another issue: someone might go to the genesis block and rewrite the whole history from the very beginning ("long range attack"). It is also possible in Bitcoin, but you would need 51% of the network, and it would take from weeks to months, depending on the power of the network
 - With proof of stake, it is arguably more feasible
 - How do you distribute coins initially? Many new cryptocurrencies start with proof of work, and then move to proof of stake
 - For example, Ethereum is moving to proof-of-stake consensus mechanism
 - **Proof-of-space:** similar to proof of work, but instead of CPU, you use memory. So basically, you have to do something memory-intensive, instead of CPU-intensive
-- One of way to turn CPU-intensive work into memory-intensive work is to require the kind of proof of work that can be pre-computed and stored on the disk, with the idea that it would be cheaper to invest into memory and pre-compute instead of cumputing on the fly
+- One of way to turn CPU-intensive work into memory-intensive work is to require the kind of proof of work that can be pre-computed and stored on the disk, with the idea that it would be cheaper to invest into memory and pre-compute instead of computing on the fly
 - You would need a function that cannot be parallelized, otherwise people with more CPU power would still win
 - **Proof-of-idle:** you prove that you are not mining. Motivation: more people mine, less the reward. If we could all lower the rate of mining all together, we would still get the same reward, but with less electricity
 - Problem with this agreement: someone who decides not to follow the agreement will rob others of their money

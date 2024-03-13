@@ -71,7 +71,7 @@
 - Since every decision depends on measuring the average distance, the features have to be scaled. Using larger or smaller units for the features squeezes or stretches the plot in that dimension, which affects the clustering decisions dramatically
 - **Normalizing (Max-Min Scaling)** rescales the values into a range of [0,1]. Normalizing the data is sensitive to outliers
 - **Standardizing (Z-Score Scaling)** rescales data to have a mean of 0 and a standard deviation of 1. Since the values are unbound, it's not sensitive to outliers
-- The weakness of KMeans clustering is that it is always trying to find clusters that are circular (because it is based on the distance to the center). It fails badly when the clusters have complex shapes (o, x, and even ||). It even fails on ellipses
+- The weakness of KMeans clustering is that it is always trying to find clusters that are circular (because it is based on the distance to the center). It fails badly when the clusters have complex shapes (o, x, and even `||`). It even fails on ellipses
 - For categorical data, the distance does not make sense (genre 1 is no closer to genre 2 than to genre 152). Since KMeans is based on Euclidean distance, it cannot be used on categorical data
 
 ### Hierarchical clustering

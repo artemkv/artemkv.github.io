@@ -1,5 +1,9 @@
 # Supervised Learning
 
+## References
+
+- [Stanford CS229: Machine Learning](https://www.youtube.com/playlist?list=PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU)
+
 ## Correctness
 
 - **Accuracy** is the fraction of correct predictions = `correct / total`
@@ -25,7 +29,7 @@
 - F1 score treats recall and precision as equally important
 - If we want the score to favorite recall or precision, we can calculate **F beta score**, where beta is a coefficient that drives the score up depending on recall or precision
 - Lower beta favors precision, high beta favors recall. Coming up with a good value of beta is a matter of experience and expertise
-- **ROC curve** is a chart of (`tp / all positives`) to (`fp / all negatives`). The closer the area under the curve to 1, the better the split is (see appendix for details)
+- **ROC curve** is a chart of (`tp / all positives`) to (`fp / all negatives`). The closer the area under the curve to 1, the better the split is (see below)
 - Sometimes, instead of precision and recall, people use sensitivity and specificity
 - **Sensitivity** (true positive rate) is the same as recall: `tp / (tp + fn)`
 - **Specificity** (true negative rate) measures what fraction of the negatives our model identified: `tn / (tn + fp)`. It's kind of like "recall on negatives"
@@ -63,9 +67,9 @@
 - Typically 60/20/20, but on very large datasets (million of datapoints) you typically would not need validation/test sets that big, so you could go to 90/5/5; unless you are looking for the tiny differences between algorithms (0.01%), in which case you need larger validation sets
 - Using a separate subset for validation is called **hold-out cross validation**
 - The disadvantage of hold-out cross validation is that you are not making the best use of your data: the datapoints in the validation set are "lost" for training and vice versa. This is especially critical for small datasets
-- Alternatively, you can use **k-fold cross validation**, which means that every time you train the model, you choose 1/k of your training data to be a validation set
-- You split your training set into k folds, find the optimal value for a hyperparameter for every fold, and use it to calculate the value that is good for all folds
-- k = 10 is a popular choice, k = 5 or k = 20 are also used
+- Alternatively, you can use **k-fold cross validation**, which means that every time you train the model, you choose `1/k` of your training data to be a validation set
+- You split your training set into `k` folds, find the optimal value for a hyperparameter for every fold, and use it to calculate the value that is good for all folds
+- `k = 10` is a popular choice, `k = 5` or `k = 20` are also used
 - The disadvantage of k-fold cross validation is that it is computationally expensive (you are evaluating each model k times), so it is mostly used on smaller datasets
 - The extreme version of k-fold cross validation is leave-one-out cross validation, which can be used in case of very small datasets (<=100)
 - You could use similar approach to find the best subset of features, as a way to reduce a number of features for your model. This is called **feature selection**
@@ -77,16 +81,16 @@
 
 ## Learning theory
 
-- Key assumption: all our data comes from some distribution D, all our samples are independent, there is a "true" value that we are trying to estimate
-- We have a sample S (random variable) coming from D, that we put through some deterministic learning algorithm to produce hypothesis (or model) h(x): a function that makes predictions (also random variable)
+- Key assumption: all our data comes from some distribution `D`, all our samples are independent, there is a "true" value that we are trying to estimate
+- We have a sample `S` (random variable) coming from `D`, that we put through some deterministic learning algorithm to produce hypothesis (or model) `h(x)`: a function that makes predictions (also random variable)
 - **Risk** or **Generalization error** of a model is an expectation `E[1{h(x)!=y}] under (x,y) ~ D`
 - Basically, it's the ratio of wrong predictions on the real world data, an unknown quantity
 - **Empirical risk** is an average `1/m*[sum of 1{h(xi)!=yi} over all i]`, given m samples
 - Basically, it's the ratio of wrong predictions on the training set, can be calculated
-- Let's call g the best possible hypothesis (overall)
-- Let's call h* the best hypothesis in the given class of estimators (g can be completely outside that class)
-- Let's call h^ the hypothesis that we came up with during learning
-- Empirical risk of h^ is going to be smaller than empirical risk of h* and that's OK! We are really interested in minimizing the generalization error, not the empirical risk
+- Let's call `g` the best possible hypothesis (overall)
+- Let's call `h*` the best hypothesis in the given class of estimators (g can be completely outside that class)
+- Let's call `h^` the hypothesis that we came up with during learning
+- Empirical risk of `h^` is going to be smaller than empirical risk of `h*` and that's OK! We are really interested in minimizing the generalization error, not the empirical risk
 - `[Risk of g]` is the **irreducible error** ("Bayes error")
 - `[Risk of h*] - [risk of g]` is an **approximation error**, comes from selected class of an algorithm
 - `[Risk of h^] - [risk of h*]` is an **estimation error**, comes from data
@@ -94,20 +98,20 @@
 - Estimation error has 2 parts: estimation bias and estimation variance
 - Estimation variance is what is generally called "variance" in ML
 - Estimation bias + approximation error is what is generally called "bias" in ML
-- It is easy to see that by reducing the hypothesis space (by changing the class of an algorithm) you might be reducing the variance, but potentially moving away from g, thus increasing bias
+- It is easy to see that by reducing the hypothesis space (by changing the class of an algorithm) you might be reducing the variance, but potentially moving away from `g`, thus increasing bias
 - The learning algorithm can be anything, but there is a special class of algorithms: **Empirical risk minimizers (ERM)**
-- Unsurprisingly, ERMs are looking for h^(x) that minimize empirical risk, i.e. minimize the training loss
+- Unsurprisingly, ERMs are looking for `h^(x)` that minimize empirical risk, i.e. minimize the training loss
 - But of course, we are really interested in minimizing the generalization error
-- Luckily, it can be proven that you can bound the difference between the empirical risk of h^ and the generalization error of h* to some arbitrarily small value gamma (margin of error), by increasing the sample size
+- Luckily, it can be proven that you can bound the difference between the empirical risk of `h^` and the generalization error of `h*` to some arbitrarily small value `gamma` (margin of error), by increasing the sample size
 - ERMs and MLEs are related under the hood
 
 
 ## Linear regression
 
-- Linear regression attempts to map the input vector (features) to the output vector with a relatively simple linear model: `y = mx + b` (predict y given x)
+- Linear regression attempts to map the input vector (features) to the output vector with a relatively simple linear model: `y = mx + b` (predict `y` given `x`)
 - Or, in case of multiple features, `y = m1*x1 + m2*x2 + ... + mn*xn + b`
 - Training is the process of determining what coefficients (parameters) will most closely match your training set. Training will attempt to minimize the overall error of your training set elements
-- Error (in prediction) can be calculated using multiple formulas. Since y is what we are trying to predict, we are going to express error in terms of y
+- Error (in prediction) can be calculated using multiple formulas. Since `y` is what we are trying to predict, we are going to express error in terms of `y`
 - **Mean Absolute Error** is the sum of all `|y - y'|` divided by number of data points. The disadvantage of this error function is that it is not continuous at the minimum, which is bad for gradient descent
 - **Mean Square Error** is the sum of all squares of `(y - y')` divided by number of data points. This error function produces nice continuous function with an easy derivative
 - We use this **error function** (or **cost function**) to guide the adjustments in coefficients, using, for example, the gradient descent
@@ -126,29 +130,29 @@
 - **L2 regularization** adds the sum of squared values of the coefficients to the error
 - L1 regularization can yield sparse models (i.e. models with few coefficients); Some coefficients can become zero and eliminated. Lasso regression uses this method
 - L2 regularization will not yield sparse models and all coefficients are shrunk by the same factor (none are eliminated). Ridge regression and SVMs use this method
-- We can adjust regularization by lambda to favor a simple model (large lambda) or a complex model (small lambda)
+- We can adjust regularization by `lambda` to favor a simple model (large `lambda`) or a complex model (small `lambda`)
 - Alternatively, consider **Locally Weighted Regression**: a method that performs a regression around a point of interest using only training data that are "local" to that point
 
 ### Probabilistic interpretation
 
-- When we choose certain values of w and b, we essentially make an assumption that, for any sample, `y = w*x + b + e`
-- In other words, we believe that the correct, true model is `y = w*x + b`, and if some y do not land on the line exactly, its due to an error e
+- When we choose certain values of `w` and `b`, we essentially make an assumption that, for any sample, `y = w*x + b + e`
+- In other words, we believe that the correct, true model is `y = w*x + b`, and if some `y` do not land on the line exactly, its due to an error `e`
 - We will assume that this error is due to many random influences (unmodeled effects and random noise)
-- More formal way to say this: the value of e comes from i.i.d random variable E that is normally distributed with mean 0 and variance v
+- More formal way to say this: the value of e comes from i.i.d random variable `E` that is normally distributed with mean 0 and variance `v`
 - By the Central Limit Theorem, and oversimplifying it, the combined impact of multiple random influences is normally distributed, even if the sources of those influences are not normally distributed
 - So our assumption is reasonable from the theoretical standpoint, and it also holds (mostly) in the real world
 - In practice, it just means that we usually use Gaussian distribution to model the noise
 - So our model is `Y = w*X + b + E`
-- Meaning Y is a random variable that, for each value x of random variable X, is normally distributed with a mean of `w*x + b` and variance v (i.e. all the variance is due to error)
-- Formally, `P(Y=y|X=x;theta) ~ N(w*x + b, v)` where theta is a pair w, b
-- **Likelihood** is the probability of Y taking a certain value y (in our case, conditioned on X), given certain values, w and b
-- It is the same expression `P(Y=y|X=x;theta)`, but seen as a function of theta (and not the data)
-- Likelihood expresses how likely it is to see a specific value of Y for a given theta, under our assumptions and keeping the data fixed
+- Meaning `Y` is a random variable that, for each value `x` of random variable `X`, is normally distributed with a mean of `w*x + b` and variance `v` (i.e. all the variance is due to error)
+- Formally, `P(Y=y|X=x;theta) ~ N(w*x + b, v)` where `theta` is a pair `w`, `b`
+- **Likelihood** is the probability of `Y` taking a certain value `y` (in our case, conditioned on `X`), given certain values, `w` and `b`
+- It is the same expression `P(Y=y|X=x;theta)`, but seen as a function of `theta` (and not the data)
+- Likelihood expresses how likely it is to see a specific value of `Y` for a given `theta`, under our assumptions and keeping the data fixed
 - If all the training data happens to fall under the line `y = w*x + b`, it's certainly possible that it is still a correct line and the correct model, and all the samples from our training set just happened to be registered with negative error, but it's definitely not the most probable scenario
 - Imagine we have a coin that we believe is fair. Then we throw this coin 10 times and get 7 tails. Now, the question is: "just how likely would it really be to get 7 tails if the coin was indeed fair?"
-- The principle of **Maximum likelihood estimation (MLE)** suggests choosing values of w and b so that the data looks as probable as possible
+- The principle of **Maximum likelihood estimation (MLE)** suggests choosing values of `w` and `b` so that the data looks as probable as possible
 - In the example with coin it means changing our initial assumption and agree that the coin is, most likely, biased towards tails
-- Likelihood L is maximum at the same point when log(L) is maximum. So instead of maximizing likelihood it is usually more convenient to maximize log likelihood
+- Likelihood `L` is maximum at the same point when `log(L)` is maximum. So instead of maximizing likelihood it is usually more convenient to maximize log likelihood
 - It can be mathematically proven that maximizing likelihood is exactly the same as minimizing sum of squares of errors (when the model is assumed to be Gaussian)
 - This justifies the choice of sum of squares as an error function for linear regression (and the validity of the whole model in theoretical sense)
 - The whole method of linear regression is basically derived from these initial assumptions
@@ -157,21 +161,21 @@
 ## Logistic regression
 
 - The same approach can be used for classification, in this case the line is going to divide the space into 2 categories (classes)
-- Suppose we have 2 features (dimensions) x1 and x2, and we are trying to classify the points into 2 possible categories
-- For example, we are trying to classify insects into caterpillars and ladybugs, and x1 is length and x2 is a width
+- Suppose we have 2 features (dimensions) `x1` and `x2`, and we are trying to classify the points into 2 possible categories
+- For example, we are trying to classify insects into caterpillars and ladybugs, and `x1` is length and `x2` is a width
 - We will try to predict the class using the linear model `0 = w1*x1 + w2*x2 + b`
-- In this case, w is weight, b is bias
+- In this case, `w` is weight, `b` is bias
 - We have to come up with the initial values for weights somehow, can be random
-- We plug features as values for x, and current weights as values for w, and get some number z as a result
-- Then we pass z through a **sigmoid**: S-shaped logistic function with an y-intercept at 0.5
+- We plug features as values for `x`, and current weights as values for `w`, and get some number `z` as a result
+- Then we pass `z` through a **sigmoid**: S-shaped logistic function with an `y`-intercept at 0.5
 - Sigmoid allows us to interpret the result as a probability of something to be "true" or "false"
-- Sigmoid produces 0.5 when z is 0, which gives our line an interpretation of a decision boundary: any point that sits on the line has an equal probability of belonging to any of two classes
-- The number z we predicted expresses how much we would need to change values of x1 and x2 (in terms of w1 and w2) to get to the line, so it is a good measure of the distance from the decision boundary
+- Sigmoid produces 0.5 when `z` is 0, which gives our line an interpretation of a decision boundary: any point that sits on the line has an equal probability of belonging to any of two classes
+- The number `z` we predicted expresses how much we would need to change values of `x1` and `x2` (in terms of `w1` and `w2`) to get to the line, so it is a good measure of the distance from the decision boundary
 - Although it is not an euclidian distance, but rather a manhattan distance
-- Sigmoid approaches 1 and -1 at larger values of z, which matches our interpretation: the bigger the z is, more certain we are about the prediction
-- If we have n features, we are going to use an n-1-dimensional plane to separate points instead of a line. In this case the model will look like this: `0 = w1*x1 + w2*x2 + ... + wn*xn + b`
+- Sigmoid approaches 1 and -1 at larger values of `z`, which matches our interpretation: the bigger the `z` is, more certain we are about the prediction
+- If we have `n` features, we are going to use an `n-1`-dimensional plane to separate points instead of a line. In this case the model will look like this: `0 = w1*x1 + w2*x2 + ... + wn*xn + b`
 - Or, using vectors, simply `0 = W.T * X + b`
-- Our goal when training the model is to come up with optimal values of weights W
+- Our goal when training the model is to come up with optimal values of weights `W`
 - As usually, we can come up with an error function, use this function to drive the adjustments in weights (using gradient descent), moderate the adjustments by a learning rate, and re-evaluate the model performance until we are satisfied, then test our model using a testing set
 - Because our function is non-linear (we use sigmoid), we cannot use mean square error as an error function
 - We are going to stick to the probabilistic interpretation and maximize the likelihood
@@ -180,8 +184,8 @@
 - There is no closed form solution, but instead of gradient descent you could use Newton's method, which is more efficient (converges quadratically), although it can become very costly in high dimensions
 - Similar to linear regression, if the data is not linearly separable, we could fit our data with a higher degree polynomial (e.g. quadratic function)
 - Ideally, we would want equal distribution of classes in the training dataset; if this is not the case (**class imbalance**), you could modify the model to weight model error by class weight when fitting the coefficients
-- `sklearn LogisticRegression` has a parameter class_weight; when set to 'balanced', it adjusts weights inversely proportional to class frequencies in the input data
-- We are not forced to use 0.5 as a threshold after applying sigmoid. We could move it up and down to favor precision or recall. We could use **ROC curve** to visualize the results (see appendix for details)
+- `sklearn LogisticRegression` has a parameter `class_weight`; when set to 'balanced', it adjusts weights inversely proportional to class frequencies in the input data
+- We are not forced to use 0.5 as a threshold after applying sigmoid. We could move it up and down to favor precision or recall. We could use **ROC curve** to visualize the results (see below)
 - When number of features greatly exceeds the dataset size, the logistic regression tend to overfit badly, which can be combatted by adding regularization
 - If, instead of MLE approach, you decide to go bayesian way and do maximum aposterory estimation (MAP), it can be shown that the prior distribution acts as a regularizer. So doing MLE with regularization is kind of "going bayesian"
 
@@ -189,11 +193,11 @@
 ## Generalized Linear Models
 
 - Turns out both linear regression and logistic regression are special cases of a broader family of models, called **Generalized Linear Models (GLMs)**
-- GLMs goal is, given data X, to predict the expected value of sufficient statistic T(Y) (for most cases, for example, linear regression, T(Y) simply means Y)
-- GLMs assume that given X and theta, `[Y|X;theta]` is going to be a random variable that follows some exponential family distribution with some **natural parameter** eta
-- To understand this, remember how for linear regression we assumed that given any particular value of x, Y was a random variable normally distributed with mean `w*x` (natural parameter for gaussian is mean)
+- GLMs goal is, given data `X`, to predict the expected value of sufficient statistic `T(Y)` (for most cases, for example, linear regression, `T(Y)` simply means `Y`)
+- GLMs assume that given `X` and `theta`, `[Y|X;theta]` is going to be a random variable that follows some exponential family distribution with some **natural parameter** `eta`
+- To understand this, remember how for linear regression we assumed that given any particular value of `x`, `Y` was a random variable normally distributed with mean `w*x` (natural parameter for gaussian is mean)
 - And most of the commonly used distributions form an exponential family
-- As a design choice, we will assume that eta and X are related linearly through theta (just like w*x in linear regression)
+- As a design choice, we will assume that `eta` and `X` are related linearly through `theta` (just like `w*x` in linear regression)
 - One of the most important decisions to make is to pick a correct distribution to model the target variable
 - You cannot simply collect the data and throw it to a linear regression, you have to think what you are doing
 - For example, if you are predicting the number of customer visits per hour for a website, you should use Poisson distribution
@@ -211,41 +215,41 @@
 ### Recipe
 
 - Assume a certain distribution for `[Y|X;theta]`, pick an appropriate one (Gaussian for real numbers, Bernoulli for binary outcomes, Poisson for counters etc.)
-- Use the exponential form of the distribution and relate its natural parameter eta to X through theta
+- Use the exponential form of the distribution and relate its natural parameter `eta` to `X` through `theta`
 - Formulate you hypothesis `h(x;theta) = E[T(Y)|X;theta]`
-- For simple models, `h(x;theta)` is simply `E[Y|X;theta]`, but maybe you don't want to spit out Y directly and return some T(Y) instead (like in a softmax)
+- For simple models, `h(x;theta)` is simply `E[Y|X;theta]`, but maybe you don't want to spit out `Y` directly and return some `T(Y)` instead (like in a softmax)
 - `h(x;theta)` gives you the output, whatever you train your model to return
-- Since you know the distribution, you know how to find the expected value, and you can express that in eta
-- Express eta through X and theta, you get the model; now you just need to train it, i.e. find the good theta
-- Find `p(y|x;theta)`: the PDF of Y under theta, conditioned by X
-- Likelihood is `P(Y=y|X=x;theta)` as a function of theta
-- Maximize this function in respect to theta (on your dataset), usually by maximizing the log of it
+- Since you know the distribution, you know how to find the expected value, and you can express that in `eta`
+- Express `eta` through `X` and `theta`, you get the model; now you just need to train it, i.e. find the good `theta`
+- Find `p(y|x;theta)`: the PDF of `Y` under `theta`, conditioned by `X`
+- Likelihood is `P(Y=y|X=x;theta)` as a function of `theta`
+- Maximize this function in respect to `theta` (on your dataset), usually by maximizing the log of it
 - The good news: the gradient descent is always going to be the same: `theta_j = theta_j + alpha*(y_i - h(x_i))*x_i_j`
-- Use the argmax theta as a parameter of your model
+- Use the `argmax theta` as a parameter of your model
 - Done
 
 
 ## Support vector machines (SVM)
 
 - Built on the same principle as logistic regression, but tries to find the model that not only classifies the best, but also maximizes the distance between the points and the line
-- Formally, we want `w1*x1 + w2*x2 + b >> 0` in the case y > 0 and `w1*x1 + w2*x2 + b << 0` in the case y = 0
+- Formally, we want `w1*x1 + w2*x2 + b >> 0` in the case `y > 0` and `w1*x1 + w2*x2 + b << 0` in the case `y = 0`
 - Consequently, if we pass this value to the sigmoid, we want to see values close to 1 and 0 and not something like 0.49 and 0.51
 - In plain English, we want the model to be very confident about its predictions
 - We hope to achieve that by finding the optimal position and angle of the line (or hyperplane)
-- But notice that it would be very easy to achieve our formal requirement by simply multiplying W and b by some arbitrarily large number, but this would be useless, because the line would look exactly the same
-- So we need to restrict magnitude of W and b in some way to force it to "wiggle" instead (during optimization)
-- For that, we are going to opt for such a scale of W so that the points closest to the decision line (on both sides) would land exactly on the margins defined by 2 lines: `w1*x1 + w2*x2 + b = 1` and `w1*x1 + w2*x2 + b = -1`
+- But notice that it would be very easy to achieve our formal requirement by simply multiplying `W` and `b` by some arbitrarily large number, but this would be useless, because the line would look exactly the same
+- So we need to restrict magnitude of `W` and `b` in some way to force it to "wiggle" instead (during optimization)
+- For that, we are going to opt for such a scale of `W` so that the points closest to the decision line (on both sides) would land exactly on the margins defined by 2 lines: `w1*x1 + w2*x2 + b = 1` and `w1*x1 + w2*x2 + b = -1`
 - We will call the points that lay exactly on 2 margins **support vectors**
 - If we choose to use values -1 and 1 to designate negative and positive samples, our condition can be re-written more concisely as `y(w1*x1 + w2*x2 + b) >= 1` for all datapoints, reading as "all points are correctly classified and at least a margin away from the decision boundary"
-- Now we will try to find such a values for W and b so that the geometrical distance between 2 margins is the largest, while still satisfying the condition ("the widest street approach")
-- Finding those values for W and b is a tricky optimization problem (see appendix for details), but once you solve it, you discover that your solution depends only on a dot product of the feature vectors [x1, x2], and ONLY the feature vectors of data samples that are support vectors
+- Now we will try to find such a values for `W` and `b` so that the geometrical distance between 2 margins is the largest, while still satisfying the condition ("the widest street approach")
+- Finding those values for `W` and `b` is a tricky optimization problem (see below), but once you solve it, you discover that your solution depends only on a dot product of the feature vectors `[x1, x2]`, and ONLY the feature vectors of data samples that are support vectors
 - The decision rule also ends up being dependent only on inner products of dataset features vectors with the unknown point feature vectors
 - This is also a key to the whole method, as this gives a very efficient and elegant algorithm for the optimization, even though it is somewhat difficult to understand completely
 - But all you really need to know in practice, is that SVM is a **Maximum Margin Classifier**
 - In our description of SVMs so far, we assumed that the data is actually linearly separable
 - Sometimes, of course, it's impossible to separate points on a 2-dimensional plane using a simple line
-- However, if we send the points in higher dimensions, often it suddenly becomes very easy to separate them using n-1-dimensional plane
-- We could send a point with coordinates (x, y) into 5-dimensional space by using "artificially made" coordinates `(x, y, x^2, x*y, y^2)`. We could even send it to higher dimensions, using coordinates `(x, y, x^2, x*y, y^2, x^3, x^2*y, x*y^2, y^3)` etc.
+- However, if we send the points in higher dimensions, often it suddenly becomes very easy to separate them using `n-1`-dimensional plane
+- We could send a point with coordinates `(x, y)` into 5-dimensional space by using "artificially made" coordinates `(x, y, x^2, x*y, y^2)`. We could even send it to higher dimensions, using coordinates `(x, y, x^2, x*y, y^2, x^3, x^2*y, x*y^2, y^3)` etc.
 - By doing this, the 2-dimensional plane will curve, and the points will suddenly move to the different heights in a 3rd (and higher) dimension
 - At worst, we could send points into infinite dimensions, which is done btw :)
 - The only nuisance is that with the number of features increasing, computing dot product of X becomes a very heavy operation (especially in case of infinite dimensions :D)
@@ -257,7 +261,7 @@
 ## Perceptron
 
 - Very similar to logistic regression, except instead of a sigmoid, we use a step function that outputs only 0 or 1
-- More precisely, step function produces 0 for z < 0; otherwise, 1
+- More precisely, step function produces 0 for `z` < 0; otherwise, 1
 - It is difficult to endow the perceptron's predictions with meaningful probabilistic interpretations, or derive the perceptron as a maximum likelihood estimation algorithm
 - So (my understanding) it does not belong to a family of Generalized Linear Models
 - If the data is not linearly separable, it can always be classified using 2 or more lines
@@ -268,18 +272,18 @@
 ## k-Nearest Neighbors
 
 - Can be used for classification or regression
-- Remember that linear regression uses model `y = mx + b`; once it learns the correct values for m and b, it never looks at the original dataset again
-- k-Nearest Neighbors instead uses data-centric approach: for any value of x it finds k data points that are closest to x and uses them to predict y
+- Remember that linear regression uses model `y = mx + b`; once it learns the correct values for `m` and `b`, it never looks at the original dataset again
+- k-Nearest Neighbors instead uses data-centric approach: for any value of `x` it finds `k` data points that are closest to `x` and uses them to predict `y`
 - A commonly used distance metric for continuous variables is **Euclidean distance**
 - For discrete variables, you can use different metrics, e.g. **Hamming distance**
-- For regression, the value is the average (mean) of the values of k nearest neighbors
+- For regression, the value is the average (mean) of the values of `k` nearest neighbors
 - For classification, an object is classified by a plurality vote of its neighbors
 - A useful technique can be to assign weights to the contributions of the neighbors, so that the nearer neighbors contribute more to the average than the more distant ones
-- A common weighting scheme consists in giving each neighbor a weight of 1/d, where d is the distance to the neighbor
-- If the class distribution is skewed (class imbalance), the more frequent class tend to dominate the prediction of the new example (they tend to be common among the k nearest neighbors due to their large number)
+- A common weighting scheme consists in giving each neighbor a weight of `1/d`, where `d` is the distance to the neighbor
+- If the class distribution is skewed (class imbalance), the more frequent class tend to dominate the prediction of the new example (they tend to be common among the `k` nearest neighbors due to their large number)
 - As with other methods, we could weight the distances proportional to class frequencies
-- The best choice of k depends upon the data
-- Generally, larger values of k reduces effect of the noise on the classification, but make boundaries between classes less distinct
+- The best choice of `k` depends upon the data
+- Generally, larger values of `k` reduces effect of the noise on the classification, but make boundaries between classes less distinct
 - This approach is memory-inefficient
 - On the flip side, you can improve your model at any time by simply adding more data points
 
@@ -287,7 +291,7 @@
 ## Naive Bayes
 
 - This is one of the **Generative learning algorithms**, as opposed to **Discriminative learning algorithms** (e.g. logistic regression)
-- The big difference is that in discriminative learning algorithms we are trying to maximize the `likelihood L(y|x, theta)`, while in generative learning algorithms we are trying to maximize the `likelihood L(x,y;theta)`
+- The big difference is that in discriminative learning algorithms we are trying to maximize the `likelihood L(y|x;theta)`, while in generative learning algorithms we are trying to maximize the `likelihood L(x,y;theta)`
 - We know probabilities of certain events, and we are inferring the probability of other events, based on known probabilities
 - For example, we know the probability of email being `spam = P(spam)`
 - We also know the probability of seeing the word "money" in spam emails = `P("money" | spam)`
@@ -323,18 +327,18 @@
 
 - Another generative learning algorithm
 - GDA tries to fit a Gaussian distribution to every class of the data, separately
-- We assume `p(x|y)` is a multivariate normal distribution in n dimensions
+- We assume `p(x|y)` is a multivariate normal distribution in `n` dimensions
 - We assume `p(y)` is Bernoulli
-- X is features of the dataset, e.g. weight, height etc., have to be real numbers
-- Y is a label of the class, e.g. 0 for "cat" and 1 for "dog", so naturally it is Bernoulli
+- `X` is features of the dataset, e.g. weight, height etc., have to be real numbers
+- `Y` is a label of the class, e.g. 0 for "cat" and 1 for "dog", so naturally it is Bernoulli
 - `p(x|Y=0)` is the PDF for cat's "features", `p(x|Y=1)` is the PDF for "dog's features" (both multivariate normal)
 - `p(y)` is the class prior, the PDF for Bernoulli on labels
-- We just write their standard, well-known PDFs, `p(x|y)` parametrized by vector of mu's and the covariance matrix, `p(y)` parametrized by p (vector of mu's and covariance matrix is just how the multivariate normal distribution is parametrized)
+- We just write their standard, well-known PDFs, `p(x|y)` parametrized by vector of `mu`'s and the covariance matrix, `p(y)` parametrized by `p` (vector of `mu`'s and covariance matrix is just how the multivariate normal distribution is parametrized)
 - Usually people use the same covariance matrix for both distributions, for simplicity, but you could use 2 different ones
 - Then we express the joint probability `P(X=x,Y=y)`, which will give us the expression for the likelihood
-- That done, we will fit the distributions to the data, using maximum likelihood principle; this will give us the values for all the mu's, sigma^2's and p
+- That done, we will fit the distributions to the data, using maximum likelihood principle; this will give us the values for all the `mu`'s, `sigma^2`'s and `p`
 - To do that, we take log of the likelihood, find a partial derivative with respect to each parameter, equal to 0 and find the expression for the parameter
-- The expressions for parameters that we derive this way turn out to be very unsurprising, e.g. p is a fraction of y = 1, mu is an average etc.
+- The expressions for parameters that we derive this way turn out to be very unsurprising, e.g. `p` is a fraction of `y = 1`, `mu` is an average etc.
 - Now we can now use Bayes rule to derive the posterior, `p(y|x)`, i.e. guess whether we see a cat or a dog
 - As usual, `p(y|x) = p(x|y)*p(y)/p(x)`
 - We could calculate `p(x) = p(x|Y=1)*P(Y=1) + p(x|Y=0)*P(y=0)`
@@ -346,7 +350,7 @@
 ## Decision trees
 
 - Non-linear model, instead of producing a decision line, tries to partition the whole sample space into regions, in a greedy, top-down, recursive manner
-- What this produces is basically a huge pyramid of if-else statements, each making a question about a single feature: whether it is above or below a certain threshold
+- What this produces is, basically, a huge pyramid of if-else statements, each making a question about a single feature: whether it is above or below a certain threshold
 - Every time we answer yes or no, we split our dataset into 2 subsets, and then repeat
 - But because it is machine learning and not just programming, we don't code it by hand. Instead, we rely on the algorithm to build the tree for us
 - The trickiest part of an algorithm is to decide on which feature to split every time we split
@@ -381,10 +385,10 @@ https://keras.io/preprocessing/image/
 
 - Check that all data is numeric. Everything has to be converted to numbers
 - Identify categorical features. Many algorithms cannot work with categorical data (e.g. "book genre" or "author id"), since they rely on the notion of distance. Simple solution is one-hot encoding
-- Check for missing values. Missing values can imputed with the mean. Another option is to simply drop rows with missing values
+- Check for missing values. Missing values can be imputed with the mean. Another option is to simply drop rows with missing values
 - Check for outliers. Outliers should be analyzed and optionally removed
 - Zero-center the data. Can be done subtracting the mean across every individual feature (`X -= np.mean(X, axis = 0)`)
-- Normalize the data to make sure every dimension is of approximately the same scale. Data is often scaled in the [0, 1] range or [-1, 1] range. Some scaling methods are very sensitive to the presence of outliers
+- Normalize the data to make sure every dimension is of approximately the same scale. Data is often scaled in the `[0, 1]` range or `[-1, 1]` range. Some scaling methods are very sensitive to the presence of outliers
 - One way to scale data is to divide each dimension by its standard deviation (`X /= np.std(X, axis = 0)`). Another popular (and very similar) way is to apply min-max
 - Labels for binary classification should be converted to 0 and 1
 - Check for correlated features. Correlated features affect the output in the similar way, so they should be eliminated. Highly correlated features are often the same feature just expressed in different units, or a derived value. Keeping the same feature twice would result in that feature dominating the prediction
@@ -423,8 +427,8 @@ https://keras.io/preprocessing/image/
 - So unavoidably, we the only way to increase the true positive rate is to also accept increase in false positives
 - If we plot number of tp and fp, weighted, `(tp / all positives) to (fp / all negatives)`, we can see how exactly the number of fp grow with growth of tp with the respect to threshold
 - Every point on that line will correspond to a certain threshold
-- When we classify randomly (50/50), the dependency is linear: more tp - more fp. Basically, whatever threshold we pick, we always get the exact ratios
-- But when we have a well-trained model and well-sepatated data points, the chart tends to look more like a an "r": Initially, lowering the threshold, we are able to catch more and more tp without suffering from increase in fp. But eventually we lower it too much and number of fp begins to grow very fast
+- When we classify randomly (50/50), the dependency is linear: more tp → more fp. Basically, whatever threshold we pick, we always get the exact ratios
+- But when we have a well-trained model and well-sepatated data points, the chart tends to look more like an "r": Initially, lowering the threshold, we are able to catch more and more tp without suffering from increase in fp. But eventually we lower it too much and number of fp begins to grow very fast
 - The better the model and the better the separation, the more the chart is curved, meaning we can lower the threshold so to catch almost all tp before seeing a sudden increase in fp
 - This can be quantified by taking the square under the curve. The lowest possible value is 0.5, the highest is 1
 - So ROC curve can be used to compare different models (e.g. logistic regression vs random forest)
@@ -432,26 +436,26 @@ https://keras.io/preprocessing/image/
 
 ## SVM optimization
 
-- We will call the distance from a data point to the decision boundary, `gamma = y(W*X + b)/||W||`, the "geometric margin", where `||W||` is the norm of W and X is a feature vector
+- We will call the distance from a data point to the decision boundary, `gamma = y(W*X + b)/||W||`, the "geometric margin", where `||W||` is the norm of `W` and `X` is a feature vector
 - The expression "closest point to the line", mathematically, translates into the `[min of all geometric margins over the whole dataset]`, and we want to maximize that
-- So we want `y(W*X + b)/||W||] >= [min gamma over dataset]`, over the whole dataset, with [min gamma over dataset] being as large as possible
-- If, by our design choice, we fix [min gamma over dataset] to be `1/||W||`, the whole task boils down to maximizing `1/||W|| subject to y(W*X + b) >= 1 for all datapoints`
+- So we want `y(W*X + b)/||W||] >= [min gamma over dataset]`, over the whole dataset, with `[min gamma over dataset]` being as large as possible
+- If, by our design choice, we fix `[min gamma over dataset]` to be `1/||W||`, the whole task boils down to maximizing `1/||W|| subject to y(W*X + b) >= 1 for all datapoints`
 - We will call the expression `y(W*X + b)` the "functional margin"
 - It is mathematically more convenient to maximize `1/2*||W||^2` instead, so we will do that
-- Lagrange multiplier technique: function `f(x,y)` subject to constraint `g(x,y)=c` has a maximum when the two functions touch, that is, when their gradients are parallel. Note that gradients do not have to be of equal length, they are linearly related through the constant alpha 
+- Lagrange multiplier technique: function `f(x,y)` subject to constraint `g(x,y)=c` has a maximum when the two functions touch, that is, when their gradients are parallel. Note that gradients do not have to be of equal length, they are linearly related through the constant `alpha`
 - So that is one of the points where `grad(f(x,y)) = alpha*grad(g(x,y))`
-- As a note, to apply the technique, number of dimensions of f and g have to be equal
-- Taking partial derivatives of f and g in respect of x and y gives 2 equations `f'dx = g'dx` and `f'dy = g'dy`, the condition `g(x,y)=c` is the third, a perfectly solvable situation
-- This system of equations can actually have multiple solutions, and in that case you have to check all of them, to see which one actually maximizes f
-- Turns out, we can also pack f and g into a single function, a Lagrangian, so that both the function we are trying to maximize, and the constraint get incorporated into it: `L(x,y,alpha) = f(x,y) - alpha*(g(x,y) - c)`
-- Turns out, finding the maximum of L is the same as finding the point where gradients of f and g are parallel
-- Why it works: if you take gradient of this new function L, equate to 0, and then look at partial derivatives with respect to x, y and alpha, this will be exactly the same system of equations as before, actually, quite beautiful
+- As a note, to apply the technique, number of dimensions of `f` and `g` have to be equal
+- Taking partial derivatives of `f` and `g` in respect of `x` and `y` gives 2 equations `f'dx = g'dx` and `f'dy = g'dy`, the condition `g(x,y)=c` is the third, a perfectly solvable situation
+- This system of equations can actually have multiple solutions, and in that case you have to check all of them, to see which one actually maximizes `f`
+- Turns out, we can also pack `f` and `g` into a single function, a Lagrangian, so that both the function we are trying to maximize, and the constraint get incorporated into it: `L(x,y,alpha) = f(x,y) - alpha*(g(x,y) - c)`
+- Turns out, finding the maximum of `L` is the same as finding the point where gradients of `f` and `g` are parallel
+- Why it works: if you take gradient of this new function `L`, equate to 0, and then look at partial derivatives with respect to `x`, `y` and `alpha`, this will be exactly the same system of equations as before, actually, quite beautiful
 - In our case, `L(W,b,alpha) = 1/2*||W||^2 - [sum of alpha_i*(y_i(W*X_i + b) - 1)]`
 - Note that we are actually completely ignoring any of the datapoints that are not support vectors
-- So we take partial derivatives with respect to W and b, equal to 0, and this gives us 2 expressions that hold when L is maximized
-- So we re-plug the new expressions into L and and, as a result, W and b disappear
-- All we need now is to maximize the new L with respect of alpha (with 2 conditions that we found above), the mathematicians know how to do that, and luckily, it is a convex function, which means it has only one minimum
-- What we discover is that this optimization problem depends, in terms of input, only on the dot product of feature vectors X
+- So we take partial derivatives with respect to `W` and `b`, equal to 0, and this gives us 2 expressions that hold when `L` is maximized
+- So we re-plug the new expressions into `L` and and, as a result, `W` and `b` disappear
+- All we need now is to maximize the new `L` with respect of `alpha` (with 2 conditions that we found above), the mathematicians know how to do that, and luckily, it is a convex function, which means it has only one minimum
+- What we discover is that this optimization problem depends, in terms of input, only on the dot product of feature vectors `X`
 - And the only points that actually affect the solution are support vectors, which are very few
 - So if you know the dot product, you don't even need the original feature vectors, and that is what kernel functions take advantage of
 - Also, maximizing `||W||^2` can be proven to have a similar effect as adding L2 regularization term, so SVMs have regularization "built-in", which prevents overfitting, even in the infinite dimension feature space
@@ -459,7 +463,7 @@ https://keras.io/preprocessing/image/
 
 ## SVM some intuition about sending points into high-dimensional space
 
-- The intersection of an n-1-dimentional plane that separates the points and the new multidimensional surface on which the points lie is a shape described by a high degree polynoms (polynomial kernel)
+- The intersection of an `n-1`-dimentional plane that separates the points and the new multidimensional surface on which the points lie is a shape described by a high degree polynoms (polynomial kernel)
 - For example, by sending point `(x,y)` into 3-dimensional space by using coordinates `(x, y, x^2 + y^2)` we are essentially using the distance from the center as a height of the point. The surface made by this transformation will look as a cone. The plane that classifies the points will separate lower points from the higher points, and the intersection with the cone will give the circle. The formula of the circle is `x^2 + y^2 = 0`, which is exactly what we used for the 3rd coordinate
 - Another way to think of it is to imagine using a circle to classify the points
 
@@ -477,7 +481,7 @@ https://keras.io/preprocessing/image/
 
 ## Some python code
 
-```
+```python
 def sigmoid(z):
     return 1/(1 + np.exp(-z))
 

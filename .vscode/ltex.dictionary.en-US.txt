@@ -86,3 +86,15 @@ interarrival
 memoryless
 timeseries
 aposteriory
+backpropagation
+minibatches
+logit
+downsample
+Backpropagation
+co-occurences
+co-occurence
+trigrams
+Coreference
+coreference
+Anaphoric
+ever-inreasing

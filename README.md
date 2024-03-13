@@ -24,7 +24,23 @@ Knowledge Base
 
 ## AI
 
+[General methods](ai_general_methods.md)
+
 [Supervised Learning](supervised_learning.md)
+
+[Unsupervised Learning: Clustering](unsupervised_learning_clustering.md)
+
+[Unsupervised Learning: Dimensionality Reduction](unsupervised_learning_dimensionality_reduction.md)
+
+[Deep Learning](deep_learning.md)
+
+[CNNs](cnns.md)
+
+[RNNs](rnns.md)
+
+[Extra topics](ai_extra.md)
+
+[Natural Language Processing](natural_language_processing.md)
 
 ## Networking
 

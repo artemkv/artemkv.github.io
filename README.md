@@ -40,6 +40,8 @@ Knowledge Base
 
 [Extra topics](ai_extra.md)
 
+[Reinforcement Learning](reinforcement_learning.md)
+
 [Natural Language Processing](natural_language_processing.md)
 
 ## Networking

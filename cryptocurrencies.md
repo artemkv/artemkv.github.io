@@ -33,8 +33,8 @@
 ## Traditional e-cash
 
 - Alice contacts a bank and asks for a **digital representation of a coin**, in exchange to some money on Alice's account
-- Banks creates a digital representation of a coin (basically a serial number, SN) and gives it to Alice
-- It should be possible to verify the coin is indeed issued by the bank (done using digital signatures), and it should be possible to only use it once (ensure by bank records)
+- Banks creates a digital representation of a coin (basically a serial number, `SN`) and gives it to Alice
+- It should be possible to verify the coin is indeed issued by the bank (done using digital signatures), and it should be possible to only use it once (ensured by bank records)
 - Alice gives the coin to Bob
 - Bob contacts the bank to verify that the coin is valid and not double-spent, and in that case gives sandwich to Alice
 - This scheme brings us one step closer to peer-to-peer transactions, but all the same cons are still preserved
@@ -43,18 +43,18 @@
 ## Chaumian e-cach
 
 - The scheme conceived by David Chaum in 1983
-- Instead of bank choosing SN (digital coin), we allow Alice to generate her SN herself
-- This SN should be random and long enough to make sure no one else will generate the same SN
-- Alice then sends the SN to the bank to approve it
-- The bank sends Alice a digital signature for her SN
-- Except instead of sending the plain SN, Alice "blinds" the SN by adding extra randomness
-- So in fact, Alice sends b(SN) to the bank, and bank replies with Sig(b(SN))
-- The blind signing is designed in a way that allows Alice to remove blinding factor and obtain Sig(SN) and plain SN
-- Alice then gives Sig(SN),SN pair to Bob, who sends this data to the bank, to verify the validity
-- The bank keeps track of every SN used
-- So the Bank is still responsible to verify the validity of SN, however, when Bob redeems the coin, the Bank has no means to know that the coin came from Alice
+- Instead of bank choosing `SN` (digital coin), we allow Alice to generate her `SN` herself
+- This `SN` should be random and long enough to make sure no one else will generate the same `SN`
+- Alice then sends the `SN` to the bank to approve it
+- The bank sends Alice a digital signature for her `SN`
+- Except instead of sending the plain `SN`, Alice "blinds" the `SN` by adding extra randomness
+- So in fact, Alice sends `b(SN)` to the bank, and bank replies with `Sig(b(SN))`
+- The blind signing is designed in a way that allows Alice to remove blinding factor and obtain `Sig(SN)` and plain `SN`
+- Alice then gives `Sig(SN),SN` pair to Bob, who sends this data to the bank, to verify the validity
+- The bank keeps track of every `SN` used
+- So the Bank is still responsible to verify the validity of `SN`, however, when Bob redeems the coin, the Bank has no means to know that the coin came from Alice
 - But what if Alice gives the same coin to Bob and Charlie? How will they know which coin is valid?
-- Interestingly, bank retains enough information to be able to trace back to Alice in that case (and only in that case), creating an incentive for Alice not to do that
+- Interestingly, bank retains enough information to be able to trace back to Alice in that case (and only in that case!), creating an incentive for Alice not to do that
 - So Bob cannot know if the coin was also given to Charlie, but he knows that if this happened, someone would punish Alice
 
 ### Pros
@@ -73,8 +73,8 @@
 
 - Hashes and signatures are fundamental to cryptocurrencies
 - Hashes are useful as pointers: think Git, which is basically a linked list of commits that reference previous commits by hashes
-- Another way to use hashes is as commitments: if you have y = hash(x), you can reveal y first and x later, and be able to prove that x relates to y
-- In other words, you can make a promise x and commit to it by revealing y, but only reveal the x later, and people should be able to confirm that what you promised is indeed what you say you promised
+- Another way to use hashes is as commitments: if you have `y = hash(x)`, you can reveal `y` first and `x` later, and be able to prove that `x` relates to `y`
+- In other words, you can make a promise `x` and commit to it by revealing `y`, but only reveal the `x` later, and people should be able to confirm that what you promised is indeed what you say you promised
 
 
 ## Elliptic curve signatures
@@ -83,43 +83,43 @@
 - Bitcoin's elliptic curve is `y^2 = x^3 + 7`
 - We can define a group structure on any smooth cubic curve
 - A group is a set equipped with a binary operation (a "dot") that is associative, has an identity element, and is such that every element has an inverse
-- Inverse: the curve is symmetrical about the x-axis, so given any point P, we can take -P to be the point opposite of it
-- Binary operation (in this case "dot" is "+"): if P and Q are two points on the curve, then we can uniquely describe a third point, P+Q, in the following way. First, draw the line that intersects P and Q. This will generally intersect the curve at a third point, R. We then take P+Q to be −R, the point opposite R (P+Q=-R)
-- Identity: define as identity the point O such that P+O = O = O+P
-- If P = Q we only have one point, thus we can't define the line between them. In this case, we use the tangent line to the curve at this point as our line. So to calculate P+P, you use the tangent
-- In most cases, the tangent will intersect a second point R, except if P happens to be an inflection point, in which case we take R to be P itself and P+P as simply the point opposite itself
+- Inverse: the curve is symmetrical about the `x`-axis, so given any point `P`, we can take `-P` to be the point opposite of it
+- Binary operation (in this case "dot" is "`+`"): if `P` and `Q` are two points on the curve, then we can uniquely describe a third point, `P+Q`, in the following way. First, draw the line that intersects `P` and `Q`. This will generally intersect the curve at a third point, `R`. We then take `P+Q` to be `−R`, the point opposite `R` (`P+Q=-R`)
+- Identity: define as identity the point `O` such that `P+O = O = O+P`
+- If `P = Q` we only have one point, thus we can't define the line between them. In this case, we use the tangent line to the curve at this point as our line. So to calculate `P+P`, you use the tangent
+- In most cases, the tangent will intersect a second point `R`, except if `P` happens to be an inflection point, in which case we take `R` to be `P` itself and `P+P` as simply the point opposite itself
 - With this definition of a binary operation, it turns out the math of the curve works out in such way so that the group rules are satisfied
-- Let's use a, b for scalar integer numbers, allowed operations: a+b, a-b, a*b, a/b
-- Let's use A, B for points on the curve, allowed operations: A+B, A-B
-- Allowed operations mixing scalars and points: A*b A/b (but not A+b or A-b)
-- A*2 means: take a tangent through A, the point where it intersects with the curve is -A*2, then flip the point. Repeat this process multiple times for doubling multiple times
-- If you are not multiplying by the power of two, you can combine factor-of-two results, i.e. 3*7 = 3*4 + 3*2 + 3
+- Let's use `a`, `b` for scalar integer numbers, allowed operations: `a+b`, `a-b`, `a*b`, `a/b`
+- Let's use `A`, `B` for points on the curve, allowed operations: `A+B`, `A-B`
+- Allowed operations mixing scalars and points: `A*b`, `A/b` (but not `A+b` or `A-b`)
+- `A*2` means: take a tangent through `A`, the point where it intersects with the curve is `-A*2`, then flip the point. Repeat this process multiple times for doubling multiple times
+- If you are not multiplying by the power of two, you can combine factor-of-two results, i.e. `3*7 = 3*4 + 3*2 + 3`
 - This shortcut is a key to constructing one-way function
 - In a real world, you are not really drawing lines, you use some algorithm/formula to make the calculations; importantly, these operations are costly
 - Now, using these allowed operations, we could construct a one-way function in a following way:
-- Pick some random point G (a generator point)
-- Pick some random 256-bit scalar a to be your private key
-- Public key A is a*G (32-byte x coordinate, 32-byte y coordinate)
-- Note: since the curve is symmetrical about the x-axis, you can encode y with only 1 bit (which would specify whether the point is above or below the x axis)
-- G is public, A is the public key, so also public, the only thing that is a secret is a, the multiplier of G
-- Having the first and final points, the only way to find out a is to repeatedly "dot" (in our case, "+") the initial point until you finally have the matching final point
-- As we don't know a, we cannot apply our shortcut
-- Turns out, given computational power of today's computers, trying to determine a from A = a*G given known values of A and G would take more time than what is the lifespan of the Earth
-- Having A = a*G and B = b*G, turns out, aB = bA = C. C is a "Diffie Hellman" point, and allows securely exchanging cryptographic keys over a public channel (both Alice and Bob can compute C, but no one else can, so Bob and Alice can use C as a symmetric key)
+- Pick some random point `G` (a generator point)
+- Pick some random 256-bit scalar `a` to be your private key
+- Public key `A` is `a*G` (32-byte `x` coordinate, 32-byte `y` coordinate)
+- Note: since the curve is symmetrical about the `x`-axis, you can encode `y` with only 1 bit (which would specify whether the point is above or below the `x` axis)
+- `G` is public, `A` is the public key, so also public, the only thing that is a secret is `a`, the multiplier of `G`
+- Having the first and final points, the only way to find out `a` is to repeatedly "dot" (in our case, "`+`") the initial point until you finally have the matching final point
+- As we don't know `a`, we cannot apply our shortcut
+- Turns out, given computational power of today's computers, trying to determine `a` from `A = a*G` given known values of `A` and `G` would take more time than what is the lifespan of the Earth
+- Having `A = a*G` and `B = b*G`, turns out, `aB = bA = C`. `C` is a "Diffie Hellman" point, and allows securely exchanging cryptographic keys over a public channel (both Alice and Bob can compute `C`, but no one else can, so Bob and Alice can use `C` as a symmetric key)
 
 ### ECsig
 
-- Message m, private key a, public key A
-- Make k, a new random private key
-- R = k*G (the only costly operation in signature calculation)
-- s = k - hash(m, R)a (these are all scalars, hash is cheap)
-- signature = R, s
-- To verify: you know G, you receive R, s, m, A
-- If you multiply s by G, you should get G*(k - hash(m, R)a) = k*G - hash(m, R)a*G = R - hash(m, R)A
-- This last expression you can calculate, as well as s*G
-- All you need to do is to verify that, given the numbers you get, s*G == R - hash(m, R)A
-- So to verify, you have 2 costly operations: s*G and hash*A
-- Caveat: if you use the same R value for different signatures, with the same public key, you reveal your private key; k has to be random and new every time
+- Message `m`, private key `a`, public key `A`
+- Make `k`, a new random private key
+- `R = k*G` (the only costly operation in signature calculation)
+- `s = k - hash(m, R)a` (these are all scalars, hash is cheap)
+- signature = `R, s`
+- To verify: you know `G`, you receive `R`, `s`, `m`, `A`
+- If you multiply `s` by `G`, you should get `G*(k - hash(m, R)a) = k*G - hash(m, R)a*G = R - hash(m, R)A`
+- This last expression you can calculate, as well as `s*G`
+- All you need to do is to verify that, given the numbers you get, `s*G == R - hash(m, R)A`
+- So to verify, you have 2 costly operations: `s*G` and `hash*A`
+- Caveat: if you use the same `R` value for different signatures, with the same public key, you reveal your private key; `k` has to be random and new every time
 
 
 ## Transactions
@@ -128,7 +128,7 @@
 - Who: Alice
 - Amount: $5
 - Payee: Bob
-- Auth: Sig_Alice(hash("Alice-5$-Bob")) - proves that Alice initiated the transaction
+- Auth: `Sig_Alice(hash("Alice-$5-Bob"))` - proves that Alice initiated the transaction
 - In an account-based model, you store the list of accounts and balances, a transaction is valid if there is a positive and sufficient balance on the account
 - So with account-based model, you would have to check the Alice's account balance to see if Alice has funds and update Alice's and Bob's balances
 - Account-based model would allow replaying transaction, as there is nothing to prevent it, so you also need some kind of unique id
@@ -147,14 +147,14 @@
 - An input is a reference to an output from a previous transaction
 - There can be multiple inputs and multiple outputs
 - All outputs can be consumed separately
-- **Input:** prev tx (a hash of previous transaction, to be able to find it), index (specific output in the referenced transaction), scriptSig (a signature script)
-- Output: value (amount), ScriptPubKey (public key script)
-- ScriptPubKey contains a hash of a public key of a person to whom you are sending the coin, this allows that person to redeem the coin later
-- scriptSig contains transaction signature and the public key of the person who requests the transfer
-- scriptPubKey also contains operations (stack-based language, reminds me of Fort), that specifies how the validation is done exactly. This gives Bitcoin a lot of flexibility
-- To verify the transaction, the input's scriptSig and the referenced output's scriptPubKey are evaluated. The input is authorized if scriptPubKey returns true
+- **Input:** prev tx (a hash of previous transaction, to be able to find it), index (specific output in the referenced transaction), `scriptSig` (a signature script)
+- Output: value (amount), `ScriptPubKey` (public key script)
+- `ScriptPubKey` contains a hash of a public key of a person to whom you are sending the coin, this allows that person to redeem the coin later
+- `scriptSig` contains transaction signature and the public key of the person who requests the transfer
+- `ScriptPubKey` also contains operations (_My note: stack-based language, reminds me of Fort_), that specifies how the validation is done exactly. This gives Bitcoin a lot of flexibility
+- To verify the transaction, the input's `scriptSig` and the referenced output's `ScriptPubKey` are evaluated. The input is authorized if `ScriptPubKey` returns true
 - Normally, script would, predictably, use public key to validate the signature, but you could define script that defines unspendable output or an output that can be spent by anyone
-- Transactions can include inputs from different people, provided all these people provided correct scriptSig for the corresponding inputs
+- Transactions can include inputs from different people, provided all these people provided correct `scriptSig` for the corresponding inputs
 - You are identified by your public key
 - You can have many public keys or even use a new public key every time
 
@@ -189,16 +189,16 @@
 
 ## Proof of work
 
-- Work should be time-consuming: O(n)
-- Verification should be deterministic and require O(1)
-- Memoryless: when the computation depends on a previous computation, the fastest player always wins. What we want is the setup in which if I am 10% as fast as you, I should be able to still win 10% of a time
+- Work should be time-consuming: `O(n)`
+- Verification should be deterministic and require `O(1)`
+- Memoryless: when the computation depends on a previous computation, the fastest player always wins. What we want is the setup in which, if I am 10% as fast as you, I should be able to still win 10% of a time
 - Example: forge a lamport signature
 - Basically, given a public key and 4 lamport signatures, created a message that contains some pre-defined text and a valid signature for it
 - Every lamport signature reveals part of a private key, maybe a block from the first row, maybe from the second row, or maybe from both
 - If for any block, both rows are revealed, you don't care what value the hash will produce for the corresponding bit
-- So your goal is basically construct your message in a way so that when you hash it, the bits in the hash match the revealed blocks
+- So your goal is, basically, construct your message in a way so that when you hash it, the bits in the hash match the revealed blocks
 - Having 4 signatures, and knowing that on average half of the bits of a hash function will be different, you will only care about 32 bits out of 256
-- Since hash is a one way function, the only way to find such x is to brute-force. With 32 bits constrained, you will need to try about 2^32 messages
+- Since hash is a one way function, the only way to find such `x` is to brute-force. With 32 bits constrained, you will need to try about 2^32 messages
 - This task should take about 3 min on AMD Ryzen 7 1700 CPU, using 8 cores
 - The way to estimate the work, you need to look at the constraints (in this case 32 bits of hash that have to match)
 - The real work in a given specific case may be less (if you are lucky), but with many attempts numbers will average out
@@ -207,7 +207,7 @@
 - This was tried in the past to limit email spam: to be able to send an email, you have to compute a number which, appended to email header, will result in hash for the header having lower 20 bits being zeroes
 - You find the number by starting with some initial value (e.g. 0) and if that does not work, you increment the number by one and try again, until you manage to get the result
 - So if you send me a message, and I calculate the SHA-256 hash, and first 32 bits of that hash are zeroes, I know that you did O(2^32) work
-- You can re-formulate this condition as "hash has to be less than target value t"
+- You can re-formulate this condition as "hash has to be less than target value `t`"
 - In Bitcoin, to add a record to a ledger, you need to do work
 - Transactions are already cryptographically signed, so you would not be able to forge a transaction from someone else, and re-playing some previous transaction would not help, as anyone would be able to detect the duplicate and reject it
 - However, without proof of work you would be able to create and sign 2 valid **different** transactions (double-spend): one sending money to Alice and one sending money to Bob. Everyone would be able to detect double-spend, but no one would be able to tell which one is correct. The consensus would be able to eventually decide on a valid one, but you could overpower the consensus by creating millions of nodes
@@ -222,7 +222,7 @@
 - Proof of work requirement makes it really difficult to overpower the consensus
 - To put your side of fork in front you would have to provide proof of more work than the other side
 - So even if the valid transaction gets in a block, it can get invalidated if it happens to be on the "bad side" of a fork
-- Interestingly, you can proof the total amount of work done in the whole chain by looking just at 1 block (with the smallest hash) - see hyper log log
+- Interestingly, you can proof the total amount of work done in the whole chain by looking just at 1 block (with the smallest hash) - see "hyper log log"
 
 
 ### Pros
@@ -244,11 +244,11 @@
 
 ## Block chain
 
-- General idea: given message m, nonce r, target t, hash(m, r) = h; the condition h < t must hold
-- Tweaking t allows you to fine-tune the constraint
-- Message m is a block in block chain, hash(m, r) = h is a block identifier
-- Chain: m = (prev, data, r) where prev = hash(m_prev, r_prev)
-- In other words, m2 = (hash(m1, r1), data2, r2)
+- General idea: given message `m`, nonce `r`, target `t`, `hash(m, r) = h`; the condition `h < t` must hold
+- Tweaking `t` allows you to fine-tune the constraint
+- Message `m` is a block in block chain, `hash(m, r) = h` is a block identifier
+- Chain: `m = (prev, data, r)` where `prev = hash(m_prev, r_prev)`
+- In other words, `m2 = (hash(m1, r1), data2, r2)`
 - If you flip any bit in any block in the history, the whole chain breaks
 - It should be statistically impossible to have 2 blocks with the same hash (a collision)
 - You can, however, have 2 blocks pointing to the same parent block
@@ -309,7 +309,7 @@
 - Some people might try introducing "evil" forks
 - The better way to introduce new rules is to use sort of feature flag to activate it once the majority has agreed on it
 - When you submit the new transaction, you might not know which side of the fork it is going to be added. If it's valid for both sides, it might be added on both sides. You might want to try to re-play it and make sure it's added on both sides, since that duplicates your money
-- This is the way exchanges might get screwed: imagine you deposit coin A, then the fork happens, you replay your transaction, withdraw your money, and suddenly you balance has coin A and coin B
+- This is the way exchanges might get screwed: imagine you deposit coin `A`, then the fork happens, you replay your transaction, withdraw your money, and suddenly you balance has coin `A` and coin `B`
 - To prevent that, forks can provide replay protection, basically setting the rules in that way that no transaction can be added on both sides
 - Forks are very complicated, many people are unaware of forks, and this creates legal issues
 
@@ -321,15 +321,15 @@
 - Using the same public key allows anyone to track the whole history of payments received by you
 - To avoid this, you could use new public key every time
 - But it would be very annoying, if you need to generate a new matching private key every time as well
-- You can use the following trick, having 1 p-P pair, calculate single-use public key A as A = P + hash(r, 1)*G where r is some random number
-- The corresponding private key a is a = p + hash(r, 1)
-- You don't have to store A, a, or r. All you need is to enumerate over every possible value of r and generate a-A pairs again
-- With r being reasonably small (up to a billion), this is quite doable with modern computers
-- If P and r are compromised, you lose your privacy, but not money: people will be able to link all your transactions, but won't be able to use your money
+- You can use the following trick, having 1 `p-P` pair, calculate single-use public key `A` as `A = P + hash(r, 1)*G` where `r` is some random number
+- The corresponding private key `a` is `a = p + hash(r, 1)`
+- You don't have to store `A`, `a`, or `r`. All you need is to enumerate over every possible value of `r` and generate `a-A` pairs again
+- With `r` being reasonably small (up to a billion), this is quite doable with modern computers
+- If `P` and `r` are compromised, you lose your privacy, but not money: people will be able to link all your transactions, but won't be able to use your money
 - To request a payment, you communicate your public key hash
 - To know when you are paid, you need to listen to the network and check the outputs of every transaction you see
 - To pay, you create a transaction, sign and broadcast to peers
-- Coin selection is NP problem. You want to minimize the size of your transaction, and since the input is a biggest part, you minimize number of inputs
+- Coin selection is NP problem. You want to minimize the size of your transaction, and since the input is the biggest part, you minimize number of inputs
 - Using several different coins as inputs to produce 1 output creates a privacy issues: it links your two input accounts together
 - Once you sign your transaction, you have to wait for it to get in the block to be sure you have actually spent your coin
 - If you are using different devices, they will not know about each other's transactions, so you need to listen to your own UTXOs getting spent in every block
@@ -402,8 +402,8 @@
 ## Alternative consensus mechanism
 
 - People don't like "proof-of-work" mechanism (uses a lot of electricity, resources etc.)
-- My thought: although this is comparable to maintaining the police, security cameras, alarms, locks, bodyguards, weapons, the army etc.: this is only needed because there are people with malicious intent
-- My thought: so in the way it's not the proof of work that is bad, it is people. proof of work is simply a digital version protection measures that already exist in physical reality
+- _My thought: although this is comparable to maintaining the police, security cameras, alarms, locks, bodyguards, weapons, the army etc.: this is only needed because there are people with malicious intent_
+- _My thought: so in the way it's not the proof of work that is bad, it is people. proof of work is simply a digital version protection measures that already exist in physical reality_
 - Proof of work would not be bad if we could implement it in the way that is more eco-friendly (e.g. less CO2)
 - **Unique node list (UNL):** every node has an identity (private key), nodes sign the block, every node is on the list, and there is a central authority that certifies that every node is unique (belongs to a unique person). Majority rules
 - So you don't know who your peers are, but they are guaranteed to be unique which guards against Sybil attack
@@ -425,7 +425,7 @@
 - You would need a function that cannot be parallelized, otherwise people with more CPU power would still win
 - **Proof-of-idle:** you prove that you are not mining. Motivation: more people mine, less the reward. If we could all lower the rate of mining all together, we would still get the same reward, but with less electricity
 - Problem with this agreement: someone who decides not to follow the agreement will rob others of their money
-- My thought: this is classical game theory setup :)
+- _My thought: this is classical game theory setup :)_
 - Solution: Alice pays Bob not to mine. But first Alice needs to know Bob can mine, so Alice asks Bob to mine for a small amount of time, to prove his capacity to mine. Alice then signs the block with 2 transactions, that are configured in the following way:
 - If blocks come out fast, Alice gets her money back
 - If blocks come out slow, Bob gets his bounty output

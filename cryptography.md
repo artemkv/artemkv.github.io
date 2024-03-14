@@ -1,5 +1,6 @@
 # Cryptography
 
+
 ## **TL;DR**
 
 - SHA-3 for cryptographic hashing
@@ -147,7 +148,7 @@ openssl pkey -in bob_private_key.pem -pubout -out bob_public_key.pem
 ```
 
 - Public keys are exchanged (over an open channel)
-- "pkeyutl -derive" can then be used to derive the shared secret for the symmetric encryption from the private key and other party's public key:
+- "`pkeyutl -derive`" can then be used to derive the shared secret for the symmetric encryption from the private key and other party's public key:
 
 ```
 openssl pkeyutl -derive -inkey bob_private_key.pem -peerkey alice_public_key.pem -out shared_secret.bin
@@ -305,5 +306,5 @@ openssl pkcs12 -export -in certificate.cer -inkey private_key.pem -out combined.
 ```
 
 - The combined file can be installed in IIS, for example
-- This process is not done manually anymore. These days the process is automated and happens behind the scenes. You are supposed to configure the certbot that automatically renews the certificates for you
+- This process is not done manually anymore. These days the process is automated and happens behind the scenes. You are supposed to configure the `certbot` that automatically renews the certificates for you
 - In practice, SSL is often offloaded on the LB level

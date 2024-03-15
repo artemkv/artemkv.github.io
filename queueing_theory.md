@@ -86,26 +86,26 @@
 - This simulation is for `S` servers, no queue
 
 ```basic
-100 DIM C(50)						' server availability times
-110 INPUT S, NSTOP					' S is number of servers, NSTOP number of requests to simulate
-120 FOR D = 1 TO NSTOP				' run for NSTOP iterations
-130 IA = ???						' IA is interarrival time, generate from distribution
-140 A = A + IA						' A is the arrival time of the previous customer, acts as the clock
-150 J = 0							' J is the index of a server
+100 DIM C(50)                       ' server availability times
+110 INPUT S, NSTOP                  ' S is number of servers, NSTOP number of requests to simulate
+120 FOR D = 1 TO NSTOP              ' run for NSTOP iterations
+130 IA = ???                        ' IA is interarrival time, generate from distribution
+140 A = A + IA                      ' A is the arrival time of the previous customer, acts as the clock
+150 J = 0                           ' J is the index of a server
 160 J = J + 1
-170 IF J = S + 1 THEN K = K + 1		' K is number of overflowed requests
+170 IF J = S + 1 THEN K = K + 1     ' K is number of overflowed requests
 180 IF J = S + 1 THEN 270
-190 IF A < C(J) THEN 160			' look for a server to put the request to
-200 X = ???							' X is the service time, generate from distribution
-210 C(J) = A + X					' A + X is the time the server is going to become available
-220 M = C(1)						' M is the time next server becomes available
-230 FOR I = 2 TO S					' we are going to find it by iterating over all servers
+190 IF A < C(J) THEN 160            ' look for a server to put the request to
+200 X = ???                         ' X is the service time, generate from distribution
+210 C(J) = A + X                    ' A + X is the time the server is going to become available
+220 M = C(1)                        ' M is the time next server becomes available
+230 FOR I = 2 TO S                  ' we are going to find it by iterating over all servers
 240 IF C(I) < M THEN M = C(I)
 250 NEXT I
-260 IF M > A THEN AB = AB + M - A 	' if all busy, remember AB, the time all servers are busy
+260 IF M > A THEN AB = AB + M - A   ' if all busy, remember AB, the time all servers are busy
 270 NEXT D
-280 PRINT K/NSTOP					' probability of dropping a request
-280 PRINT AB/A						' fraction of time we are in the blocking state
+280 PRINT K/NSTOP                   ' probability of dropping a request
+280 PRINT AB/A                      ' fraction of time we are in the blocking state
 ```
 
 - If we add the queue, the difference is, when all servers are busy, we don't drop requests

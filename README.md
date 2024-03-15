@@ -22,6 +22,8 @@ Knowledge Base
 
 [Practical statistics](statistical_Inference.md)
 
+[Queueing Theory](queueing_theory.md)
+
 ## AI
 
 [General methods](ai_general_methods.md)

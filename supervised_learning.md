@@ -45,7 +45,7 @@
 - Overfitting is caused by 2 factors. One is learning noise in the data. Another is learning to identify specific inputs rather than whatever factors are actually predictive for the desired output (memorizing the input)
 - So the simpler model may do some mistakes on the test data, but we can think of them not as mistakes but just result of noise in the data (see probabilistic interpretation below). Looking at it this way, it is actually good when the model makes "mistakes" in case of noise
 - The most fundamental approach to detect and avoid overfitting involves using different data to train the model and to test the model (typically 70/30)
-- Your test data should have the same distribution of the feature values as the train data. You should verify it
+- Your test data should have the same distribution of the feature values/classes as the train data. You should verify it
 - There are 2 possible sources of errors in the model predictions: bias and variance (closely related to bias and variance of statistical estimators, but used in less formal way)
 - **Bias** is an error from erroneous assumptions in the learning algorithm. It works as a measure of the quality of prediction on a training set
 - An example of an algorithm that usually has high bias is linear regression
@@ -71,7 +71,8 @@
 - You split your training set into `k` folds, find the optimal value for a hyperparameter for every fold, and use it to calculate the value that is good for all folds
 - `k = 10` is a popular choice, `k = 5` or `k = 20` are also used
 - The disadvantage of k-fold cross validation is that it is computationally expensive (you are evaluating each model k times), so it is mostly used on smaller datasets
-- The extreme version of k-fold cross validation is leave-one-out cross validation, which can be used in case of very small datasets (<=100)
+- The extreme version of k-fold cross validation is **leave-one-out** cross validation, which can be used in case of very small datasets (≤100)
+- Once you have found the optimal hyperparameters, you can re-train the model on the training + validation set, to make the best use of your data
 - You could use similar approach to find the best subset of features, as a way to reduce a number of features for your model. This is called **feature selection**
 - One way is to start with a small subset of features and try adding more, one by one. Alternatively, you can start with all features, and try removing one by one. Both methods are computationally expensive
 - There are some cheaper methods to select a feature subset. For example, you could calculate correlation between every feature and the label on the training data, then choose the features that are the most strongly correlated with the labels
@@ -274,6 +275,7 @@
 - Can be used for classification or regression
 - Remember that linear regression uses model `y = mx + b`; once it learns the correct values for `m` and `b`, it never looks at the original dataset again
 - k-Nearest Neighbors instead uses data-centric approach: for any value of `x` it finds `k` data points that are closest to `x` and uses them to predict `y`
+- Since k-Nearest Neighbors does not need to make any assumptions about the relations between `x` and `y`, it is an example of **non-parametric model** (linear regression is an example of **parametric model**)
 - A commonly used distance metric for continuous variables is **Euclidean distance**
 - For discrete variables, you can use different metrics, e.g. **Hamming distance**
 - For regression, the value is the average (mean) of the values of `k` nearest neighbors
@@ -282,8 +284,9 @@
 - A common weighting scheme consists in giving each neighbor a weight of `1/d`, where `d` is the distance to the neighbor
 - If the class distribution is skewed (class imbalance), the more frequent class tend to dominate the prediction of the new example (they tend to be common among the `k` nearest neighbors due to their large number)
 - As with other methods, we could weight the distances proportional to class frequencies
-- The best choice of `k` depends upon the data
-- Generally, larger values of `k` reduces effect of the noise on the classification, but make boundaries between classes less distinct
+- The best choice of `k` depends upon the data (and going, for example, from `k=1` to `k=3` you may see completely different predictions)
+- Generally, larger values of `k` reduces effect of the noise on the classification, but make boundaries between classes less distinct (they "try less hard" and bend less)
+- In the extreme case of `k` being >= the total number of datapoints, the model will always simply predict the majority class
 - This approach is memory-inefficient
 - On the flip side, you can improve your model at any time by simply adding more data points
 

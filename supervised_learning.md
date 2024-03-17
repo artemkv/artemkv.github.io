@@ -29,7 +29,7 @@
 - F1 score treats recall and precision as equally important
 - If we want the score to favorite recall or precision, we can calculate **F beta score**, where beta is a coefficient that drives the score up depending on recall or precision
 - Lower beta favors precision, high beta favors recall. Coming up with a good value of beta is a matter of experience and expertise
-- **ROC curve** is a chart of (`tp / all positives`) to (`fp / all negatives`). The closer the area under the curve to 1, the better the split is (see below)
+- **ROC curve** (see below) is a chart of (`tp / all positives`) to (`fp / all negatives`). The closer the area under the curve to 1, the better the split is
 - Sometimes, instead of precision and recall, people use sensitivity and specificity
 - **Sensitivity** (true positive rate) is the same as recall: `tp / (tp + fn)`
 - **Specificity** (true negative rate) measures what fraction of the negatives our model identified: `tn / (tn + fp)`. It's kind of like "recall on negatives"
@@ -89,9 +89,8 @@
 - **Empirical risk** is an average `1/m*[sum of 1{h(xi)!=yi} over all i]`, given m samples
 - Basically, it's the ratio of wrong predictions on the training set, can be calculated
 - Let's call `g` the best possible hypothesis (overall)
-- Let's call `h*` the best hypothesis in the given class of estimators (g can be completely outside that class)
+- Let's call `h*` the best hypothesis in the given class of estimators (`g` can be completely outside that class)
 - Let's call `h^` the hypothesis that we came up with during learning
-- Empirical risk of `h^` is going to be smaller than empirical risk of `h*` and that's OK! We are really interested in minimizing the generalization error, not the empirical risk
 - `[Risk of g]` is the **irreducible error** ("Bayes error")
 - `[Risk of h*] - [risk of g]` is an **approximation error**, comes from selected class of an algorithm
 - `[Risk of h^] - [risk of h*]` is an **estimation error**, comes from data
@@ -102,7 +101,7 @@
 - It is easy to see that by reducing the hypothesis space (by changing the class of an algorithm) you might be reducing the variance, but potentially moving away from `g`, thus increasing bias
 - The learning algorithm can be anything, but there is a special class of algorithms: **Empirical risk minimizers (ERM)**
 - Unsurprisingly, ERMs are looking for `h^(x)` that minimize empirical risk, i.e. minimize the training loss
-- But of course, we are really interested in minimizing the generalization error
+- But of course, what we are really interested in minimizing the generalization error, not the empirical risk
 - Luckily, it can be proven that you can bound the difference between the empirical risk of `h^` and the generalization error of `h*` to some arbitrarily small value `gamma` (margin of error), by increasing the sample size
 - ERMs and MLEs are related under the hood
 

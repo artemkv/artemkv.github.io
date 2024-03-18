@@ -11,7 +11,7 @@
 - [Harvard Statistics 110: Probability](https://www.youtube.com/playlist?list=PL2SOU6wwxB0uwwH80KTQ6ht66KWxbzTIo)
 
 
-## My personal takeaways:
+## My personal takeaways
 
 - While math is really clear-cut, the usefulness of a model greatly depends on your assumptions about the world, and which assumptions you bring into your model
 - Our daily life does not provide us with enough intuition for the probabilistic modeling, everything needs to be reasoned very carefully and step by step. There are many examples of fallacies that are just mind-blowing
@@ -23,7 +23,7 @@
 - Law of large numbers is about value of the sample mean, the CLT is about its distribution
 
 
-## Standard 4-step procedure:
+## Standard 4-step procedure
 
 - Identify the sample space. Decide what you want to include into your model
 - Describe the probability law on that sample space. Ask someone or make necessary assumptions
@@ -31,7 +31,7 @@
 - Calculate
 
 
-## Intro
+## Experiments, outcomes and sample space
 
 - "Randomness" is a way of expressing what we don't know or what is too complicated to calculate precisely
 - There are two common interpretations of the word "probability": one is in terms of relative frequency, the second as a quantification of our degree of subjective personal belief that something will happen
@@ -55,7 +55,8 @@
 - Note: once you identified the sample space and assigned probability to every individual outcome, it is really easy to find probabilities of events
 - When all outcomes are equally likely, the calculation is particularly trivial, `P(A)` is simply number of elements in `A` to total number of items
 
-### Continuous sample space and events
+
+## Continuous sample space and events
 
 - The sample space does not have to be finite or discrete: imagine you are throwing a dart, the coordinates of a point you hit are continuous, and there is an infinite number of points you can hit
 - The probability of hitting a single point is zero

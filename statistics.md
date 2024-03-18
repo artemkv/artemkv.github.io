@@ -8,7 +8,7 @@
 
 - [MIT 18.650 Statistics for Applications](https://www.youtube.com/playlist?list=PLUl4u3cNGP60uVBMaoNERc6knT_MgPKS0)
 
-## My takeaway:
+## My takeaways
 
 - The essence of statistics is replacing expectations by averages
 

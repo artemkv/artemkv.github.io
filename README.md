@@ -20,7 +20,7 @@ Knowledge Base
 
 [Statistics](statistics.md)
 
-[Practical statistics](practical_statistics.md.md)
+[Practical statistics](practical_statistics.md)
 
 [Queueing Theory](queueing_theory.md)
 

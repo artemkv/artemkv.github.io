@@ -10,6 +10,8 @@
 - If all the requests eventually get processed, offered load equals carried load
 - If offered load exceeds carried load, requests get dropped/the queue grows into infinity
 
+* TOC
+{:toc}
 
 ## Intro
 

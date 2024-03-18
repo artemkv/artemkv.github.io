@@ -4,7 +4,7 @@
 * A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
 {:toc}
 
-## **TL;DR**
+## TL;DR
 
 - SHA-3 for cryptographic hashing
 - MD5 is fine for checksum and other non-cryptographic purposes
@@ -169,7 +169,7 @@ openssl pkeyutl -derive -inkey bob_private_key.pem -peerkey alice_public_key.pem
 - RSA is the most popular algorithm for PKI
 - It uses a different trapdoor function, based on the multiplication of 2 very large prime numbers. It is easy to multiple numbers, but it's very difficult to factorize the product into the pair of prime numbers
 
-### RSA algorithm:
+### RSA algorithm
 
 - Find 2 different large prime numbers `p` and `q`. This should be kept secret
 - Calculate `n = pq`. `n` is the modulus for the public key and the private keys

@@ -461,7 +461,7 @@ Each time an acknowledgment is received, the Send Window slides across the strea
     - *CNAME* - contains a domain name alias. A CNAME-record should always point to an A-record and never to itself or another CNAME-record to avoid circular references
     - *NS* - specifies the name of a DNS name server that is authoritative for the zone
 
-#### Resolution:
+#### Resolution
 
 - Your local DNS server IP address is a part of your IP configuration. It actually doesn't store the DNS database records (except in cache), and only knows how to query actual DNS servers with records. So it is a DNS resolver.
 - When you try to resolve example.com, you send the request to your local DNS server (DNS resolver).

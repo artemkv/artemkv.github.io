@@ -1,5 +1,8 @@
 # Queueing Theory 
 
+* TOC
+{:toc}
+
 ## References
 
 - [MAP6264 - Queueing Theory](https://www.youtube.com/playlist?list=PL59NBu6N8dUqYClaKpoozyzK3Kpcm5eou)
@@ -10,8 +13,6 @@
 - If all the requests eventually get processed, offered load equals carried load
 - If offered load exceeds carried load, requests get dropped/the queue grows into infinity
 
-* TOC
-{:toc}
 
 ## Intro
 

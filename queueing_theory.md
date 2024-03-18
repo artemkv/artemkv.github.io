@@ -85,7 +85,7 @@
 - It can be proven that given `R` is uniformly distributed, the new, transformed values are going to follow the distribution `G(U)`
 
 
-## Simulation
+## Simulation code
 
 - This simulation is for `S` servers, no queue
 

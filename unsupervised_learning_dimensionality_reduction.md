@@ -72,7 +72,7 @@ pipe.predict(newdata)
 - `A` is an unknown **mixing matrix**
 - Our goal is to find `W`, an **unmixing matrix**, or "inverse matrix", so that given our microphone recordings `x`, we could recover the source sound by computing `s = Wx`
 - The most tricky part is to derive an expression for likelihood
-- You pick a distribution on `s(i)` in a form of CDF, sigma works well for a human voice (as a default choice)
+- You pick some default distribution on `s(i)`, in a form of CDF, could be as simple as sigmoid (works well for a human voice)
 - Since all the speakers are independent, the distribution for vector `s` is a product of individual distributions of `s(i)`
 - You then derive the CDF for `x`, assuming `x = As` and `s = Wx`
 - Once it's done, `W` can be easily found by maximizing log likelihood using the (stochastic) gradient ascent

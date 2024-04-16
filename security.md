@@ -36,7 +36,7 @@
 
 ## Security architecture
 
-- https://cloud.google.com/docs/security/infrastructure/design
+- [Google infrastructure security design overview](https://cloud.google.com/docs/security/infrastructure/design)
 - **Isolation**: there should be boundaries across different "boxes" (services, VMs, host machines)
 - Instead of one single boundary containing the whole system, it's better to have small boxes and nested boundaries around each of those (the least privilege principle); otherwise, once you get inside, you could do whatever you want
 - The trend is to get smaller and smaller boundaries
@@ -88,7 +88,7 @@
 - Use password only once per session
 - Rate-limit use of passwords
 - Augment passwords with a second factor (e.g. with SMS): helps with weak passwords and phishing attacks
-- Time-Based One-Time Password Algorithm: rfc6238 (https://datatracker.ietf.org/doc/html/rfc6238)
+- Time-Based One-Time Password Algorithm: [rfc6238](https://datatracker.ietf.org/doc/html/rfc6238)
 - U2F (Universal 2nd Factor) is an open standard that strengthens and simplifies two-factor authentication using a device (USB or NFC)
 - When user tries to log in, the server issues the challenge; all (almost all) the device is doing is signing the challenge with the private key of a user and passing it back to the server
 - To guard against man-in-the-middle attack, the device receives the challenge together with the origin (the domain name) and TLS channel id (uniquely identifies TLS connection); so the device actually signs the challenge + origin + TLS channel id
@@ -100,7 +100,7 @@
 
 ## Privilege separation (using micro-services)
 
-- https://css.csail.mit.edu/6.858/2022/readings/okws.pdf
+- [Building Secure High-Performance Web Services with OKWS](https://css.csail.mit.edu/6.858/2022/readings/okws.pdf)
 - This is about how to design systems to have security in the presence of bugs
 - The idea is: if bugs are inevitable, the best remedy is to limit the effectiveness of attacks when they occur
 - The main idea is to split the system into multiple smaller components that are isolated from each other
@@ -190,7 +190,7 @@
 
 ### Native Client
 
-- https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/34913.pdf
+- [Native Client: A Sandbox for Portable, Untrusted x86 Native Code](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/34913.pdf)
 - Deprecated in 2020 in favor of WebAssembly
 - The flow: you write a program in C++, then compile it into the x86 code
 - You then put it on your website so that it is downloaded by the browser
@@ -220,7 +220,8 @@
 
 ## Enclaves
 
-- https://css.csail.mit.edu/6.858/2020/readings/komodo.pdf
+- [Komodo: Using verification to disentangle
+secure-enclave hardware from software](https://css.csail.mit.edu/6.858/2020/readings/komodo.pdf)
 - MIT actually removed this topic from 6.858 in 2022, but the ideas carry over to the mobile security topics
 - The process isolation is based on virtual memory: every process has its own page table (the kernel manages that)
 - Since the processes cannot access each other's memory, the way they interact with the kernel and other processes is through the system calls
@@ -240,7 +241,7 @@
 
 ## Mobile device security (based on iOS)
 
-- https://css.csail.mit.edu/6.858/2020/readings/ios-security-may19.pdf
+- [iOS Security](https://css.csail.mit.edu/6.858/2020/readings/ios-security-may19.pdf)
 - Threat model: attacker steals the phone and wants to read the data
 - Assumptions: the phone is locked and password protected (otherwise you are fucked)
 - Potential attacks: exhaustive password search, remove the flash card and read the data directly, access the device over the network without unlocking, install your own OS on the device, etc.
@@ -264,7 +265,7 @@
 
 ## Mobile app security (based on Android)
 
-- https://css.csail.mit.edu/6.858/2020/readings/android-platform.pdf
+- [The Android Platform Security Model](https://css.csail.mit.edu/6.858/2020/readings/android-platform.pdf)
 - In the world of desktop apps, users are principals, apps run with user privileges
 - This means that the isolation is between different users of a desktop, but there is no isolation between apps
 - This makes the data sharing easy: multiple apps can use the same set of files; you can open the same file with any app
@@ -302,9 +303,9 @@
 
 ## Web Security Model
 
-- https://developer.mozilla.org/en-US/docs/Web/HTTP
-- https://developer.mozilla.org/en-US/docs/Web/Security
-- https://infosec.mozilla.org/guidelines/web_security
+- [Mozilla Web Docs: HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP)
+- [Mozilla Web Docs: Web Security](https://developer.mozilla.org/en-US/docs/Web/Security)
+- [Mozilla Web Security Guidelines](https://infosec.mozilla.org/guidelines/web_security)
 - Today browsers are incredibly complicated and have an enormous attack surface
 - Web pages contain content from many entities mixed together (ads, analytics, 3rd party libs like jQuery, HTML and JS, frames etc.)
 - This raises the question: how can all these pieces interact? Can analytics access HTML? Can they access your JS code state?
@@ -408,7 +409,7 @@ Content-Security-Policy: default-src 'self'
 - You can catch policy violations using `report-uri` directive
 - `report-uri` directive allows to configure an endpoint where the information about violations is sent
 - CSP report contains the resource URI, referrer, blocked URI, the violated directive etc.
-- https://report-uri.com/ is a service that you could use for receiving CSP reports and seeing nice charts
+- "https://report-uri.com/" is a service that you could use for receiving CSP reports and seeing nice charts
 
 ### Attacks
 
@@ -451,7 +452,7 @@ xhr.send(null);
 
 ## Symbolic execution
 
-- https://css.csail.mit.edu/6.858/2022/readings/exe.pdf
+- [EXE: Automatically Generating Inputs of Death](https://css.csail.mit.edu/6.858/2022/readings/exe.pdf)
 - Symbolic execution is a way of executing a program abstractly in order to find bugs in the code
 - Instead of running code on manually or randomly constructed input (like in case of manual tests and fuzzy tests), the program is run on symbolic input
 - This is kind of like doing algebra with variables instead of numbers
@@ -469,7 +470,7 @@ xhr.send(null);
 
 ## Network security
 
-- https://css.csail.mit.edu/6.858/2022/readings/lookback-tcpip.pdf
+- [A Look Back at “Security Problems in the TCP/IP Protocol Suite”](https://css.csail.mit.edu/6.858/2022/readings/lookback-tcpip.pdf)
 - Threat model: attacker can intercept and modify packets, inject packets, participate in any protocol
 
 ### TCP Sequence Number Prediction
@@ -487,8 +488,8 @@ xhr.send(null);
 
 ## Messaging security
 
-- https://css.csail.mit.edu/6.858/2022/readings/secure-messaging.pdf
-- Extended version: https://css.csail.mit.edu/6.858/2020/readings/secure-messaging-ext.pdf
+- [SoK: Secure Messaging](https://css.csail.mit.edu/6.858/2022/readings/secure-messaging.pdf)
+- [SoK: Secure Messaging, extended version](https://css.csail.mit.edu/6.858/2020/readings/secure-messaging-ext.pdf)
 - Setup: Alice wants to send message to Bob
 - In many cases, messages, before getting delivered, go through multiple hops
 - Most popular messaging tools used on the Internet do not offer end-to-end security
@@ -522,7 +523,7 @@ xhr.send(null);
 - This is especially if we move into an area of group chats
 - Some requirements are in tension: e.g. authenticity vs deniability
 - Similarly, if messages are perfectly confident, you cannot run spam filters on them
-- One of the interesting properties is deniability (see Off-the-Record messaging: https://otr.cypherpunks.ca/index.php)
+- One of the interesting properties is deniability (see [Off-the-Record messaging](https://otr.cypherpunks.ca/index.php))
 - Bob generates a random key `K`, encrypts using Alice's public key and sends to Alice
 - Alice encrypts message `m` using Bob's public key, and sends it together with the authentication code, calculated using `K`
 - All of this can be done by Bob using only public keys
@@ -545,7 +546,7 @@ xhr.send(null);
 
 ## Private browsing
 
-- https://css.csail.mit.edu/6.858/2014/readings/private-browsing.pdf
+- [An Analysis of Private Browsing Modes in Modern Browsers](https://css.csail.mit.edu/6.858/2014/readings/private-browsing.pdf)
 - Note: this is possibly very outdated, we are talking 2014 at best
 - Goal #1: sites visited while browsing in private mode should leave no trace on the user's computer (protect from a local attacker)
 - Threat model: local attacker (a family member) takes control of the machine after the user exits private browsing
@@ -565,7 +566,7 @@ xhr.send(null);
 
 ## Anonymous Communication (Tor)
 
-- https://css.csail.mit.edu/6.858/2014/readings/tor-design.pdf
+- [Tor: The Second-Generation Onion Router](https://css.csail.mit.edu/6.858/2014/readings/tor-design.pdf)
 - Anonymity, as defined by Tor: inability of an observer on a network to link participants to actions
 - Example: Alice buys socks from buysocks.com
 - An observer should not even be able to say things like "Alice is more likely to have bought socks compared to everyone else"
@@ -591,7 +592,7 @@ xhr.send(null);
 
 ## Secure Untrusted Data Repository (SUNDR)
 
-- https://css.csail.mit.edu/6.858/2020/readings/sundr.pdf
+- [Secure Untrusted Data Repository (SUNDR)](https://css.csail.mit.edu/6.858/2020/readings/sundr.pdf)
 - SUNDR is a network file system designed to store data securely on untrusted servers
 - It is a multi-user network file system that never presents applications with incorrect file system state, even when the server has been compromised (guarantees integrity)
 - Server is assumed to be "Byzantine" and be able to collude with "bad users"
@@ -605,7 +606,7 @@ xhr.send(null);
 
 ## Data Tracking (TaintDroid)
 
-- https://css.csail.mit.edu/6.858/2014/readings/taintdroid.pdf
+- [TaintDroid: An Information-Flow Tracking System for Realtime Privacy Monitoring on Smartphones](https://css.csail.mit.edu/6.858/2014/readings/taintdroid.pdf)
 - Goal: we want to prevent the sensitive data to escape the mobile device
 - Example: malware reporting current user location, stealing the contact list, turn your phone into a bot for sending spam to all your contacts
 - Main idea: track all the sensitive data (using taints) and stop it from being passed to the network calls

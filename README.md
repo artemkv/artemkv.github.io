@@ -52,6 +52,8 @@ Knowledge Base
 
 [HTTP](http.md)
 
+[REST Checklist](rest.md)
+
 ## Security
 
 [Computer Systems Security](security.md)

@@ -50,6 +50,8 @@ Knowledge Base
 
 [TCP/IP](tcpip.md)
 
+[HTTP](http.md)
+
 ## Security
 
 [Computer Systems Security](security.md)

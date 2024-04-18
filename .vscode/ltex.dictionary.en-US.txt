@@ -99,3 +99,5 @@ coreference
 Anaphoric
 ever-inreasing
 optimality
+pipelining
+QUIC

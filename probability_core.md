@@ -257,13 +257,11 @@
 ## Expected value of a random variable
 
 - If you interpret probabilities as frequencies, you can calculate an "average" value attained by the random variable
-- Think of it as a weighted average (by probability)
-- This is very similar to how you would calculate an average of series of regular numbers using the values weighted by frequencies: `avg(1,1,1,1,1,3,3,5) = 5/8*1 + 2/8*3 + 1/8*5`
-- Now you just replace the frequencies with probabilities
-- Example: you play the game where you win `$1` every 6 times you spin, `$2` every second time you spin and `$4` every third time you spin. On average, every spin earns you `$(1/6*1 + 1/2*2 + 1/4*4)`
+- Example: you play the game where you win `$1` every 6 times you spin, `$2` every second time you spin and `$4` every third time you spin. On average, every spin earns you `$(1/6*1 + 1/2*2 + 1/3*4)`
 - This is the **expected value** of a random variable, denoted as `E[X]`
 - `E[X] = Sum(x*P(X = x)) over all x`
 - One interpretation: the average you get over a large number of experiments
+- This is exactly how you would calculate an average of series of regular numbers using the values weighted by actual frequencies: `avg(1,1,1,1,1,3,3,5) = 5/8*1 + 2/8*3 + 1/8*5`
 - Another, "physical", interpretation: the "center of gravity" of the PMF diagram
 - One of the most important properties of expectation is **Linearity of expectation**: `E[X+Y] = E[X] + E[Y]` (true even if `X` and `Y` are dependent)
 - If you have a random variable `X` and a random variable `Y = g(X)`, you can calculate `E[Y]` as `Sum(g(x)*Px(x)) over all x`
@@ -411,7 +409,7 @@
 - Or, even simpler: given `X`, uniformly distributed on `[0, 2]`, find PDF of `Y = X^3`
 - In case of continuous random variables, there is a mechanical process that you need to follow:
 - 1). Find the CDF of `Y`
-- Example: `F(y) = P(Y <= y) = P(X^3 <= y) = P(X <= y^(1/3)) = 1/2y^(1/3)`, 1/2 because `X` is uniformly distributed on `[0, 2]`
+- Example: `F(y) = P(Y <= y) = P(X^3 <= y) = P(X <= y^(1/3)) = 1/2y^(1/3)`, 1/2 because `X` is uniformly distributed on `[0, 2]`, so `P(X <= y^(1/3))` is just an area of a rectangle with length of `y^(1/3)` and height of `1/2`
 - 2). Differentiate
 - Example: `f(y) = dF(y)dy = 1/6y^(2/3)`
 - We know that `Y` can only take values in interval `[0, 8]`, so cut off the result at 0 and 8

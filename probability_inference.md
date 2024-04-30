@@ -52,7 +52,7 @@
 - Of course, this single answer can be misleading, as the information is lost
 - Especially with continuous distributions, narrow and higher peaks are not necessarily better than lower but wider ones
 
-### Least mean squares error estimation (LMS)
+### Least mean squares estimation (LMS)
 
 - This is another way to pick a single value to report to your boss
 - Imagine your posterior distribution `f(theta|X)` is uniform from `a` to `b`, and you need to pick the value `c` to report, `a <= c <= b`. What would you pick? How would you pick?

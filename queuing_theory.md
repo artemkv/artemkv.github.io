@@ -1,4 +1,4 @@
-# Queueing Theory 
+# Queuing Theory 
 {:.no_toc}
 
 * A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
@@ -6,7 +6,7 @@
 
 ## References
 
-- [MAP6264 - Queueing Theory](https://www.youtube.com/playlist?list=PL59NBu6N8dUqYClaKpoozyzK3Kpcm5eou)
+- [MAP6264 - Queuing Theory](https://www.youtube.com/playlist?list=PL59NBu6N8dUqYClaKpoozyzK3Kpcm5eou)
 
 
 ## TL;DR

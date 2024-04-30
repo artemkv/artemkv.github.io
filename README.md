@@ -18,11 +18,11 @@ Knowledge Base
 
 [Probability, useful formulas](probability_formulas.md)
 
-[Statistics](statistics.md)
+[Statistics, theoretical foundations](statistics.md)
 
-[Practical statistics](practical_statistics.md)
+[Statistics, methods](statistics_methods.md)
 
-[Queueing Theory](queueing_theory.md)
+[Queuing Theory](queuing_theory.md)
 
 ## AI
 

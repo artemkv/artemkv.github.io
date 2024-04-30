@@ -30,25 +30,25 @@
 
 ## Bayesian inference
 
-- Example: estimate the bias of a coin theta, given that we observe `X` heads in `n` tosses
+- Example: estimate the bias of a coin `theta`, given that we observe `X` heads in `n` tosses
 - Classical statistician would assume there is some true `theta`, come up with an estimator, e.g. `X/n`, and argue that this is a good estimator, using, for example, the weak law of large numbers
-- Bayesian statistician would assume `theta` is not exact number, but a random variable with some (prior) distribution
-- As a Bayesian statistician, you would be required to pick a prior distribution
+- Bayesian statistician would assume `theta` is not exact number, but a random variable with some (prior) distribution (which allows us to condition on `theta`)
+- As a Bayesian statistician, you would be required to pick a prior distribution (and justify your choice!)
 - Sometimes the prior distribution is known from the system design (e.g. errors distribution that is specified by the design of a communication system)
 - Sometimes you need to use your beliefs to pick a reasonable distribution, and there is no exact science to tell you how to do it
 - For example, if you have no faith in the factory that makes coins, you might assume uniform distribution: any bias is equally likely
 - On the other hand, if you have some faith in the factory, you might assume a normal distribution centered narrowly around 0.5, but not exactly 0.5, due to some manufacturing errors
 - If you truly have no idea, there are some **uninformative priors** you could use (although this typically yields results which are not too different from conventional statistical analysis)
 - By Bayes rule, `f(theta|X) = f(theta)*p(X|theta)/p(X)`, where `f`'s are PDFs and `p`'s are PMFs
-- `f(theta)` is a prior
-- `p(X|theta)` is the **likelihood**: the probability of observing our result given the prior
+- `f(theta)` is a **prior**, `f(theta|X)` is a **posterior**
+- `p(X|theta)` is the **likelihood**: the probability of observing our result as a function of `theta`
 - Once you pick your prior, formulas for `f(theta)` and `p(X|theta)` are known
-- `p(X)` is the evidence, calculating it is very hard, but since it is a constant, it is usually ignored (basically, it only acts as a scale factor for `f(theta|X))`
+- `p(X)` is the **evidence**, calculating it is very hard, but since it is a constant, it is usually ignored (basically, it only acts as a scale factor for `f(theta|X))`
 - So people normally drop it and use `f(theta|X) ~ f(theta)*p(X|theta)`
 - This can still be very complicated expression to compute, if you are not a mathematician
-- But if you manage to do that, you'll get a posterior distribution, that tells you possible values of theta and their probabilities
-- What if your boss just wants one value of theta (a **point estimate**), and you need to make the decision on what theta is?
-- If you want to make the decision that is most likely correct, you would pick the value with the highest probability: **maximum aposteriory probability estimation**
+- But if you manage to do that, you'll get a posterior distribution, that tells you possible values of `theta` and their probabilities
+- What if your boss just wants one value of `theta` (a **point estimate**), and you need to make the decision on what `theta` is?
+- If you want to make the decision that is most likely correct, you would pick the value with the highest probability: **maximum aposteriory probability estimation (MAP)**
 - Of course, this single answer can be misleading, as the information is lost
 
 ### Least square error estimation
@@ -105,8 +105,8 @@
 
 ### Maximum likelihood estimation
 
-- The idea is to pick theta that makes data most likely ("fit the distribution to the sample")
-- In essence, if you see 7 heads and 3 tails, you conclude that the coin is biased with theta 0.7
+- The idea is to pick `theta` that makes data most likely ("fit the distribution to the sample")
+- In essence, if you see 7 heads and 3 tails, you conclude that the coin is biased with `theta` 0.7
 - Philosophically, you say you have several valid models for your process, and you pick one that looks the most plausible
 - Mathematically, this approach is the same as using Bayesian statistics and always picking uniform as a prior
 - If we have i.i.d `X1, X2, ... Xn`, measurements that come from some distribution with unknown mean `theta` and some variance `sigma` squared, we can express the probability of seeing these results as a function of `theta` and maximize that function with respect of `theta`

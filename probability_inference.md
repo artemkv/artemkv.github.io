@@ -48,25 +48,26 @@
 - This can still be very complicated expression to compute, if you are not a mathematician
 - But if you manage to do that, you'll get a posterior distribution, that tells you possible values of `theta` and their probabilities
 - What if your boss just wants one value of `theta` (a **point estimate**), and you need to make the decision on what `theta` is?
-- If you want to make the decision that is most likely correct, you would pick the value with the highest probability: **maximum aposteriory probability estimation (MAP)**
+- If you want to make the decision that is most likely correct, you would pick the value with the highest probability: **maximum aposteriory probability estimate (MAP)**
 - Of course, this single answer can be misleading, as the information is lost
+- Especially with continuous distributions, narrow and higher peaks are not necessarily better than lower but wider ones
 
-### Least square error estimation
+### Least mean squares error estimation (LMS)
 
 - This is another way to pick a single value to report to your boss
 - Imagine your posterior distribution `f(theta|X)` is uniform from `a` to `b`, and you need to pick the value `c` to report, `a <= c <= b`. What would you pick? How would you pick?
 - In this situation, you might decide to come up with a value that simply minimizes a possible error
-- _My thought: basically, you want to cover your ass_
 - The error is `|theta-c|`, the difference between a "true" value and the value you would pick, whatever value that is
 - We will actually take an error squared, to penalize larger numbers even more
-- So, mathematically, we just want to minimize `E[(theta-c)^2]`
-- And purely mathematically, the optimal estimate would be `E[theta|X]`, i.e. `(a+b)/2`
-- Note that we are not aiming at giving the most correct answer, but simply using the safest way to pick an answer without any other information
-- _My thought: imagine a goalkeeper that defends a penalty, given that the striker decides on the corner randomly and upfront and never changes that decision. What would the optimal position for the goalkeeper to be? The least square error estimation would suggest the middle of the goals: this will not allow to defend any penalties, but will make goalkeeper look the least stupid_
+- So, mathematically, we just want to minimize `E[(theta-c)^2|X]` with respect to `c` (i.e. which `c` gives us the smallest value)
+- And, if you take derivative and equal to 0, you'll find that the optimal estimate is `c = E[theta|X]`
+- In case of uniform, this is just `(a+b)/2`
 - You could report this number `c` together with average size of your error (which would be `Var(theta|X)`)
-- Nice property of this estimation: on average errors cancel each other out, i.e. `E[error]=0` (can be proven mathematically)
-- This is good, since we want an estimator that does not have a systematic error
-- Also, there is no systematic relation between your estimate and the error, `Cov(estimate, error)=0`
+- If you are minimizing the error squared, you can't do better than LMS estimator
+- _My note: is that the best thing to do? Probably depends on the problem_
+- Nice property of this estimator: on average errors cancel each other out, i.e. `E[error|X]=0` (can be proven)
+- This is good, since we want an estimator that does not have a systematic error (unbiased)
+- Also, there is no systematic relation between your estimate and the error, `Cov(c, error)=0`
 
 ### My Example
 
@@ -82,15 +83,20 @@
 - You decide you want to minimize the error, so you go with LSE estimation and pick something like 26.4
 - This is your best guess based on the observation
 
-### Linear estimator
+### Linear LMS estimator
 
-- Least square error estimator is good, but may produce a complicated curve
-- Instead, we could decide to use a linear estimator `a*X + b`
-- We will still minimize a quadratic distance from the line
-- With some skills in math, you could derive this expression
-- In case of modeling signal+noise, `Xi = theta + Wi`, with all `W` independent and centered around it's mean, the linear estimator has a closed form solution
-- If all distributions are normal, the linear estimator expression turns into `E[theta|X]`, so it becomes the same as an optimal estimator (LSE)
-- Another interpretation: linear estimation is basically LSE pretending that all variables are normal
+- Least square error estimator is good, but may produce a complicated curve, and calculating `c = E[theta|X]` in practice may be very difficult (e.g. involve multidimensional integrals)
+- Instead, we could decide to use a linear estimator, `c = a*X + b`, that models `c` as a function of `X`, and use it to produce an estimate
+- Turns out, this is not a completely crazy thing to do
+- And, in case of multiple data points, it actually looks more attractive
+- LMS in that case would be `E[theta|X1,X2...Xn]`
+- Our linear estimator is `a1*X1 + a2*X2 + ... an*Xn + b`
+- We will still minimize an expectation of a quadratic error, i.e. `E[(theta-c)^2] = E[(theta - a*X - b)^2]`, with respect of `a` and `b`
+- In this case, this translates to minimizing the distance from the line
+- As usual, take derivative and equal to 0, this will give you the values for `a` and `b` (omitted here)
+- In case of modeling signal+noise, `Xi = theta + Wi`, with all `Wi` independent and centered around it's mean, the linear estimator has a closed form solution
+- And, if all distributions are normal, this expression turns into `E[theta|X]`, so it becomes the same as LMS estimator
+- This give this method another interpretation: linear estimation is basically LMS pretending that all variables are normal
 
 
 ## Classical inference

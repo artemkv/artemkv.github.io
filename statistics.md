@@ -64,7 +64,7 @@
 - So, in case of our `Ber(p)`, `Zn` can be re-written as `Zn = (Sn - np)/sqrt(np(1-p))`
 - The central limit theorem allows replacing `Zn` with `Z` for a large n (>=30)
 - This gives a shortcut for getting `P(|Zn|>epsilon)`
-- This, massaged, allows determining `n` for a desired confidence of having maximum error epsilon
+- This, massaged, allows determining `n` for a desired confidence of having maximum error `epsilon`
 - Hoeffding's inequality is another shortcut, that works for any `n`
 - It provides an upper bound on `P(|Sn - E[Sn]|>=epsilon)`
 - Same as the central limit theorem, it removes dependency on `p`
@@ -83,7 +83,7 @@
 - One way to model the distribution is to use sample data to build PDF
 - But in that case, we will need a table with a value for each possible number of siblings, which is 20 rows
 - Also, since our sample size is very small, it's very unlikely we will have enough representation for each number of siblings, so there will be many zeroes
-- Another way is to assume the distribution is Poisson (or any other known distribution) with parameter theta
+- Another way is to assume the distribution is Poisson (or any other known distribution) with parameter `theta`
 - This will require only 1 parameter to learn, and might actually be better representing missing values
 - The parameter should be derived from what we are actually trying to find out
 - This model can be wrong, but it's not that important. What is important is whether the model is useful
@@ -98,7 +98,7 @@
 - The risk is actually a function of `theta`
 - Instead of reporting just one number, we could report a confidence interval
 - The boundaries of the confidence interval come from random observations, so they are also random
-- You choose the width of the confidence interval so that the probability of the interval to contain true value of theta is `1-alpha`
+- You choose the width of the confidence interval so that the probability of the interval to contain true value of `theta` is `1-alpha`
 - You can derive the confidence interval doing some math
 - The confidence interval should not depend on unknown parameter
 - If such dependency arises, we can use the upper bound for the unknown parameter or replace that with an estimation
@@ -208,7 +208,7 @@
 - You calculate the statistics using an estimator, e.g. MLE
 - You understand how that statistics should be distributed under `H0` (and always under `H0!`), given that you are using a certain estimator
 - The estimator affects the distribution through it's bias and variance
-- This distribution should not depend (asymptotically, i.e. in the limit) on any unknown parameter. Usually this is achieved by applying CLT
+- This distribution should not depend on any unknown parameter (asymptotically, i.e. in the limit). Usually this is achieved by applying CLT
 - Then you see how likely it would be, under `H0`, to see the value you calculated from the sample
 - And this is how you build any test (e.g. Z test) from first principles
 
@@ -219,7 +219,7 @@
 - You can deviate left and right, but also up and down
 - Assume those 2 deviations are independent (cause by 2 separate phenomena)
 - Assume those 2 deviations are both distributed as Gaussian (2 different Gaussians)
-- Now, your deviation from the center is, by Pythagoras, `sqrt(dx^2 + dy^2)` and it is a random variable
+- Now, your deviation from the center is, by Pythagoras, `sqrt(dx^2 + dy^2)`, and it is a random variable
 - The deviation from the center will be distributed as Chi-squared with 2 degrees of freedom
 - Chi-squared is also what you obtain if you use MLE with `d` parameters as an estimator for the (multidimensional) statistics, and you derive your test from that (Wald test)
 - Wald test can also be used to test jointly multiple hypotheses on one-dimensional statistics
@@ -239,7 +239,7 @@
 
 ## Likelihood ratio test
 
-- If your `H0` is that `theta = theta0` and `H1` that `theta = theta1`, you can just calculate the likelihood for both `theta`s is see which one fits the data the best
+- If your `H0` is that `theta = theta0` and `H1` that `theta = theta1`, you can just calculate the likelihood for both `theta`s and see which one fits the data the best
 - This is the basis for the method
 - Your test could be as simple as `L(X1,...Xn,theta1)/L(X1,...Xn,theta0)>1`
 - The only thing is, we want to control for `alpha`, and there is no knob that allows us to do that

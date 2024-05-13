@@ -20,7 +20,7 @@ Knowledge Base
 
 [Statistics, theoretical foundations](statistics.md)
 
-[Statistics, methods](statistics_methods.md)
+[Statistics, elementary procedures](statistics_procedures.md)
 
 [Queuing Theory](queuing_theory.md)
 

@@ -90,7 +90,7 @@
 - We have a sample `S` (random variable) coming from `D`, that we put through some deterministic learning algorithm to produce hypothesis (or model) `h(x)`: a function that makes predictions (also random variable)
 - **Risk** or **Generalization error** of a model is an expectation `E[1{h(x)!=y}] under (x,y) ~ D`
 - Basically, it's the ratio of wrong predictions on the real world data, an unknown quantity
-- **Empirical risk** is an average `1/m*[sum of 1{h(xi)!=yi} over all i]`, given m samples
+- **Empirical risk** is an average `1/m*[sum of 1{h(xi)!=yi} over all i]`, given `m` samples
 - Basically, it's the ratio of wrong predictions on the training set, can be calculated
 - Let's call `g` the best possible hypothesis (overall)
 - Let's call `h*` the best hypothesis in the given class of estimators (`g` can be completely outside that class)
@@ -142,7 +142,7 @@
 - When we choose certain values of `w` and `b`, we essentially make an assumption that, for any sample, `y = w*x + b + e`
 - In other words, we believe that the correct, true model is `y = w*x + b`, and if some `y` do not land on the line exactly, its due to an error `e`
 - We will assume that this error is due to many random influences (unmodeled effects and random noise)
-- More formal way to say this: the value of e comes from i.i.d random variable `E` that is normally distributed with mean 0 and variance `v`
+- More formal way to say this: the value of `e` comes from i.i.d random variable `E` that is normally distributed with mean 0 and variance `v`
 - By the Central Limit Theorem, and oversimplifying it, the combined impact of multiple random influences is normally distributed, even if the sources of those influences are not normally distributed
 - So our assumption is reasonable from the theoretical standpoint, and it also holds (mostly) in the real world
 - In practice, it just means that we usually use Gaussian distribution to model the noise

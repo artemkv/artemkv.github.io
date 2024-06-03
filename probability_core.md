@@ -469,12 +469,16 @@
 ## Moment Generating Functions (MGF)
 
 - MGF is an alternative way to describe a distribution, in addition to PDF and CDF
-- `E[X^n]` is a `n`-th moment
+- `E[X^n]` is a `n`-th moment of `X`
+- Expectation `E[X]` is the 1st moment
+- `E[(X − E[X])^k]` is the `kth` central moment of `X`
+- Variance `Var(X)` is the second central moment of `X`
 - MGF of a random variable `X` is a function `M(t) = E[e^tX]`
 - Why? Apparently, if you expand `E[e^tX]` as Taylor series, you can see that the series contain all the moments from 0 to infinity
-- And the way Taylor series work, you can use MGF to "generate" `n`-th moment `E[X^n]` by taking an `n`-th derivative of `M(t)` and evaluating it at zero
-- This property makes MGFs useful in several ways
+- And the way Taylor series work, you can use MGF to "generate" `n`-th moment `E[X^n]` by taking an `n`-th derivative of `M(t)` and evaluating it at `t=0`
+- The main use of MGF is actually not to generate moments (which is usually easier to do directly)
 - MGF "uniquely determines the distribution", i.e. if two random variables have the same MGF, then they must have the same distribution
+- _My note: "Statistical Inference" states that this is not generally true, but only under some conditions_
 - MGF also simplifies working with sum of random variable
 - If `Mx` is MGF of `X`, and `My` is MGF of `Y`, and `X` and `Y` are independent, then MGF of `X+Y` is just a product `Mx*My`
 - Not all random variables have MGFs

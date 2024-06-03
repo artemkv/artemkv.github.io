@@ -46,6 +46,8 @@ Knowledge Base
 
 [Natural Language Processing](natural_language_processing.md)
 
+[Multi-Task & Meta Learning](meta_learning.md)
+
 ## Networking
 
 [TCP/IP](tcpip.md)

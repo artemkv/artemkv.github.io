@@ -46,7 +46,7 @@
 - **Fitting** is adapting the model parameters to produce results with the higher degree of "correctness" (i.e. with desired score for precision / recall)
 - **Underfitting** is producing a model that doesn’t perform well even on the training data
 - **Overfitting** is producing a model that performs well on the data you train it on, but that generalizes poorly to any new data
-- Overfitting is caused by 2 factors. One is learning noise in the data. Another is learning to identify specific inputs rather than whatever factors are actually predictive for the desired output (memorizing the input)
+- Overfitting is caused by 2 factors. One is learning noise in the data (randomness, mislabelled data, variables outside of model). Another is learning to identify specific inputs rather than whatever factors are actually predictive for the desired output (memorizing the input)
 - So the simpler model may do some mistakes on the test data, but we can think of them not as mistakes but just result of noise in the data (see probabilistic interpretation below). Looking at it this way, it is actually good when the model makes "mistakes" in case of noise
 - The most fundamental approach to detect and avoid overfitting involves using different data to train the model and to test the model (typically 70/30)
 - Your test data should have the same distribution of the feature values/classes as the train data. You should verify it

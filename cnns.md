@@ -1,4 +1,4 @@
-# CNNs
+# CNNs, Computer Vision
 {:.no_toc}
 
 * A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
@@ -8,6 +8,7 @@
 
 - [Stanford CS 230: Deep Learning](https://www.youtube.com/playlist?list=PLoROMvodv4rOABXSygHTsbvUz4G_YQhOb)
 - [Stanford CS231n: Convolutional Neural Networks for Visual Recognition](https://www.youtube.com/playlist?list=PL3FW7Lu3i5JvHM8ljYj-zLfQRF3EO8sYv)
+- [University of Washington: The Ancient Secrets of Computer Vision](https://www.youtube.com/playlist?list=PLjMXczUzEYcHvw5YYSU92WrY8IwhTuq7p)
 
 
 ## Motivation
@@ -67,6 +68,45 @@
 - In practice, instead of defining a filter as a 3d tensor and sliding it across an image, we pre-calculate the matrix where the same filter appears in every row at offsets that would match the correct areas of an image flattened into a vector. So in the end we are performing matrix multiplications
 
 
+## Convolutions as feature extractors
+
+- Why do convolutions work as feature extractors? The feature detection is based on edge detection
+- If image is a function, edges are rapid changes in this function
+- So one way to find edges is by taking a derivative: the peak of a derivative corresponds to the area of a function where it changes the fastest
+- What is derivative? `f'(a) = lim [(f(a+h)-f(a))/h] when h->0`
+- Since we don't have an actual function, we must estimate
+- If we take distance between 2 pixels as 1, we get `h=1` (and this is as small as we can go)
+- The convolution `[-1, 1]` matches exactly the `(f(a+h)-f(a))` part
+- However, we would be sort of looking at the derivative in between pixels
+- If we take `h=2`, this matches the filter `[-1, 0, 1]`; this way we are looking at 2 neighbors of a pixel, and estimate the derivative at the pixel itself
+- Unfortunately, images are noisy, and your derivative will pick it up, producing small random spikes in the middle of the otherwise flat areas
+- So it's often good to smoothen the image using a Gaussian filter before looking for the edges
+- This can be done, using a simple filter `[[1,2,1][2,4,2][1,2,1]]`
+- If you combine 2 filters, you get Sobel filter: `[[1,0,-1][2,0,-2][1,0,-1]]`
+- And, in vertical direction: `[[-1,0,1][-2,0,2][-1,0,1]]`
+- Edges, of course, go both ways, i.e. the peaks in derivatives can be positives or negatives
+- This is why it's useful to look at second derivative, which is zero at the points where the first derivative is having a peak, positive or negative
+- Second derivative is `f''(a) = lim [(f(a+h)-2*f(a)+f(a-h))/h^2] when h->0`
+- It's easy to see that, at `h=1`, this translates into a filter `[1,-2,1]`
+
+### Laplacians
+
+- Instead of looking at second derivatives, we might be interested in Laplacians, measure how much gradient if flowing in vs how much is flowing out, which produces `[[0,-1,0],[-1,4,-1],[0,-1,0]]` (positive Laplacian) or `[[0,1,0],[1,-4,1],[0,1,0]]` (negative Laplacian)
+- Basically, just another way to do the edge detection
+- Same as derivatives, Laplacians are very sensitive to noise, so again, it's a good idea to do Gaussian smoothening before detecting edges with Laplacians
+- Usually Laplacians are approximated using 5x5 - 9x9 filters
+
+### Fourier transform
+
+- If image is a function, we can do a Fourier transform to split it into different frequency components
+- In that case, edges will correspond to high frequency changes in the function
+- Turns out, we can do this with Gaussians
+- We looked at Gaussians for smoothing, but we could also think of Gaussian as a function that removes high frequencies
+- And if you subtract the result from the original image, you will see only high frequencies
+- Same way you can subtract 2 Gaussian filters from each other and capture any range of frequencies
+- This gives you the way to look at any frequency
+
+
 ## Inception Module (GoogLeNet)
 
 - In the past, most popular CNNs just stacked convolution layers deeper and deeper, hoping to get better performance
@@ -122,6 +162,8 @@
 - Another approach is to stack a huge number of convolutional layers on top of each other, preserving the original image dimensions, and then in the end a single convolutional layer of shape (`C`, `H`, `W`) where `C` is a number of categories. Every pixel would have its own cross-entropy loss. This can work, but this would still be extremely computationally expensive. So this is not done in practice neither
 - What is done in practice looks like an autoencoder architecture. The image is downsampled, classified using convolutional layers and then upsampled back. Downsampling/upsampling can be done using pooling/unpooling. But you can also upsample using **transpose convolution**
 - Transpose convolution is kind of reverse of a normal convolution, so sometimes it is called "deconvolution" or "upconvolution". This leads to "learnable" upsampling
+- Essentially, it's an encoder-decoder architecture, where instead of decoding into an original image, you are decoding into a segment mask (and all the magic is happening inside the convolutional layers)
+- There are different specific architectures that implement this idea, for example, U-Net
 - Creating the training data for semantic segmentation is super expensive, since you need to label every pixel
 - Does not differentiate instances, only care about pixels. So multiple objects of the same type can get "fused together"
 
@@ -138,5 +180,8 @@
 - You can have varying number of objects on the same picture
 - One approach is using a sliding window, but it's super difficult to come up with the right sliding window sizes and positions. So in practice, people don't do this
 - What is done is pre-computing regions that are likely to contain objects ("region proposals") to get about 1000-2000 region proposals. Then you run CNN to predict categories and adjustments for the regions
-- You can do region proposals on top of CNN layers to re-use some computations
- 
+- You can do region proposals on top of CNN layers to re-use some computations (TODO: what??)
+- You can do region proposals using some simple clustering algorithms, purely on pixel level
+- The NN can also predict small deltas in order to improve the region
+- When some regions overlap, we could suppress some of them only keeping the regions that give the most confident prediction
+

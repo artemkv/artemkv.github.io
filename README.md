@@ -36,7 +36,7 @@ Knowledge Base
 
 [Deep Learning](deep_learning.md)
 
-[CNNs](cnns.md)
+[CNNs, Computer Vision](cnns.md)
 
 [RNNs](rnns.md)
 

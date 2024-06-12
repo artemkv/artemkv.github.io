@@ -129,10 +129,10 @@
 - _My note: as usually, KL divergence is not pulled out of the thin air, at least not completely, there is some relation with entropy and so on, but those deeper explanations are made in non-human readable language, so I don't get them. Regardless, KL divergence is partially pulled out of the thin air, because out of many possible forms this function could have, we are choosing the one with log in it, for a very specific reason that may become clear later..._
 - What is good about KL divergence (and what kind of justifies it) is that it is `=0` when `theta^ = theta*`, just like the distance, so minimizing KL divergence is going to have the same effect as minimizing distance
 - What is even better, is that KL divergence has a form of an expectation of a function `log(...)` (since it has that function multiplied by `p(x)`)
-- This is, apparently, a fiesta for a statistician, since you now can replace expectation by an average estimated from the sample, and minimize that
+- This is, apparently, a fiesta for a statistician, since you now can replace expectation by an average estimated from the sample (by law of large numbers), and minimize that
 - But by average of what?
-- To answer that, we'll first do some transformation, and rely on some magic properties of the log function
-- Turns out, we can minimize this expectation by maximizing an average of `log(p^(x)) over all x`
+- To answer that, we'll first do some transformation, and rely on some magic properties of the log function (the logarithm of a fraction is equal to the logarithm of the numerator minus the logarithm of the denominator)
+- Turns out, we can minimize this expectation by maximizing an average of `log(p^(x)) over all x` (i.e. logarithm of the denominator; since logarithm of the numerator does not depend on `theta^` and acts as a constant shifting factor)
 - Also, instead of maximizing average, we can maximize `sum`
 - Sum of logs is a log of a product
 - Log is a function that is always increasing, so maximizing log of a function is the same as maximizing a function
@@ -257,8 +257,8 @@
 - This is an example of non-parametric test
 - What you need to do is to compute CDF and look at it
 - You can build an **empirical CDF** from data, "the data version of CDF"
-- You express CDF through expectation and use the usual trick of replacing it with an average (by the law of large numbers)
-- Essentially, for each t, you calculate the proportion of the data that is below that t
+- You express CDF through expectation and use the usual trick of replacing it with an average (by law of large numbers)
+- Essentially, for each `t`, you calculate the proportion of the data that is below that `t`
 - There are tons of math that can be applied to prove that empirical CDF is a good estimator for CDF
 - Usually all the goodness of fit tests are formulated in terms of CDFs, because we have an empirical CDF
 

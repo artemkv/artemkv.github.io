@@ -103,3 +103,11 @@ pipelining
 QUIC
 PMFs
 frequentist
+NNs
+NN
+LLMs
+binarized
+MNIST
+Gaussians
+autoencoders
+GPTs

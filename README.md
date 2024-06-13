@@ -46,6 +46,8 @@ Knowledge Base
 
 [Natural Language Processing](natural_language_processing.md)
 
+[Deep Generative Models](generative.md)
+
 [Multi-Task & Meta Learning](meta_learning.md)
 
 ## Networking

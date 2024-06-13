@@ -317,11 +317,10 @@ _My thought: that sounds like a bit too much work, I thought in order to be clai
 - To achieve this, we want to build probabilistic models where distributions are more complex than categorical or Gaussian
 - In such case, it is usually much simpler to model `p(X)` using latent variables
 - Latent variable: some random variable `Z` that we cannot directly observe, distributed `p(Z)`
-- Example: we have a bunch of unlabeled datapoints coming from `p(X)`. We may observe there are 3 clusters of data, so we can model `p(X)` as `sum [p(X|Z)p(Z)] over all z`, where `Z` is a latent categorical random variable and `p(X|Z)` is a Gaussian (Gaussian mixture model)
+- Example: we have a bunch of unlabeled datapoints coming from `p(X)`. We may observe there are 3 clusters of data, so we can model `P(X=x)` as `sum [P(x|z)P(z)] over all z`, where `Z` is a latent categorical random variable and `p(X|Z)` is a Gaussian (Gaussian mixture model)
 - In general, you have some complex distribution `p(X)`, and some prior for `p(Z)`, typically assumed to be some "easy" distribution (e.g. Categorical or Gaussian)
-- You can see `p(X|Z)` as a mapping from `Z` to `X`, this can be done by a NN
 - You then assume that `p(X|Z)` is also some simple distribution, e.g. Gaussian (although a mapping itself can be quite complicated, so the parameters of that Gaussian can be very complex)
-- This allows us to express `p(X)` as an integral over `[p(X|Z)p(Z)]`
+- This allows us to express `P(X)` as an integral over `[p(X|Z)p(Z)]`
 - In general, this allows us to express very complex distributions as products of simple distributions that we can learn how to parametrize
 - To train a probabilistic model, you need to maximize this integral w.r.t parameters of these distributions (by maximizing the log of it)
 - But these integrals can get really nasty and impossible to calculate (or very computationally expensive to estimate)

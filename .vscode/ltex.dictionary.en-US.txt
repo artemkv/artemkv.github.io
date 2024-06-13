@@ -111,3 +111,9 @@ MNIST
 Gaussians
 autoencoders
 GPTs
+VAEs
+Autoencoders
+bottlenecking
+autoencoder
+concat
+Lx

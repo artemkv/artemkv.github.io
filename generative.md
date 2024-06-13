@@ -1,3 +1,14 @@
+# Deep Generative Models
+{:.no_toc}
+
+* A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
+{:toc}
+
+## References
+
+[Stanford CS236: Deep Generative Models](https://www.youtube.com/playlist?list=PLoROMvodv4rPOWA-omMM6STXaWW4FvJT8)
+
+
 ## TL;DR
 
 - When in doubt, chain rule
@@ -11,7 +22,7 @@
 
 - Computer graphics: generate an image from a description
 - Generating description from graphics is exact inverse of this process
-- **Statistical Generative Models** is a probability distribution `p(X)`, based on combination of data (e.g. images of cats) and prior knowledge (e.g. physics, materials)
+- **Statistical Generative Model** is a probability distribution `p(X)`, based on combination of data (e.g. images of cats) and prior knowledge (e.g. physics, materials)
 - Loss function (e.g. maximum likelihood), optimization algorithm are also a part of a prior knowledge
 - There is a spectrum, but this course is mostly about data-driven models
 - The model is, basically, image `x` → `p(X=x)` → scalar probability `P(x)`
@@ -142,12 +153,46 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - 3). `theta(t+1) = theta(t) + alpha*grad`
 - You can do it in minibatches, of course
 - As usual, you are looking for the best bias-variance tradeoff (model that is good enough to be close to true distribution, but not so good that it will overfit)
+- Autoregressive models are good, but you have to pick an ordering, generation is sequential and slow, and you cannot learn features in an unsupervised fashion
+
+
+## Variational Autoencoders (VAEs)
+
+- Reminder: `P(X=x) = sum [P(X=x|Z=z)*P(Z=z)] over all z = sum [P(X=x,Z=z)] over all x` (The law of total probability, then just expressing joint probability from conditional one)
+- As we have seen, modeling `p(X)` directly can be a very complex task, and the distribution may be extremely complex
+- But this is because we don't know anything about the underlying structure or meaning of `X`
+- If we knew that `X` depended on some variable `Z`, we might have found that modeling `p(X|Z)` is significantly easier, and may even produce some easy distributions
+- As an example, if you look at many pictures of faces and all you see is pixels, there is going to be a lot of variability, due to gender, age, hair color, etc.
+- But if you looked only at images of young blond females, there would be much less variability
+- Unfortunately, unless images are annotated, these factors of variation are not explicitly available (latent)
+- However, we can explicitly model these factors using latent variables `Z1...Zn`
+- This corresponds to `Z → X` bayesian network, where `Z`s are latent high level features (e.g. eye color)
+- If you choose `Z`s well, modeling `p(X|Z)` can be much easier than modeling `p(X)`
+- And if we trained such a model, we could then infer the latent variables, i.e. we could get `p(Z|X)` (e.g. `p(EyeColor = blue|X)`)
+- The easiest example ever is the mixture of Gaussians: a net `Z → X` where `Z` is categorical, and `p(X|Z=k) = Gaussian(mu_k, sigma_k)`, and you have a table with values of `mu` and `sigma` for each category `k`
+- In reality, however, the number of categories usually would be unknown
+- Instead of specifying the latent variables by hand, we are going to let the NN to figure it out
+- For that, we will assume some easy distributions for our latent variables, e.g. `Z ~Gaussian(0,1)`
+- We will assume `p(X|Z)` is also some easy distribution, with parameters depending on `Z`, e.g. `p(X|Z) = Gaussian(mu_theta(Z), sigma_theta(Z))`
+- All the complexity will go into transformations `mu_theta` and `sigma_theta` that can be very complex functions, so we will approximate them using NNs
+- Our hope is by fitting this model, it will discover some useful latent features (basically, clusters of data with very low variability)
+- The problems begin when you want to evaluate `P(X=x)`, since you need to integrate `p(x, z; theta) over all z`, and this can be a nasty integral to calculate
+- This can quickly become intractable even in case of discrete `Z`: suppose we have 20 binary latent variables, evaluating `P(X=x)` involves a sum with 2^20 terms
+- And to fit this model, you actually need to evaluate `P(X=x)` for all the datapoints in the dataset
+- Ways to cheat: Monte-Carlo. Instead of iterating over all `z`, sample from `Z`; approximate the sum with the sample average (sample average * number of possible values `Z` can take)
+- Problem with this, you'll rarely get a good sample (for most `z`, `P(x|z)` will be very low)
+- So you want to pick `z` that "make sense" (that are likely under `p_theta(X,Z)`)
+- Could we use some distribution `q(Z)` that produces "good" values of `z`?
+- Remember we are looking at likelihood `L(x, theta) = p_theta(x) = sum [p_theta(x,z)] over all z` (and that is what we want to optimize)
+- Note that we can multiply and divide `sum [p_theta(x,z)] over all z` by some distribution `q(Z)` (always true); which immediately takes shape of an expectation for the `Z` distributed `q(Z)`, meaning we can approximate it by sample average
+- For the reference, this is what we actually get: `p_theta(x) = E[p_theta(x,z)/q(Z)]` under `Z~q(Z)`
+- And we want to maximize the log of that
+- By Jensen inequality, we can actually move the log inside the expectation, and that will give us a lower bound for the log of expectation
+- Meaning: `log(E[p_theta(x,z)/q(Z)]) >= E[log(p_theta(x,z)/q(Z))]` under `Z~q(Z)`
+- The quality of the lower bound depends on the choice of `q(Z)`, if we have a good `q(Z)`, maximizing the lower bound could be as good as maximizing the original expression
+- The ideal `q(Z)` is actually `p_theta(Z|X)` (can be proven mathematically, that under this assumption the lower bound becomes the exact expression)
+- But how would you get to `p_theta(Z|X)`?
 
 
 
-
-
-
-
-
-cont with lecture 3, 42:50
+TODO: continue with lecture 6

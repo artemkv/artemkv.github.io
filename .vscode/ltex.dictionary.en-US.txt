@@ -117,3 +117,4 @@ bottlenecking
 autoencoder
 concat
 Lx
+reparametrization

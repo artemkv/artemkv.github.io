@@ -152,7 +152,8 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - 2). Compute the gradient of the log likelihood, using back prop
 - 3). `theta(t+1) = theta(t) + alpha*grad`
 - You can do it in minibatches, of course
-- As usual, you are looking for the best bias-variance tradeoff (model that is good enough to be close to true distribution, but not so good that it will overfit)
+- As usual, you are looking for the best bias-variance tradeoff (model that is good enough to be close to true distribution, but not so good that it will overfit, bias and variance in ML terms)
+- Note: there is a technicality that involves switching from log-likelihood to empirical log-likelihood. Because the "all x" in the optimization objective actually means "all possible `x` that `Ptheta(X)` is defined on", but all we have is data, so we will use "all observed `x`". This estimator has no bias, and the variance gets reduced by increasing the number of samples (here we mean bias and variance in statistical terms)
 - Autoregressive models are good, but you have to pick an ordering, generation is sequential and slow, and you cannot learn features in an unsupervised fashion
 
 
@@ -170,29 +171,58 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - If you choose `Z`s well, modeling `p(X|Z)` can be much easier than modeling `p(X)`
 - And if we trained such a model, we could then infer the latent variables, i.e. we could get `p(Z|X)` (e.g. `p(EyeColor = blue|X)`)
 - The easiest example ever is the mixture of Gaussians: a net `Z → X` where `Z` is categorical, and `p(X|Z=k) = Gaussian(mu_k, sigma_k)`, and you have a table with values of `mu` and `sigma` for each category `k`
-- In reality, however, the number of categories usually would be unknown
-- Instead of specifying the latent variables by hand, we are going to let the NN to figure it out
-- For that, we will assume some easy distributions for our latent variables, e.g. `Z ~Gaussian(0,1)`
-- We will assume `p(X|Z)` is also some easy distribution, with parameters depending on `Z`, e.g. `p(X|Z) = Gaussian(mu_theta(Z), sigma_theta(Z))`
-- All the complexity will go into transformations `mu_theta` and `sigma_theta` that can be very complex functions, so we will approximate them using NNs
+- In reality, however, the number of categories usually would be unknown, so you can treat it as a hyperparameter
+- And instead of specifying the latent variables by hand, we are going to let our model figure it out
+- Our model will rely on 3 key assumptions
+- First, we will assume some distributions `p(Z)` for our latent variable(s) `Z`, it's convenient to pick something easy e.g. `p(Z) = Gaussian(0,1)` (but can be any distribution)
+- Second, we will assume some distribution `p_theta(X|Z)`, and again, it's convenient to pick something easy e.g. Gaussian (but can be any distribution)
+- Finally, we will assume that parameters `theta` of `p_theta(X|Z)` depend on `Z` in some none-linear way, e.g. `p_theta(X|Z) = Gaussian(mu_theta(Z), sigma_theta(Z))`
+- So while keeping all the distributions simple, all the complexity will go into transformations `mu_theta` and `sigma_theta` that can be very complex functions, and we will approximate them using NNs
 - Our hope is by fitting this model, it will discover some useful latent features (basically, clusters of data with very low variability)
+
+### VAE optimization
+
 - The problems begin when you want to evaluate `P(X=x)`, since you need to integrate `p(x, z; theta) over all z`, and this can be a nasty integral to calculate
 - This can quickly become intractable even in case of discrete `Z`: suppose we have 20 binary latent variables, evaluating `P(X=x)` involves a sum with 2^20 terms
 - And to fit this model, you actually need to evaluate `P(X=x)` for all the datapoints in the dataset
-- Ways to cheat: Monte-Carlo. Instead of iterating over all `z`, sample from `Z`; approximate the sum with the sample average (sample average * number of possible values `Z` can take)
+- Ways to cheat: Monte-Carlo. Instead of summing/iterating over all `z`, sample from `Z`; approximate the sum/integral with the sample average
+- Meaning: given `x`, for each sample value of `z`, calculate `p(x, z; theta)`, divide by number of samples `k` and multiply by number of possible values `Z` can take (TODO: this is in case of sum, how to do it for the integral? Do we need to discretize?)
 - Problem with this, you'll rarely get a good sample (for most `z`, `P(x|z)` will be very low)
-- So you want to pick `z` that "make sense" (that are likely under `p_theta(X,Z)`)
+- We would like to pick `z`s that "make sense"
 - Could we use some distribution `q(Z)` that produces "good" values of `z`?
-- Remember we are looking at likelihood `L(x, theta) = p_theta(x) = sum [p_theta(x,z)] over all z` (and that is what we want to optimize)
-- Note that we can multiply and divide `sum [p_theta(x,z)] over all z` by some distribution `q(Z)` (always true); which immediately takes shape of an expectation for the `Z` distributed `q(Z)`, meaning we can approximate it by sample average
-- For the reference, this is what we actually get: `p_theta(x) = E[p_theta(x,z)/q(Z)]` under `Z~q(Z)`
-- And we want to maximize the log of that
-- By Jensen inequality, we can actually move the log inside the expectation, and that will give us a lower bound for the log of expectation
+- What does it mean to be good? Well, basically, we want values that are likely under `p_theta(X,Z)`
+- Let's see what we can derive mathematically
+- Remember we are looking at likelihood `L(x, theta) = p_theta(x) = sum [p_theta(x,z)] over all z` (and that is what we want to optimize, or, more precisely, a log of that)
+- _My note: Why log? Reminder: Because we want to optimize across all datapoints, which normally means product of probabilities, but if we take log of that product, we can convert it into sum of logs, which is more convenient_
+- Note that we can multiply and divide `sum [p_theta(x,z)] over all z` by some distribution `q(Z)` (this is always true and `q(Z)` can be any distribution); which immediately takes shape of an expectation for the `Z` distributed `q(Z)`, meaning we can approximate it by sample average
+- For the reference, this is what we actually get: `p_theta(x) = E[p_theta(x,z)/q(Z)]` under `Z~q(Z)` (we got rid of sum)
+- And remember, we want to maximize the log of this expression (here we just massaged our precise training objective into the form of expectation)
+- By Jensen inequality, we can actually move the log inside the expectation, which will give us a lower bound for the log of expectation
 - Meaning: `log(E[p_theta(x,z)/q(Z)]) >= E[log(p_theta(x,z)/q(Z))]` under `Z~q(Z)`
 - The quality of the lower bound depends on the choice of `q(Z)`, if we have a good `q(Z)`, maximizing the lower bound could be as good as maximizing the original expression
-- The ideal `q(Z)` is actually `p_theta(Z|X)` (can be proven mathematically, that under this assumption the lower bound becomes the exact expression)
-- But how would you get to `p_theta(Z|X)`?
+- It can be proven mathematically that when `q(Z) = p_theta(Z|X)`, the lower bound becomes the exact expression (inequality becomes equality)
+- So, coming back to our choice of `q(Z)`, the ideal `q(Z)` is actually `p_theta(Z|X)`
+- Meaning, if we could sample from `p_theta(Z|X)`, we could replace expectation `E[log(p_theta(x,z)/q(Z))]` with sample average of `log(p_theta(x,z)/q(Z))`, and optimizing that would be equivalent to optimizing the actual objective `log(E[p_theta(x,z)/q(Z)])`
+- All of which is just a formal way to say "let's approximate our objective by sampling `z`s that make sense"
+- But how would you get to `p_theta(Z|X)`? In many cases this function is actually intractable (so you can't even compute it)
+- Well, we will actually not, we will use `q_fi(Z)` and jointly optimize `p_theta(X,Z)` and `q_fi(Z)`
+- We will assume `q_fi(Z)` is some easy distribution with parameters `fi`, e.g. `Gaussian(fi_mu, fi_sigma)`
+- Note that, technically speaking, you would have to use a different `q_fi(Z)` for each datapoint (image), because the likely values for latent variables depend on what we see
+- Conceptually, the algorithm is as follows:
+- 1) Initialize `theta` and `fi` for each datapoint ("somehow")
+- 2) Randomly sample a datapoint `x_i`
+- 2) Optimize our joint objective with respect of `fi_i`
+- 4) With that `fi_i` fixed, optimize our joint objective with respect of `theta`
+- Optimization is by gradient descent
+- Calculating gradient with respect of `theta` is easy, gradient goes inside expectation, then we approximate the expectation by sample average
+- Calculating gradient with respect of `fi` is hell, because we are sampling from `q_fi` where parameter `fi` is the thing we are calculating the gradient with respect to
+- Apparently there are some tricks that work in some cases (look up "reparametrization")
+- But this is still unrealistic to optimize since there is too many `fi`s, and the whole objective is non-convex, so we need more approximations
+- _My note: it goes into a rabbit hole_
+- **Amortization**: learn the mapping from `x_i → fi_i` using a single NN
+- You would still need reparametrization trick and sampling to compute gradients
+- _My note: Stefano seem to say that `fi` now is just parameters of that new NN (meaning NN spits the distribution), but I thought we assumed that distribution is Gaussian, and I thought that required for reparametrization too. So maybe NN spits out parameters `fi` for the Gaussian, and we still have some weights for that NN that never appear in any of the notation. Not completely clear_
 
 
 
-TODO: continue with lecture 6
+- TODO: Finally, this translates into an encoder-decoder architecture: encoder takes an image and produces values of latent parameters and decoder taking those latent parameters and reconstructing an image

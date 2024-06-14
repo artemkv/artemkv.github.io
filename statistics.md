@@ -132,16 +132,16 @@
 - This is, apparently, a fiesta for a statistician, since you now can replace expectation by an average estimated from the sample (by law of large numbers), and minimize that
 - But by average of what?
 - To answer that, we'll first do some transformation, and rely on some magic properties of the log function (the logarithm of a fraction is equal to the logarithm of the numerator minus the logarithm of the denominator)
-- Turns out, we can minimize this expectation by maximizing an average of `log(p^(x)) over all x` (i.e. logarithm of the denominator; since logarithm of the numerator does not depend on `theta^` and acts as a constant shifting factor)
+- Turns out, we can minimize this expectation by maximizing an average of `log(p^(x)) over all observed x` (i.e. logarithm of the denominator; since logarithm of the numerator does not depend on `theta^` and acts as a constant shifting factor)
 - Also, instead of maximizing average, we can maximize `sum`
 - Sum of logs is a log of a product
 - Log is a function that is always increasing, so maximizing log of a function is the same as maximizing a function
-- So our `theta^` is `argmax of [product of p^(x) over all x]` (under distribution with parameter `theta^`)
+- So our `theta^` is `argmax of [product of p^(x) over all observed x]`
 - Interpretation: we are trying to find `theta^` such as to make the observed values the most likely
-- And `[product of p^(x) over all x]` is "likelihood" (and it is conditioned on `theta^`)
+- And `[product of p^(x) over all observed x]` is (empirical) "likelihood" (and it is conditioned on `theta^`)
 - To elaborate on interpretation even more, from probability, we remember that the joint PMF/PDF is simply a product of individual probabilities
-- So `[product of p^(x) over all x]` is really a joint PMF/PDF for all `x`
-- Adjusted interpretation: we are trying to find `theta^` such as to make each of the observed values the most likely
+- So `[product of p^(x) over all observed x]` is really a joint PMF/PDF for all `x`
+- Adjusted interpretation: we are trying to find `theta^` such as to make **each of** the observed values the most likely
 - Maximizing an arbitrary function can actually be tricky: you take a derivative, equal to zero and this gives you all the candidates, and you need to check all of them, and there can be millions of candidates
 - But luckily, functions we use in stats are are strictly concave, so there is just one candidate (unique maximum)
 - You still need to find it, and even if it's easy to write an equation (`f'(x) = 0`), solving it can be super hard

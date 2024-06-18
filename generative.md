@@ -13,23 +13,23 @@
 
 - When in doubt, chain rule
 - Sufficiently deep NN can approximate any function
-- We can think of any kind of observed data `D` as a finite set of samples from an underlying distribution `p_data`
+- We can think of any kind of observed data `D` as a finite set of samples from an underlying distribution `Pdata`
 - The goal of any generative model is then to approximate this data distribution given access to the dataset `D`
-- Autoregressive: model `p(X1, X2,..., Xn)` using conditional independence assumption and a chain rule
+- Autoregressive: model `p(x1, x2,..., xn)` using conditional independence assumption and a chain rule
 - Approximate distributions in the chain using ML algorithms
-- Variational autoencoder: model `p(X1, X2,..., Xn)` using the law of total probability and a latent variable
-- Jointly optimize for `p(Z)` and `p(X|Z)`
+- Variational autoencoder: model `p(x1, x2,..., xn)` using the law of total probability and a latent variable
+- Jointly optimize for `p(z)` and `p(x|z)`
 
 
 ## Intro
 
 - Computer graphics: generate an image from a description
 - Generating description from graphics is exact inverse of this process
-- **Statistical Generative Model** is a probability distribution `p(X)`, based on combination of data (e.g. images of cats) and prior knowledge (e.g. physics, materials)
+- **Statistical Generative Model** is a probability distribution `p(x)`, based on combination of data (e.g. images of cats) and prior knowledge (e.g. physics, materials)
 - Loss function (e.g. maximum likelihood), optimization algorithm are also a part of a prior knowledge
 - There is a spectrum, but this course is mostly about data-driven models
-- The model is, basically, image `x` → `p(X=x)` → scalar probability `P(x)`
-- Sampling from `p(X)` generates new images
+- The model is, basically, image `x` → `p(x)` → scalar probability `P(X=x)`
+- Sampling from `p(x)` generates new images
 - So this model is a data simulator, can generate new data; ideally, controlled (i.e. accepts the prompt in form of text description or a sketch)
 - This model also allows you to check how likely it is that the data was generated using this model
 - Example of inverse problems: `P(high res|low res)`, `P(color image|greyscale)`, `P(full image|masked image)`, `P(english text|chinese text)`, `P(actions|past observations)`
@@ -47,18 +47,18 @@
 - Unfortunately, finding a good distribution family and a notion of a distance is hard, and not clear how to do
 - Different families of generative models make different choices
 - By learning `Pdata` you end up learning what's common between different images (allows recovering features)
-- How to represent `p(X)`? Considering that `x` is an image or text, which means high-dimensional vector
-- If every pixel in an image is a random variable, you could generate an image sampling from the joint distribution `p(X1, X2,..., Xn)`
-- Assuming black and white images, to specify this distribution you need `2^n-1` parameters
+- How to represent `p(x)`? Considering that `x` is an image or text, which means high-dimensional vector
+- If every pixel in an image is a random variable, you could generate an image sampling from the joint distribution `p(x1, x2,..., xn)`
+- Assuming binary black and white images, to specify this distribution you need `2^n-1` parameters
 - And once you start considering RGB and larger images, you very quickly run out of atoms in the Universe
 - Is there way out?
-- You could make an assumption that your variables are independent, which means `p(X1, X2,..., Xn) = p(X1)*p(X2)*...*p(Xn)`
+- You could make an assumption that your variables are independent, which means `p(x1, x2,..., xn) = p(x1)*p(x2)*...*p(xn)`
 - You would still have the same potential number of images, but you have much fewer parameters (for black and white image, `n` parameters instead of `2^n-1`)
 - However, independence assumption is too strong. Such a model would likely not be very useful (imagine generating every pixel of an image independently)
-- What about chain rule (always true): `p(X1 & X2 & ... & Xn) = p(X1)*p(X2|X1)*p(X3|X1,X2)*...*p(Xn|X1,X2,...,Xn-1)`
+- What about chain rule (always true): `p(x1 & x2 & ... & xn) = p(x1)*p(x2|x1)*p(x3|x1,x2)*...*p(xn|x1,x2,...,xn-1)`
 - This does not really help, as you would still need `1+2+...+2^(n-1) = 2^n-1` parameters (same black and white image), but it looks like a step in a right direction
-- You could now make a conditional independence assumption: `Xi+1 ⊥ X1,...Xi-1|Xi`, given `Xi`, `Xi+1` is independent of `X1,...Xi-1` (basically, Markov assumption)
-- This gives `p(X1, X2,..., Xn) = p(X1)*p(X2|X1)*p(X3|X2)*...*p(Xn|Xn-1)`, which is `2n-1` parameter
+- You could now make a conditional independence assumption: `Xi+1 ⊥ X1,...Xi-1|Xi`, meaning: given `Xi`, `Xi+1` is independent of `X1,...Xi-1` (basically, Markov assumption)
+- This gives `p(x1, x2,..., xn) = p(x1)*p(x2|x1)*p(x3|x2)*...*p(xn|xn-1)`, which is `2n-1` parameter
 - A single word/pixel is probably not enough for a good model though, so maybe this assumption is still a bit too strong
 - So instead we can use a Bayesian network approach, where each variable is conditionally dependent on a subset of random variables
 - Bayesian network is a DAG with one node for each random variable, and you specify the variable's probability conditioned on its parents' values
@@ -68,24 +68,24 @@
 - Since in reality, words are dependent, this model is not very true, but it is still quite useful
 - Once you formulated this kind of model, you estimate your parameters from data
 - And then you can reverse the conditions (using the Bayes rule) and predict the label
-- Neural models replace conditional distributions (e.g. `p(Xn|X1,X2,...,Xn-1)`) in the chain rule with NNs (you would need a different NN for each position, but still a win)
-- And sufficiently deep NN can approximate any function (magic of deep learning), so this is another valid approach to model `p(X)`
+- Neural models replace conditional distributions (e.g. `p(xn|x1,x2,...,xn-1)`) in the chain rule with NNs (you would need a different NN for each position, but still a win)
+- And sufficiently deep NN can approximate any function (magic of deep learning), so this is another valid approach to model `p(x)`
 
 
 ### Generative vs discriminative models
 
-- `p(Y,X) = p(X|Y)p(Y) = p(Y|X)p(X)`, this corresponds to 2 Bayesian networks
+- `p(y,x) = p(x|y)p(y) = p(y|x)p(x)`, this corresponds to 2 Bayesian networks
 - `Y → X` is **generative** network (can generate data `X` for a given label `Y`)
 - `X → Y` is **discriminative** network (can discriminate label `Y` when given `X`)
-- If all you care is `p(Y|X)`, don't bother modeling `p(X)`, estimate `p(Y|X)` from data, and you are done (this is what most of the ML algorithms do, meaning most of them are discriminative)
-- Of course, if you have multiple features, then `p(Y|X)` becomes `p(Y|X1,X2...Xn)`, which is also a lot of parameters, but we can always make an assumption `p(Y=1|X, alpha) = f(X, alpha)`, basically replacing the full probability distribution with a function
+- If all you care is `p(y|x)`, don't bother modeling `p(x)`, estimate `p(y|x)` from data, and you are done (this is what most of the ML algorithms do, meaning most of them are discriminative)
+- Of course, if you have multiple features, then `p(y|x)` becomes `p(y|x1,x2...xn)`, which is also a lot of parameters, but we can always make an assumption `p(Y=1|x, alpha) = f(x, alpha)`, basically replacing the full probability distribution with a function
 - Note that this does not require independence assumption!
-- We want the function `f(X, alpha)` to output a value between 0 and 1
+- We want the function `f(x, alpha)` to output a value between 0 and 1
 - We also want `Y` to depend, in some reasonable way, on `X1,X2...Xn`
 - We can assume this dependency is specified by a vector `alpha` of `n+1` parameters (linear dependence)
 - This is, basically, a recipe for the logistic regression
 - And if we use NN, we can model this function using non-linear dependence, which makes model even more powerful
-- This is a building block for generative models as well, since the easiest way to build a generative algorithm is to predict `p(X|X-1)` using NN
+- This is a building block for generative models as well, since the easiest way to build a generative algorithm is to predict `p(x_i|x_i-1)` using NN
 
 
 ## Autoregressive models
@@ -94,26 +94,26 @@
 - Models: FVSBN, NADE, MADE
 - This is the algorithm behind large language models (LLMs), e.g. Chat GPT
 - **Given:** a dataset `D` of handwritten digits (binarized MNIST, each image is 28x28=784 pixels)
-- **Goal:** learn a probability distribution `p(X) = p(X1,X2,...,X784)` such that when you draw `x ~ p(X)`, `x` looks like a digit
+- **Goal:** learn a probability distribution `p(x) = p(x1,x2,...,x784)` such that when you draw `x ~p(x)`, `x` looks like a digit
 - Two-step process:
-- 1. Parametrize a model family `Ptheta(X)`
+- 1. Parametrize a model family `Ptheta(x)`
 - 2. Search for model parameters `theta` based on training data
-- To express `p(X)` using the chain rule, you need to pick an ordering, e.g. raster-scan ordering (from top-left to bottom-right)
-- Chain rule: `p(X1,X2,...,X784) = p(X1)*p(X2|X1)*p(X3|X1,X2)*...*p(X784|X1,X2,...,X783)`
+- To express `p(x)` using the chain rule, you need to pick an ordering, e.g. raster-scan ordering (from top-left to bottom-right)
+- Chain rule: `p(x1,x2,...,x784) = p(x1)*p(x2|x1)*p(x3|x1,x2)*...*p(x784|x1,x2,...,x783)`
 - As this is too complex, we need to make some modeling assumptions
-- Assume `p(X784|X1,X2,...,X783)` is simply `Bernoulli(f(X1,X2,...,X783))`, where parameter of that Bernoulli is a function of all preceding random variables `X1,X2,...,X783` (in case of binary black and white image)
-- This can be modeled using `p(X1,X2,...,Xn) = p(X1;alpha1)*p_logit(X2|X1;alpha2)*p_logit(X3|X1,X2;alpha3)*...*p_logit(Xn|X1,X2,...,Xn-1;alpha_n)`
-- Basically, use logistic regression to approximate all the distributions except `p(X1;alpha1)`, which is simple enough to be modeled exactly (in this case it's Bernoulli)
+- Assume `p(x784|x1,x2,...,x783)` is simply `Bernoulli(f(x1,x2,...,x783))`, where parameter of that Bernoulli is a function of all preceding random variables `X1,X2,...,X783` (in case of binary black and white image)
+- This can be modeled using `p(x1,x2,...,xn) = p(x1;alpha1)*p_logit(x2|x1;alpha2)*p_logit(x3|x1,x2;alpha3)*...*p_logit(xn|x1,x2,...,xn-1;alpha_n)`
+- Basically, use logistic regression to approximate all the distributions except `p(x1;alpha1)`, which is simple enough to be modeled exactly (it's Bernoulli)
 - You had 1 problem, now you have `n-1` problems (every `p_logit` is a separate model with separate parameters)
 - And you also need `n^2` parameters in `alpha` vectors (manageable)
 - Actually you have a full freedom how to model each of the distributions, logistic regression is just one of the possibilities
 - But we've just built an **autoregressive model**
 - To evaluate the model, you compute every `p_logit` and multiply
-- To sample from `p(X1,X2,...,X784)`, you can sample from every `p_logit` in order
+- To sample from `p(x1,x2,...,x784)`, you can sample from every `p_logit` in order
 - Unfortunately, the results are not great (it works, but it's shit), because logistic regression is not very good
 - So let's replace the logistic regression with a single layer NN
 - Having separate NN for each pixel is annoying, could we make it simpler?
-- What can be done is to re-use weights `w1` from `p_nn(X2|X1;alpha2)` in `p_nn(X3|X1,X2;alpha3)`, then reuse `w1` and `w2` from `p_nn(X3|X1,X2;alpha3)` in `p_nn(X4|X1,X2,X3;alpha4)` and so on (you could also re-use bias vectors)
+- What can be done is to re-use weights `w1` from `p_nn(x2|x1;alpha2)` in `p_nn(x3|x1,x2;alpha3)`, then reuse `w1` and `w2` from `p_nn(x3|x1,x2;alpha3)` in `p_nn(x4|x1,x2,x3;alpha4)` and so on (you could also re-use bias vectors)
 - Doing so requires `n` weight vectors
 - This makes the model simpler, faster and less prone to overfitting, so it's a big win
 - In practice, the results look significantly better too
@@ -148,7 +148,7 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - One way to estimate the distance between 2 distribution is KL divergence
 - And now just look up "Maximum likelihood estimation (MLE)" in the notes on "Statistics, theoretical foundations"
 - Because KL divergence leads to MLE
-- Your maximization objective is then a `sum [log(Ptheta(X))] over all x`
+- Your maximization objective is then a `sum [log(Ptheta(x))] over all x`
 - `theta` is all possible parameters of a NN
 - But evaluating `Ptheta(X=x)` is actually easy: just go and apply the chain rule, iteratively (gets you the probability of 1 image) then multiply across the whole dataset
 - How to train, standard ML procedure:
@@ -157,30 +157,30 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - 3). `theta(t+1) = theta(t) + alpha*grad`
 - You can do it in minibatches, of course
 - As usual, you are looking for the best bias-variance tradeoff (model that is good enough to be close to true distribution, but not so good that it will overfit, bias and variance in ML terms)
-- Note: there is a technicality that involves switching from log-likelihood to empirical log-likelihood. Because the "all x" in the optimization objective actually means "all possible `x` that `Ptheta(X)` is defined on", but all we have is data, so we will use "all observed `x`". This estimator has no bias, and the variance gets reduced by increasing the number of samples (here we mean bias and variance in statistical terms)
+- Note: there is a technicality that involves switching from log-likelihood to empirical log-likelihood. Because the "all x" in the optimization objective actually means "all possible `x` that `Ptheta(x)` is defined on", but all we have is data, so we will use "all observed `x`". This estimator has no bias, and the variance gets reduced by increasing the number of samples (here we mean bias and variance in statistical terms)
 - Autoregressive models are good, but you have to pick an ordering, generation is sequential and slow, and you cannot learn features in an unsupervised fashion
 
 
 ## Variational Autoencoders (VAEs)
 
 - Reminder: `P(X=x) = sum [P(X=x|Z=z)*P(Z=z)] over all z = sum [P(X=x,Z=z)] over all z` (The law of total probability, then just expressing joint probability from conditional one)
-- As we have seen, modeling `p(X)` directly can be a very complex task, and the distribution may be extremely complex
+- As we have seen, modeling `p(x)` directly can be a very complex task, and the distribution may be extremely complex
 - But this is because we don't know anything about the underlying structure or meaning of `X`
-- If we knew that `X` depended on some variable `Z`, we might have found that modeling `p(X|Z)` is significantly easier, and may even produce some easy distributions
+- If we knew that `X` depended on some variable `Z`, we might have found that modeling `p(x|z)` is significantly easier, and may even produce some easy distributions
 - As an example, if you look at many pictures of faces and all you see is pixels, there is going to be a lot of variability, due to gender, age, hair color, etc.
 - But if you looked only at images of young blond females, there would be much less variability
 - Unfortunately, unless images are annotated, these factors of variation are not explicitly available (latent)
 - However, we can explicitly model these factors using latent variables `Z1...Zn`
 - This corresponds to `Z → X` bayesian network, where `Z`s are latent high level features (e.g. eye color)
-- If you choose `Z`s well, modeling `p(X|Z)` can be much easier than modeling `p(X)`
-- And if we trained such a model, we could then infer the latent variables, i.e. we could get `p(Z|X)` (e.g. `p(EyeColor = blue|X)`)
-- The easiest example ever is the mixture of Gaussians: a net `Z → X` where `Z` is categorical, and `p(X|Z=k) = Gaussian(mu_k, sigma_k)`, and you have a table with values of `mu` and `sigma` for each category `k`
+- If you choose `Z`s well, modeling `p(x|z)` can be much easier than modeling `p(x)`
+- And if we trained such a model, we could then infer the latent variables, i.e. we could get `p(z|x)` (e.g. `p(EyeColor = blue|x)`)
+- The easiest example ever is the mixture of Gaussians: a net `Z → X` where `Z` is categorical, and `p(x|Z=k) = Gaussian(mu_k, sigma_k)`, and you have a table with values of `mu` and `sigma` for each category `k`
 - In reality, however, the number of categories usually would be unknown, so you can treat it as a hyperparameter
 - And instead of specifying the latent variables by hand, we are going to let our model figure it out
 - Our model will rely on 3 key assumptions
-- First, we will assume some distributions `p(Z)` for our latent variable(s) `Z` (aka priors), it's convenient to pick something easy e.g. `p(Z) = Gaussian(0,1)` (but can be any distribution)
-- Second, we will assume some distribution `p_theta(X|Z)`, and again, it's convenient to pick something easy e.g. Gaussian (but can be any distribution)
-- Finally, we will assume that parameters `theta` of `p_theta(X|Z)` depend on `Z` in some none-linear way, e.g. `p_theta(X|Z) = Gaussian(mu_theta(Z), sigma_theta(Z))`
+- First, we will assume some distributions `p(z)` for our latent variable(s) `Z` (aka priors), it's convenient to pick something easy e.g. `p(z) = Gaussian(0,1)` (but can be any distribution)
+- Second, we will assume some distribution `p_theta(x|z)`, and again, it's convenient to pick something easy e.g. Gaussian (but can be any distribution)
+- Finally, we will assume that parameters `theta` of `p_theta(x|z)` depend on `Z` in some none-linear way, e.g. `p_theta(x|z) = Gaussian(mu_theta(z), sigma_theta(z))`
 - So while keeping all the distributions simple, all the complexity will go into transformations `mu_theta` and `sigma_theta` that can be very complex functions, and we will approximate them using NNs
 - Our hope is by fitting this model, it will discover some useful latent features (basically, clusters of data with very low variability)
 
@@ -190,31 +190,31 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - The problems begin when you want to evaluate `P(X=x)`, since you need to integrate `p(x, z; theta) over all z`, and this can be a nasty integral to calculate
 - This can quickly become intractable even in case of discrete `Z`: suppose we have 20 binary latent variables, evaluating `P(X=x)` involves a sum with 2^20 terms
 - And to fit this model, you actually need to evaluate `P(X=x)` for all the datapoints in the dataset
-- Ways to cheat: Monte-Carlo. Instead of summing/iterating over all `z`, sample from `Z`; approximate the sum/integral with the sample average
+- Ways to cheat: Monte-Carlo. Instead of summing/iterating over all `z`, sample from distribution of `Z`; approximate the sum/integral with the sample average
 - Meaning: given `x`, for each sample value of `z`, calculate `p(x, z; theta)`, divide by number of samples `k` and multiply by number of possible values `Z` can take (TODO: this is in case of sum, how to do it for the integral? Do we need to discretize?)
-- Problem with this, you'll rarely get a good sample (for most `z`, `P(x|z)` will be very low)
+- Problem with this, you'll rarely get a good sample (for most `z`, `p(x|z)` will be very low)
 - We would like to pick `z`s that "make sense"
-- Could we use some distribution `q(Z)` that produces "good" values of `z`?
-- What does it mean to be good? Well, basically, we want values that are likely under `p_theta(X,Z)`
+- Could we use some distribution `q(z)` that produces "good" values of `z`?
+- What does it mean to be good? Well, basically, we want values that are likely under `p_theta(x,z)`
 - Let's see what we can derive mathematically
 - Remember we are looking at likelihood `L(x, theta) = p_theta(x) = sum [p_theta(x,z)] over all z` (and that is what we want to optimize, or, more precisely, a log of that)
 - _My note: Why log? Reminder: Because we want to optimize across all datapoints, which normally means product of probabilities, but if we take log of that product, we can convert it into sum of logs, which is more convenient_
-- Note that we can multiply and divide `sum [p_theta(x,z)] over all z` by some distribution `q(Z)` (this is always true and `q(Z)` can be any distribution); which immediately takes shape of an expectation for the `Z` distributed `q(Z)`, meaning we can approximate it by sample average
-- For the reference, this is what we actually get: `p_theta(x) = E[p_theta(x,z)/q(Z)]` under `Z~q(Z)` (we got rid of sum)
+- Note that we can multiply and divide `sum [p_theta(x,z)] over all z` by some distribution `q(z)` (this is always true and `q(z)` can be any distribution); which immediately takes shape of an expectation for the `Z` distributed `q(z)`, meaning we can approximate it by sample average
+- For the reference, this is what we actually get: `p_theta(x) = E[p_theta(x,z)/q(z)]` under `Z~q(z)` (we got rid of sum)
 - And remember, we want to maximize the log of this expression (here we just massaged our precise training objective into the form of expectation)
 - By Jensen inequality, we can actually move the log inside the expectation, which will give us a lower bound for the log of expectation
-- Meaning: `log(E[p_theta(x,z)/q(Z)]) >= E[log(p_theta(x,z)/q(Z))]` under `Z~q(Z)`
-- The quality of the lower bound depends on the choice of `q(Z)`, if we have a good `q(Z)`, maximizing the lower bound could be as good as maximizing the original expression
-- It can be proven mathematically that when `q(Z) = p_theta(Z|X)`, the lower bound becomes the exact expression (inequality becomes equality)
-- So, coming back to our choice of `q(Z)`, the ideal `q(Z)` is actually `p_theta(Z|X)`
-- Meaning, if we could sample from `p_theta(Z|X)`, we could replace expectation `E[log(p_theta(x,z)/q(Z))]` with sample average of `log(p_theta(x,z)/q(Z))`, and optimizing that would be equivalent to optimizing the actual objective `log(E[p_theta(x,z)/q(Z)])`
+- Meaning: `log(E[p_theta(x,z)/q(z)]) >= E[log(p_theta(x,z)/q(z))]` under `Z~q(z)`
+- The quality of the lower bound depends on the choice of `q(z)`, if we have a good `q(z)`, maximizing the lower bound could be as good as maximizing the original expression
+- It can be proven mathematically that when `q(z) = p_theta(z|x)`, the lower bound becomes the exact expression (inequality becomes equality)
+- So, coming back to our choice of `q(z)`, the ideal `q(z)` is actually `p_theta(z|x)`
+- Meaning, if we could sample from `p_theta(z|x)`, we could replace expectation `E[log(p_theta(x,z)/q(z))]` with sample average of `log(p_theta(x,z)/q(z))`, and optimizing that would be equivalent to optimizing the actual objective `log(E[p_theta(x,z)/q(z)])`
 - All of which is just a formal way to say "let's approximate our objective by sampling `z`s that make sense"
-- But how would you get to `p_theta(Z|X)`? In many cases this function is actually intractable (so you can't even compute it)
-- Well, we will actually not, we will use `q_fi(Z)` and jointly optimize `p_theta(X,Z)` and `q_fi(Z)`
-- We will assume `q_fi(Z)` is some easy distribution with parameters `fi`, e.g. `Gaussian(mu_fi, sigma_fi)`
-- We will guess `q_fi(Z)` from data, so it becomes `q_fi(Z|x)`
-- Note that we have to use a different `q_fi(Z|x)` for each datapoint (image), because the likely values for latent variables depend on what we see
-- The final learning objective: `L(X; theta, fi) = E[log(p_theta(X,Z)) - log(q_fi(Z|X))]` under `q_fi(Z|X)`
+- But how would you get to `p_theta(z|x)`? In many cases this function is actually intractable (so you can't even compute it)
+- Well, we will actually not, we will use `q_fi(z)` and jointly optimize `p_theta(x,z)` and `q_fi(z)`
+- We will assume `q_fi(z)` is some easy distribution with parameters `fi`, e.g. `Gaussian(mu_fi, sigma_fi)`
+- We will guess `q_fi(z)` from data, so it becomes `q_fi(z|x)`
+- Note that we have to use a different `q_fi(z|x)` for each datapoint (image), because the likely values for latent variables depend on what we see
+- The final learning objective: `L(X; theta, fi) = E[log(p_theta(x,z)) - log(q_fi(z|x))]` under `q_fi(z|x)`
 - Conceptually, the algorithm is as follows:
 - 1) Initialize `theta` and `fi` for each datapoint ("somehow")
 - 2) Randomly sample a datapoint `x_i`
@@ -233,25 +233,34 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 
 ### VAE optimization summary
 
-- `Z -> X`, `p_theta(X|Z)`, `q_fi(Z|X)`
-- `q_fi(Z|X) = Gaussian(mu_fi(x), sigma_fi(x))`
-- `p_theta(X|Z) = Gaussian(mu_theta(z), sigma_theta(z))`
+- `Z -> X`, `p_theta(x|z)`, `q_fi(z|x)`
+- `q_fi(z|x) = Gaussian(mu_fi(x), sigma_fi(x))`
+- `p_theta(x|z) = Gaussian(mu_theta(z), sigma_theta(z))`
 - Encoder: NN `x_i` -> `mu_fi(x_i), sigma_fi(x_i)`, weights `fi`
-- Re-parametrization: `z_i = mu_fi(x_i) + epsilon*sigma_fi(x_i)`, where `epsilon ~ Gaussian(0,1)`, a single sample for `epsilon` is good enough
+- Re-parametrization: `z_i = mu_fi(x_i) + epsilon*sigma_fi(x_i)`, where `epsilon ~Gaussian(0,1)`, a single sample for `epsilon` is good enough
 - Decoder: `z_i -> p_theta(x_i|z_i)`, weights `theta`
 - Training objective: `max [1/N sum [log (p_theta(x_i|mu_fi(x_i) + epsilon*sigma_fi(x_i)))] over all i - D_KL(q_fi(Z|x_i)||p(Z))] wrt (theta, fi)`, where `N` is a size of a minibatch
 - `p_theta(x_i|mu_fi(x_i) + epsilon*sigma_fi(x_i))` is the output of decoder, `D_KL(q_fi(Z|x_i)||p(Z))` computed in a closed form using software
-- `p(Z)` is a prior on `Z`. The vanilla implementation of the VAE assumes `p(Z) = Gaussian(0,1)`
+- `p(z)` is a prior distribution of `Z`. The vanilla implementation of the VAE assumes `p(z) = Gaussian(0,1)`
 - Also see [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
 - [Convolutional Variational Autoencoder](https://www.tensorflow.org/tutorials/generative/cvae)
 
 
 ## Normalizing flows
 
-- VAEs are good, but they are pain in the ass to train
-- We want `p(X)` to be easy to evaluate and to sample (while being able to describe a complex distribution)
+- VAEs are good, but they are pain in the ass to train, since it's very hard to compute the integral `p_theta(x) = integral [p_theta(x,z)] over dz`
+- We want `p(x)` to be easy to evaluate and to sample (while being able to describe a complex distribution)
 - The key idea of normalizing flows is to map simple distributions to complex ones by applying invertible transformations
+- How: make `X = f_theta(Z)`, i.e. make `X` a deterministic and invertible function of `Z`
+- This means for any `x` there is a unique corresponding `z`
+- How do you get `p(x)` from `p(z)`?
 
 
 
-Continue with Lecture 7, 38:12
+
+
+
+
+
+
+Continue with Lecture 7, 46:40

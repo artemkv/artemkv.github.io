@@ -49,12 +49,12 @@
 
 ## Multi-task learning
 
-- More formally, **task** `i` is the set `{p_i(X), p_i(Y|X), L_i}`, where `p_i(X)` is a distribution on inputs, `p_i(Y|X)` distribution on outputs given inputs, `L_i` is a loss function
+- More formally, **task** `i` is the set `{p_i(x), p_i(y|x), L_i}`, where `p_i(x)` is a distribution on inputs, `p_i(y|x)` distribution on outputs given inputs, `L_i` is a loss function
 - **Multi-task classification**: `L_i` is the same across all tasks
 - Example: handwriting recognition, a task corresponds to a single language, but the loss function is the same
-- **Multi-label learning**: both `L_i` and `p_i(X)` are the same across all tasks
+- **Multi-label learning**: both `L_i` and `p_i(x)` are the same across all tasks
 - Example: face attribute recognition, one task detects the color of the hair, another one the eye color
-- The model is a function `f_theta(Y|X, Z_i)`, where `Z_i` is a **Task descriptor**
+- The model is a function `f_theta(y|x, Z_i)`, where `Z_i` is a **Task descriptor**
 - Tasks descriptor is something that denotes the tasks that we are interested in (basically, the way to tell the network which task to perform)
 - This can be just one-hot vector of size `T`, where `T` is a number of different tasks we want to perform
 - This can be something more complicated, like a language description of a task (i.e. a prompt); typically the more information you give the better
@@ -315,18 +315,18 @@ _My thought: that sounds like a bit too much work, I thought in order to be clai
 - These need arises when there is an ambiguity in how to solve a task, and especially in safety-critical context (e.g. medical imaging); but there are other reasons too
 - _My note: remember how in Bayesian stats, you get a distribution on a distribution parameter, i.e. distribution on a mean of a distribution_
 - To achieve this, we want to build probabilistic models where distributions are more complex than categorical or Gaussian
-- In such case, it is usually much simpler to model `p(X)` using latent variables
-- Latent variable: some random variable `Z` that we cannot directly observe, distributed `p(Z)`
-- Example: we have a bunch of unlabeled datapoints coming from `p(X)`. We may observe there are 3 clusters of data, so we can model `P(X=x)` as `sum [P(x|z)P(z)] over all z`, where `Z` is a latent categorical random variable and `p(X|Z)` is a Gaussian (Gaussian mixture model)
-- In general, you have some complex distribution `p(X)`, and some prior for `p(Z)`, typically assumed to be some "easy" distribution (e.g. Categorical or Gaussian)
-- You then assume that `p(X|Z)` is also some simple distribution, e.g. Gaussian (although a mapping itself can be quite complicated, so the parameters of that Gaussian can be very complex)
-- This allows us to express `P(X)` as an integral over `[p(X|Z)p(Z)]`
+- In such case, it is usually much simpler to model `p(x)` using latent variables
+- Latent variable: some random variable `Z` that we cannot directly observe, distributed `p(z)`
+- Example: we have a bunch of unlabeled datapoints coming from `p(x)`. We may observe there are 3 clusters of data, so we can model `P(X=x)` as `sum [P(X=x|Z=z)P(Z=z)] over all z`, where `Z` is a latent categorical random variable and `p(x|z)` is a Gaussian (Gaussian mixture model)
+- In general, you have some complex distribution `p(x)`, and some prior for `p(z)`, typically assumed to be some "easy" distribution (e.g. Categorical or Gaussian)
+- You then assume that `p(x|z)` is also some simple distribution, e.g. Gaussian (although a mapping itself can be quite complicated, so the parameters of that Gaussian can be very complex)
+- This allows us to express `p(x)` as an integral over `[p(x|z)p(z)]`
 - In general, this allows us to express very complex distributions as products of simple distributions that we can learn how to parametrize
 - To train a probabilistic model, you need to maximize this integral w.r.t parameters of these distributions (by maximizing the log of it)
 - But these integrals can get really nasty and impossible to calculate (or very computationally expensive to estimate)
 - Workaround idea: instead of going through every possible value of `Z`, "guess" the most likely `z` given `x_i`, and pretend it's the right one
-- You actually don't guess a single value of `Z`, you guess a distribution `p(Z|x_i)`
-- This allows you to replace the integral by `E[Z ~ p(Z|x_i)]*p(x_i, Z)`
+- You actually don't guess a single value of `Z`, you guess a distribution `p(z|x_i)`
+- This allows you to replace the integral by `E[Z ~p(z|x_i)]*p(x_i, z)`
 - And expectation can be replaced by sampling, so this is nice
 - _My note: I'm going to stop here, since it's getting too advanced_
 

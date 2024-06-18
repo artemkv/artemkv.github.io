@@ -120,3 +120,5 @@ Lx
 reparametrization
 minibatch
 Autoencoder
+FVSBN
+NADE

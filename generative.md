@@ -248,19 +248,34 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 
 ## Normalizing flows
 
+- See this as well: [Introduction to Normalizing Flows](https://www.youtube.com/watch?v=u3vVyFVU_lI)
 - VAEs are good, but they are pain in the ass to train, since it's very hard to compute the integral `p_theta(x) = integral [p_theta(x,z)] over dz`
-- We want `p(x)` to be easy to evaluate and to sample (while being able to describe a complex distribution)
-- The key idea of normalizing flows is to map simple distributions to complex ones by applying invertible transformations
+- We want `p(x)` to be easy to evaluate and to sample from (while being able to describe a complex distribution)
+- The key idea of normalizing flows is to map simple distributions (Gaussian, Uniform etc.) to complex ones by applying invertible transformations
 - How: make `X = f_theta(Z)`, i.e. make `X` a deterministic and invertible function of `Z`
 - This means for any `x` there is a unique corresponding `z`
-- How do you get `p(x)` from `p(z)`?
+- Note, that also means `x` and `z` have the same dimensions, so there is no compression
+- And since there is no compression, `Z` is no longer a latent variable that captures some high-level meaning
+- It is still a latent variable and does still capture some meaning, e.g. you can interpolate between different values of `z` to morph between different `x`, but it's hard to interpret what it does
+- Essentially, this approach allows mapping images into Gaussian noise and back, hence it's normalizing
+- It's called flow, since you can apply these transformations in a long chain, until you get a perfectly shaped Gaussian
+- Sampling from `p(x)` means sampling `z` from `p(z)` and then computing `x` by transforming `z`, easy
+- To evaluate `p(x)` you actually need to get `p(x)`. But how do you get `px(x)` from `pz(z)`?
+- Since distributions have to integrate to 1, you cannot simply do `px(x) = pz(h(x))` (where `h(.)` is inverse of `f(.)`), you have to rescale the density function, using change of variables formula
+- **Change of variables**: if `X = f(Z)`, and `f` is monotone with inverse `Z = h(X)`, then `px(x) = pz(h(x))*|h'(x)|`, where `h'` is a derivative of `h`
+- Same expression in terms of `f'`: `px(x) = pz(z)*|1/f'(z)|`
+- This is 1d case, but we want `x` to be a matrix
+- The equivalent of formula in case of linear matrix transformation `X = A*Z` is `px(x) = pz(Wx)*|det(W)|`, where `W` is inverse of `A` and `det(W)` is determinant of `W`
+- And `det(W) = 1/det(A)`
+- That is all good, but we actually want to apply non-linear transformations, basically, we want to run `z` through NN
+- Well, there is a formula for that too (it gets complicated, so I am not going to copy it here)
+- And it gets even more complex if you start stacking transformations on top of each other
+- But, what is important is that, even though complicated, this is perfectly calculable expression
+- And, using this expression, you can derive an expression for log likelihood, which is trivial to evaluate, and which can be optimized by gradient descent
+- The only caveat is, the calculation involves Jacobians, and the success of the whole undertaking depends on how fast you can calculate the Jacobians
+- So what we need is to come up with some nice invertible transformations that have easily computable Jacobians (and there are some math tricks, like triangular Jacobians)
+- This gives birth to multiple NN architectures that implement such transformations
 
 
 
-
-
-
-
-
-
-Continue with Lecture 7, 46:40
+Continue with Lecture 8, 29:10

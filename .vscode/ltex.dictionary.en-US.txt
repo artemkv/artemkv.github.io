@@ -122,3 +122,4 @@ minibatch
 Autoencoder
 FVSBN
 NADE
+Jacobians

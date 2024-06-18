@@ -118,3 +118,5 @@ autoencoder
 concat
 Lx
 reparametrization
+minibatch
+Autoencoder

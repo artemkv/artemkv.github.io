@@ -13,9 +13,12 @@
 
 - When in doubt, chain rule
 - Sufficiently deep NN can approximate any function
-- Model `p(X1, X2,..., Xn)` using conditional independence assumption and a chain rule
+- We can think of any kind of observed data `D` as a finite set of samples from an underlying distribution `p_data`
+- The goal of any generative model is then to approximate this data distribution given access to the dataset `D`
+- Autoregressive: model `p(X1, X2,..., Xn)` using conditional independence assumption and a chain rule
 - Approximate distributions in the chain using ML algorithms
-- Improvise to get different algorithms
+- Variational autoencoder: model `p(X1, X2,..., Xn)` using the law of total probability and a latent variable
+- Jointly optimize for `p(Z)` and `p(X|Z)`
 
 
 ## Intro
@@ -98,7 +101,8 @@
 - To express `p(X)` using the chain rule, you need to pick an ordering, e.g. raster-scan ordering (from top-left to bottom-right)
 - Chain rule: `p(X1,X2,...,X784) = p(X1)*p(X2|X1)*p(X3|X1,X2)*...*p(X784|X1,X2,...,X783)`
 - As this is too complex, we need to make some modeling assumptions
-- Assume `p(X1,X2,...,Xn) = p(X1;alpha1)*p_logit(X2|X1;alpha2)*p_logit(X3|X1,X2;alpha3)*...*p_logit(Xn|X1,X2,...,Xn-1;alpha_n)`
+- Assume `p(X784|X1,X2,...,X783)` is simply `Bernoulli(f(X1,X2,...,X783))`, where parameter of that Bernoulli is a function of all preceding random variables `X1,X2,...,X783` (in case of binary black and white image)
+- This can be modeled using `p(X1,X2,...,Xn) = p(X1;alpha1)*p_logit(X2|X1;alpha2)*p_logit(X3|X1,X2;alpha3)*...*p_logit(Xn|X1,X2,...,Xn-1;alpha_n)`
 - Basically, use logistic regression to approximate all the distributions except `p(X1;alpha1)`, which is simple enough to be modeled exactly (in this case it's Bernoulli)
 - You had 1 problem, now you have `n-1` problems (every `p_logit` is a separate model with separate parameters)
 - And you also need `n^2` parameters in `alpha` vectors (manageable)
@@ -159,7 +163,7 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 
 ## Variational Autoencoders (VAEs)
 
-- Reminder: `P(X=x) = sum [P(X=x|Z=z)*P(Z=z)] over all z = sum [P(X=x,Z=z)] over all x` (The law of total probability, then just expressing joint probability from conditional one)
+- Reminder: `P(X=x) = sum [P(X=x|Z=z)*P(Z=z)] over all z = sum [P(X=x,Z=z)] over all z` (The law of total probability, then just expressing joint probability from conditional one)
 - As we have seen, modeling `p(X)` directly can be a very complex task, and the distribution may be extremely complex
 - But this is because we don't know anything about the underlying structure or meaning of `X`
 - If we knew that `X` depended on some variable `Z`, we might have found that modeling `p(X|Z)` is significantly easier, and may even produce some easy distributions
@@ -174,7 +178,7 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - In reality, however, the number of categories usually would be unknown, so you can treat it as a hyperparameter
 - And instead of specifying the latent variables by hand, we are going to let our model figure it out
 - Our model will rely on 3 key assumptions
-- First, we will assume some distributions `p(Z)` for our latent variable(s) `Z`, it's convenient to pick something easy e.g. `p(Z) = Gaussian(0,1)` (but can be any distribution)
+- First, we will assume some distributions `p(Z)` for our latent variable(s) `Z` (aka priors), it's convenient to pick something easy e.g. `p(Z) = Gaussian(0,1)` (but can be any distribution)
 - Second, we will assume some distribution `p_theta(X|Z)`, and again, it's convenient to pick something easy e.g. Gaussian (but can be any distribution)
 - Finally, we will assume that parameters `theta` of `p_theta(X|Z)` depend on `Z` in some none-linear way, e.g. `p_theta(X|Z) = Gaussian(mu_theta(Z), sigma_theta(Z))`
 - So while keeping all the distributions simple, all the complexity will go into transformations `mu_theta` and `sigma_theta` that can be very complex functions, and we will approximate them using NNs
@@ -182,6 +186,7 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 
 ### VAE optimization
 
+- A very good explanation can be found here: [CS 285: Lecture 18, Variational Inference, Part 1](https://www.youtube.com/watch?v=UTMpM4orS30), [CS 285: Lecture 18, Variational Inference, Part 2](https://www.youtube.com/watch?v=VWb0ZywWpqc), [CS 285: Lecture 18, Variational Inference, Part 3](https://www.youtube.com/watch?v=4LuA5m5Hsxc), [CS 285: Lecture 18, Variational Inference, Part 4](https://www.youtube.com/watch?v=_W2eVLi8rQA)
 - The problems begin when you want to evaluate `P(X=x)`, since you need to integrate `p(x, z; theta) over all z`, and this can be a nasty integral to calculate
 - This can quickly become intractable even in case of discrete `Z`: suppose we have 20 binary latent variables, evaluating `P(X=x)` involves a sum with 2^20 terms
 - And to fit this model, you actually need to evaluate `P(X=x)` for all the datapoints in the dataset
@@ -206,8 +211,10 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - All of which is just a formal way to say "let's approximate our objective by sampling `z`s that make sense"
 - But how would you get to `p_theta(Z|X)`? In many cases this function is actually intractable (so you can't even compute it)
 - Well, we will actually not, we will use `q_fi(Z)` and jointly optimize `p_theta(X,Z)` and `q_fi(Z)`
-- We will assume `q_fi(Z)` is some easy distribution with parameters `fi`, e.g. `Gaussian(fi_mu, fi_sigma)`
-- Note that, technically speaking, you would have to use a different `q_fi(Z)` for each datapoint (image), because the likely values for latent variables depend on what we see
+- We will assume `q_fi(Z)` is some easy distribution with parameters `fi`, e.g. `Gaussian(mu_fi, sigma_fi)`
+- We will guess `q_fi(Z)` from data, so it becomes `q_fi(Z|x)`
+- Note that we have to use a different `q_fi(Z|x)` for each datapoint (image), because the likely values for latent variables depend on what we see
+- The final learning objective: `L(X; theta, fi) = E[log(p_theta(X,Z)) - log(q_fi(Z|X))]` under `q_fi(Z|X)`
 - Conceptually, the algorithm is as follows:
 - 1) Initialize `theta` and `fi` for each datapoint ("somehow")
 - 2) Randomly sample a datapoint `x_i`
@@ -219,10 +226,32 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - Apparently there are some tricks that work in some cases (look up "reparametrization")
 - But this is still unrealistic to optimize since there is too many `fi`s, and the whole objective is non-convex, so we need more approximations
 - _My note: it goes into a rabbit hole_
-- **Amortization**: learn the mapping from `x_i → fi_i` using a single NN
+- **Amortization**: learn the mapping from `x_i → fi_i` using a single NN across all data points. Meaning NN spits out parameters `mu_fi`, `sigma_fi` for the Gaussian, using weights `fi`
+- Amortization refers to the fact that you do most of the work during training, and have an easy way to get the `q_fi` without doing any integrals
 - You would still need reparametrization trick and sampling to compute gradients
-- _My note: Stefano seem to say that `fi` now is just parameters of that new NN (meaning NN spits the distribution), but I thought we assumed that distribution is Gaussian, and I thought that required for reparametrization too. So maybe NN spits out parameters `fi` for the Gaussian, and we still have some weights for that NN that never appear in any of the notation. Not completely clear_
+- Finally, this translates into an encoder-decoder architecture: encoder takes an image and produces parameters of a distribution of the latent variable and decoder taking that distribution and reconstructing the image
+
+### VAE optimization summary
+
+- `Z -> X`, `p_theta(X|Z)`, `q_fi(Z|X)`
+- `q_fi(Z|X) = Gaussian(mu_fi(x), sigma_fi(x))`
+- `p_theta(X|Z) = Gaussian(mu_theta(z), sigma_theta(z))`
+- Encoder: NN `x_i` -> `mu_fi(x_i), sigma_fi(x_i)`, weights `fi`
+- Re-parametrization: `z_i = mu_fi(x_i) + epsilon*sigma_fi(x_i)`, where `epsilon ~ Gaussian(0,1)`, a single sample for `epsilon` is good enough
+- Decoder: `z_i -> p_theta(x_i|z_i)`, weights `theta`
+- Training objective: `max [1/N sum [log (p_theta(x_i|mu_fi(x_i) + epsilon*sigma_fi(x_i)))] over all i - D_KL(q_fi(Z|x_i)||p(Z))] wrt (theta, fi)`, where `N` is a size of a minibatch
+- `p_theta(x_i|mu_fi(x_i) + epsilon*sigma_fi(x_i))` is the output of decoder, `D_KL(q_fi(Z|x_i)||p(Z))` computed in a closed form using software
+- `p(Z)` is a prior on `Z`. The vanilla implementation of the VAE assumes `p(Z) = Gaussian(0,1)`
+- Also see [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
+- [Convolutional Variational Autoencoder](https://www.tensorflow.org/tutorials/generative/cvae)
+
+
+## Normalizing flows
+
+- VAEs are good, but they are pain in the ass to train
+- We want `p(X)` to be easy to evaluate and to sample (while being able to describe a complex distribution)
+- The key idea of normalizing flows is to map simple distributions to complex ones by applying invertible transformations
 
 
 
-- TODO: Finally, this translates into an encoder-decoder architecture: encoder takes an image and produces values of latent parameters and decoder taking those latent parameters and reconstructing an image
+Continue with Lecture 7, 38:12

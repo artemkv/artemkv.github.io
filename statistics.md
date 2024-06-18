@@ -125,20 +125,21 @@
 - So total variation distance, even though it is a true distance, is not super helpful
 - This is why, instead of using total variation distance, we will use a "surrogate": the "Kullback-Leibler divergence" (KL divergence)
 - Unlike total variation distance, KL divergence is not actually a distance, formally speaking (and this is why it is called "divergence")
-- KL divergence is a `sum of p^(x)log(p^(x)/p*(x))) for all x`
+- KL divergence `DKL[p*(x)||p^(x)]` is a `sum of p*(x)log(p*(x)/p^(x)) for all x`
 - _My note: as usually, KL divergence is not pulled out of the thin air, at least not completely, there is some relation with entropy and so on, but those deeper explanations are made in non-human readable language, so I don't get them. Regardless, KL divergence is partially pulled out of the thin air, because out of many possible forms this function could have, we are choosing the one with log in it, for a very specific reason that may become clear later..._
 - What is good about KL divergence (and what kind of justifies it) is that it is `=0` when `theta^ = theta*`, just like the distance, so minimizing KL divergence is going to have the same effect as minimizing distance
-- What is even better, is that KL divergence has a form of an expectation of a function `log(...)` (since it has that function multiplied by `p(x)`)
+- What is even better, is that KL divergence has a form of an expectation of a function `log(...)` (since it has that function multiplied by `p(x)`): `DKL[p*(x)||p^(x)] = E_theta*[log(p*(x)/p^(x))]`
 - This is, apparently, a fiesta for a statistician, since you now can replace expectation by an average estimated from the sample (by law of large numbers), and minimize that
 - But by average of what?
-- To answer that, we'll first do some transformation, and rely on some magic properties of the log function (the logarithm of a fraction is equal to the logarithm of the numerator minus the logarithm of the denominator)
-- Turns out, we can minimize this expectation by maximizing an average of `log(p^(x)) over all observed x` (i.e. logarithm of the denominator; since logarithm of the numerator does not depend on `theta^` and acts as a constant shifting factor)
-- Also, instead of maximizing average, we can maximize `sum`
+- To answer that, we'll first do some transformation, and rely on some magic properties of the log function (namely, the logarithm of a fraction is equal to the logarithm of the numerator minus the logarithm of the denominator)
+- This produces `DKL[p*(x)||p^(x)] = E_theta*[log(p*(x))] - E_theta*[log(p^(x))]`, where first term does not depend on `theta^` and acts as a constant shifting factor
+- Meaning we can minimize this expression by maximizing an average of `log(p^(x)) over all observed x` w.r.t. `theta`
+- Actually, instead of maximizing average, we can maximize `sum`
 - Sum of logs is a log of a product
 - Log is a function that is always increasing, so maximizing log of a function is the same as maximizing a function
 - So our `theta^` is `argmax of [product of p^(x) over all observed x]`
 - Interpretation: we are trying to find `theta^` such as to make the observed values the most likely
-- And `[product of p^(x) over all observed x]` is (empirical) "likelihood" (and it is conditioned on `theta^`)
+- And `[product of p^(x) over all observed x]` is (empirical) "likelihood"
 - To elaborate on interpretation even more, from probability, we remember that the joint PMF/PDF is simply a product of individual probabilities
 - So `[product of p^(x) over all observed x]` is really a joint PMF/PDF for all `x`
 - Adjusted interpretation: we are trying to find `theta^` such as to make **each of** the observed values the most likely

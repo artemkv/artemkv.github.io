@@ -22,7 +22,7 @@
 - **Normalizing flows**: model `p(x)` as Gaussian noise passed through multiple layers of reversible transformations
 - Train by maximizing the likelihood (and minimizing KL divergence between the distribution you produce and distribution of data)
 - **GANs**: 2 player minimax game between generator and discriminator. Train by stochastic gradient ascent/descent
-- **Energy based models**: turn any function into probability distribution by normalizing by the total volume
+- **Energy based models**: turn any function into probability distribution by normalizing by the total volume; don't need to normalize if all you want is to compare
 
 
 ## Intro
@@ -366,8 +366,14 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - This leads to the definition of **energy based model**: `p_theta(x) = exp(f_theta(x)) / integral [exp(f_theta(x))] by dx`
 - Basically all the same ingredients we just discussed above
 - We will denote the integral part as `Z(theta)`, called **partition function**
+
+```
+p_theta(x) = exp(f_theta(x)) / Z(theta)
+```
+
 - `exp` is there by choice, allows fitting exponential family of distributions into this model, and those are very commonly present in nature (e.g. you can find them in thermodynamics etc.)
 - Actually, the name "Energy based models" comes from the relation to physics, `-f_theta(x)` being the expression for energy in statistical physics, but we are going off-topic
+_My note: just when I thought I understood where it was going, we are now suddenly going to change ideas, it seems. I.e. we are going to use the shape of the expression above, but seem to completely drop the requirement of being able to compute `Z(theta)` analytically and easily. I get it, we want to use NNs as `f_theta`, and then it becomes hard to come up with `Z(theta)`. I just wish the storytelling was better_
 - This is an extremely flexible model, but unfortunately, sampling from it is super hard, evaluating `p_theta(x)` is also hard, which means training is hard
 - It also suffers from the curse of dimensionality: computing `Z(theta)` numerically (not analytically) is `O(exp(dims(x)))`
 - Is there anything that is good? :D
@@ -375,14 +381,48 @@ _My note: the mix of very strict mathematics on one side and completely unjustif
 - Supposedly, an example, image de-noising: original image `x` and the de-noised image `y` that we want to recover. We express joint probability `p(x,y)` in a form of an energy based model, where `f_theta` will be relating every pixel of `y` to the corresponding pixel of `x` + the surrounding pixels of `y`. Now we want to find `y` that maximizes `p(x,y)`. For this task, clearly, we can ignore the normalizing factor `Z` (similar to naive Bayes)
 - _My note: I can see how we don't need `Z`, I don't see why would you compare 2 different `y`s. Is this not simply a gradient descent optimization, starting from some `y`? I think the point is, in many applications, the normalizing factor can be ignored, which I totally buy_
 - Another good thing is that we can combine predictions of different models into a single number, by taking the product of probabilities and normalizing by the total volume across all those models
+- To train, you need to maximize the log of the expression for `p_theta(x)` on the training samples (basically, maximum log likelihood w.r.t. theta)
+- **Contrastive divergence algorithm** approaches it in the following way: sample `x_sample` from the model (from `p_theta`), take `x_train` from the training set, calculate gradient on `f_theta(x_train) - f_theta(x_sample)` w.r.t `theta`, take a step
+- Magically, you can formally prove that this expression is a Monte-Carlo estimation for the true gradient of log likelihood, so we are all good
+- But how to sample? It's hard if we don't know `Z(theta)`
+- We can leverage the fact that we can compare `f_theta(x)` and `f_theta(x')` without normalizing, just start with some random `x`, try some random perturbations and keep those candidates that are more likely (actually, you occasionally still pick candidates that are less likely, seem to be some kind of exploration-exploitation tradeoff)
+- This takes a very very very long time
+- The improved procedure is aiming to improve the way we do random perturbations, trying to make it less random (see Unadjusted Langevin)
+- This is still very expensive at training time
+- This is why we need another training approaches, that don't require sampling
+
+### Score matching optimization
+
+- `log(p_theta(x)) = f_theta(x) - log(Z(theta))`
+- To optimize w.r.t. `theta`, we really need a gradient of this w.r.t. `theta`, but what if we take a gradient w.r.t. `x`?
+- This is **score function**: `s_theta(x) = grad log(p_theta(x)) wrt x`
+- Score function eliminates `log(Z(theta))`, as it doesn't depend on `theta`
+- The score function provides kind of an alternative description of likelihood function (you replace the actual curve height with a measure of its steepness at every point)
+- **Fisher divergence** uses the score function to compare 2 distributions `p(x)` and `q(x)`
+- The idea is: if 2 distributions are similar, they should have the similar field of gradients
+- And as with every good divergence, it is 0 when 2 distributions are the same
+- **Score matching optimization**: minimize the Fisher divergence between `Pdata(x)` and `p_theta(x)`
+- This, unfortunately, involves computing gradient on `log(Pdata(x))` w.r.t. `x`
+- But, if you are willing to assume `Pdata(x) → 0` as `x → infinity`, you get a new loss function that only requires data
+- Unfortunately, this requires computing of Hessian, which is still very expensive for large models
+
+### Noise contrastive estimation
+
+- The idea: contrast the model with a noise distribution
+- This is, essentially a GAN architecture
+- The generator is not trainable, generates noise (pick some distribution of noise from which you can sample efficiently)
+- The discriminator is trainable and has a very specific form that is based on an energy based model, and spits out the probability (not just any binary classifier)
+- To make it possible, we will treat `Z(theta)` as another learnable model parameter
+- The objective and the algorithm are the same as with a regular GAN (cross-entropy loss), but now you have to optimize w.r.t. both `theta` and `Z`
+- We will plug the expression for the discriminator into the cross-entropy loss to get the actual training objective
+
+### Flow contrastive estimation
+
+- Same as noise contrastive estimation, but generate the noise using normalizing flow model
+- With this approach the generator becomes trainable
 
 
+## Score based models
 
 
-
-
-- TODO: how about NNs? For NN, you cannot compute the volume analytically
-
-
-
-Continue with Lecture 11, 1:07:30
+Continue with Lecture 13

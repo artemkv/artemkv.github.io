@@ -423,7 +423,7 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - With this approach the generator becomes trainable
 
 
-## Score based (diffusion) models
+## Score based models
 
 - One approach is to model `p(x)` explicitly (e.g. autoregressive model)
 - Another approach is to model the sampling process without explicit `p(x)` (e.g. GANs)
@@ -471,6 +471,12 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - The minimum amount of noise should be "very small"
 - The noise levels need to have a sufficient overlap to facilitate transitioning across noise scales. Should be a geometric progression, `sigma1/sigma2 = sigma2/sigma3` etc.
 - The mechanics: sample a mini-batch of datapoints, a mini-batch of noise scale indices, sample a mini-batch of corresponding noise vectors, train by maximizing the loss function that incorporates the noise into the expression (by stochastic gradient descent)
+- This assumes we have discrete noise levels, but they can actually be continuous: all the way from the data distribution without any noise to pure gaussian noise (infinite number of noise levels)
+- And we could train our model on continuous levels of noise
+- With continuous levels of noise, going from data to noise can actually be expressed using a stochastic differential equation
+- And what is more important, there is a similar stochastic differential equation for going "backwards in time", i.e. from noise to data which can be used for sampling
+- And this is what Score based diffusion model does
+- And this is current state of the art
 
 
-Continue with Lecture 14, 1:01:00
+Continue with Lecture 15

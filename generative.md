@@ -436,16 +436,13 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - We will define **score-based model** to be that general model family (will include auto-regressive and normalized flow models)
 - The model: given samples `x1, x2,..., xn` from `Pdata(x)`, learn `s_theta(x)` that is a good approximation of `grad log(Pdata(x)) wrt x` (estimate that from Fisher divergence)
 - For the training to be successful, `s_theta(x)` needs to be efficient to evaluate
-
-- TODO: constraints??
-
-- The most straightforward way to do this is to use NN (of course), but, as we seen in Score matching optimization, requires calculating Jacobian (very expensive)
+- The most straightforward way to do this is to use NN (of course), but, as we have seen in Score matching optimization, requires calculating Jacobian (very expensive)
 - So we need some tricks to overcome this
 - Turns out, by some magic of math, calculating `s_theta(x)` is much easier if you add some noise to the data (allows getting rid of Jacobians)
 - **Denoising score matching** is based on matching the score of noise-perturbed distribution
 - In plain English, instead of fitting a model to the data, you fit it to the data+noise. If the noise is small, this works good enough. And the worst case, you can always apply de-noising algorithm on top of your generated samples, which is relatively easy task
 - Another approach: instead of solving the original problem in many dimensions, solve in one dimension (should be easy)
-- **Sliced score matching**: project 2 vector fields onto random projections, and optimize for each projection (also gets rid of Jacobians)
+- **Sliced score matching**: project 2 vector fields onto random projections, and optimize for each projection (also gets rid of Jacobians). A bit slower than denoising score matching
 
 ### Generating samples
 
@@ -456,10 +453,24 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - So you need to follow the noisy gradients (see "Langevin dynamics sampling")
 - It can be proven that, with step size going to 0 and number of steps going to infinity, the Langevin dynamics sampling produces correct samples
 - Unfortunately, this doesn't work in practice :D
-- One of the reason is, the regions of low data density will stay undertrained (the model will not produce good values for gradients in the areas that are far from data samples)
+- One of the reason is, the regions of low data density will stay undertrained (the model will not produce very accurate values for gradients in the areas that are far from data samples)
 - And this also may take a very long time
 - Another issue: Langevin distributes points between 2 local maxima equally, regardless of the height of the local maximum, when in reality you want more samples near the higher peak
 - So Langevin is a bit shit
+- The solution for all pitfalls of Langevin: add Gaussian noise to your samples! But then we are kind of back to denoising score matching
+- _My note: didn't we already do this in "Langevin dynamics sampling"? Does it mean "even more noise"? The story breaks here again_
+- The more noise you add, the easier it is to sample, but the less quality of an image
+- So does it mean we have to always pick between 2 bad solutions?
+- We can actually apply different levels of noise and do sampling in multiple steps
+- The new procedure: you first randomly initialize a bunch of particles, then follow the very noisy gradients, after a while, you restart the procedure with all the particles starting from where they ended up at the previous step, and again, you follow the gradients, but this time less noisy ones, and so on until you remove most of the noise
+- One way to do it is to train multiple NNs each learning `s_theta(x)` with different amount of added noise (e.g. 1K different levels)
+- More efficient way to do it using just 1 NN: concat an input `sigma` to the input layer of your NN, and use it to tune the level of noise
+- This would be worse than training multiple NNs, but it would be faster
+- Denoising score matching would be a natural fit here
+- The maximum amount of noise you need to add is a maximum pairwise distance between 2 datapoints in the dataset
+- The minimum amount of noise should be "very small"
+- The noise levels need to have a sufficient overlap to facilitate transitioning across noise scales. Should be a geometric progression, `sigma1/sigma2 = sigma2/sigma3` etc.
+- The mechanics: sample a mini-batch of datapoints, a mini-batch of noise scale indices, sample a mini-batch of corresponding noise vectors, train by maximizing the loss function that incorporates the noise into the expression (by stochastic gradient descent)
 
 
-Continue with Lecture 14
+Continue with Lecture 14, 1:01:00

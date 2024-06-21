@@ -23,6 +23,7 @@
 - Train by maximizing the likelihood (and minimizing KL divergence between the distribution you produce and distribution of data)
 - **GANs**: 2 player minimax game between generator and discriminator. Train by stochastic gradient ascent/descent
 - **Energy based models**: turn any function into probability distribution by normalizing by the total volume; don't need to normalize if all you want is to compare
+- **Score based models**: replace distribution with score (field of gradients on the distribution), optimize by Fisher divergence instead of maximizing the likelihood
 
 
 ## Intro
@@ -398,13 +399,13 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - This is **score function**: `s_theta(x) = grad log(p_theta(x)) wrt x`
 - Score function eliminates `log(Z(theta))`, as it doesn't depend on `theta`
 - The score function provides kind of an alternative description of likelihood function (you replace the actual curve height with a measure of its steepness at every point)
-- **Fisher divergence** uses the score function to compare 2 distributions `p(x)` and `q(x)`
+- **Fisher divergence** uses the score function to compare 2 distributions `p(x)` and `q(x)` (compares their scores)
 - The idea is: if 2 distributions are similar, they should have the similar field of gradients
 - And as with every good divergence, it is 0 when 2 distributions are the same
 - **Score matching optimization**: minimize the Fisher divergence between `Pdata(x)` and `p_theta(x)`
 - This, unfortunately, involves computing gradient on `log(Pdata(x))` w.r.t. `x`
 - But, if you are willing to assume `Pdata(x) → 0` as `x → infinity`, you get a new loss function that only requires data
-- Unfortunately, this requires computing of Hessian, which is still very expensive for large models
+- Unfortunately, this requires computing of Hessian (same as Jacobian of gradient of f), which is still very expensive for large models
 
 ### Noise contrastive estimation
 
@@ -422,7 +423,43 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - With this approach the generator becomes trainable
 
 
-## Score based models
+## Score based (diffusion) models
+
+- One approach is to model `p(x)` explicitly (e.g. autoregressive model)
+- Another approach is to model the sampling process without explicit `p(x)` (e.g. GANs)
+- When discussing energy based models, we've seen yet another approach: use gradient of (log of) `p(x)` as a substitute for `p(x)` (aka score function)
+- Many different functions can have the same gradient, so there is, in theory, an information loss. However, all these functions will be the same up to the constant, but in case of pdf, this constant can be fully recovered from the fact that pdf have to integrate to 1, so this makes it 1:1 relationship. Actually, quite cool
+- Unlike `p(x)`, `s_theta(x)` does not have to satisfy any constraint, so it's potentially much easier to work with
+- We already used it to train model by minimizing Fisher divergence
+- This technique can be applied to auto-regressive and normalized flow models, if you just replace `p(x)` with `s_theta(x)` and train by minimizing Fisher divergence instead of maximizing the likelihood
+- What is the most general model family that this can be applied to?
+- We will define **score-based model** to be that general model family (will include auto-regressive and normalized flow models)
+- The model: given samples `x1, x2,..., xn` from `Pdata(x)`, learn `s_theta(x)` that is a good approximation of `grad log(Pdata(x)) wrt x` (estimate that from Fisher divergence)
+- For the training to be successful, `s_theta(x)` needs to be efficient to evaluate
+
+- TODO: constraints??
+
+- The most straightforward way to do this is to use NN (of course), but, as we seen in Score matching optimization, requires calculating Jacobian (very expensive)
+- So we need some tricks to overcome this
+- Turns out, by some magic of math, calculating `s_theta(x)` is much easier if you add some noise to the data (allows getting rid of Jacobians)
+- **Denoising score matching** is based on matching the score of noise-perturbed distribution
+- In plain English, instead of fitting a model to the data, you fit it to the data+noise. If the noise is small, this works good enough. And the worst case, you can always apply de-noising algorithm on top of your generated samples, which is relatively easy task
+- Another approach: instead of solving the original problem in many dimensions, solve in one dimension (should be easy)
+- **Sliced score matching**: project 2 vector fields onto random projections, and optimize for each projection (also gets rid of Jacobians)
+
+### Generating samples
+
+- Since all you have is `s_theta(x)`, generating samples gets a little tricky
+- To generate samples, you use the fact that gradients point in the direction of local maxima
+- So you can randomly initialize a bunch of particles, and let them move in the gradient field, they should settle at the local maxima
+- All is cool, but in that case, the particles will actually collapse to those points. In reality, we want a "cloud" of particles that look like samples (follow the probability distribution, not all collapsing to the mean)
+- So you need to follow the noisy gradients (see "Langevin dynamics sampling")
+- It can be proven that, with step size going to 0 and number of steps going to infinity, the Langevin dynamics sampling produces correct samples
+- Unfortunately, this doesn't work in practice :D
+- One of the reason is, the regions of low data density will stay undertrained (the model will not produce good values for gradients in the areas that are far from data samples)
+- And this also may take a very long time
+- Another issue: Langevin distributes points between 2 local maxima equally, regardless of the height of the local maximum, when in reality you want more samples near the higher peak
+- So Langevin is a bit shit
 
 
-Continue with Lecture 13
+Continue with Lecture 14

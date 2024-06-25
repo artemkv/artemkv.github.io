@@ -478,5 +478,71 @@ _My note: just when I thought I understood where it was going, we are now sudden
 - And this is what Score based diffusion model does
 - And this is current state of the art
 
+### Relation to VAEs
 
-Continue with Lecture 15
+- With the procedure above, you can see sampling as iterative denoising
+- `x_t` is a pure noise, you transform it (using Langevin updated procedure) into `x_t-1`, and so on until you get `x_0`, the final image
+- Of course, you can also go backwards, from an image `x_0` to the pure noise `x_t`
+- Noise perturbed densities are obtained as `q(x_t|x_t-1) = Gaussian(x_t; sqrt(1-beta_t*x_t-1), beta_t*I)`, which a Markov process where, at every step, we add some noise (not invertible!)
+- From that, you can express the join distribution `q(x_(1:T)|x_0)`, and from that, `q(x_t|x_0)`
+- So you don't have to sample iteratively, you can find an expression for any step `t` analytically
+- To summarize: going from `x_0` to `x_t` can be done very efficiently
+- This allows to "destroy structure in a controlled way" (aka Diffusion)
+- What we want is to be able to invert this procedure, sample `x_t`, then iteratively sample from `q(x_t-1|x_t)`
+- The difficulty is in finding `q(x_t-1|x_t)`, this part is non-trivial, and we need to learn that
+- This begins to get a flavor of VAE: at every step, you can think of `x_prev` as a latent variable, and, like in VAE `x_prev` is a simple prior (Gaussian), and you need to recover some more complex distribution
+- The main difference is that we are fixing the destruction process, which leads to some simplification in an objective. Thus,
+- The encoder is fixed (no learnable parameters), just adds noise
+- The decoder is NN, trained to recover `q(x_t-1|x_t)`, optimized like a VAE
+- And, it turns out, that since the encoder is fixed, the training objective reduces to "Denoising score matching" objective (see above)
+- In essence, what it means, is that you can see this algorithm from 2 prospectives: (hierarchical) VAE or score based model
+- Instead of learning different decoder for every step, you typically learn just a single decoder to use at every step (amortized approach)
+
+
+## Discrete data
+
+- Motivation for the discrete data: language is fundamentally discrete (unlike images)
+- Why "unlike images"? Because distribution over images is continuous, you can image infinite number of realistic images between any 2 images of a cat (or a face), even though the actual sample size is bounded by the image dimensions
+- Meaning: the distribution is over `R^d`, where `R` is all real numbers, `d` is dimensions
+- There is nothing in between 2 different words
+- Meaning: the distribution is over `d`, where `d` is a size of a dictionary
+- At the same time, discrete data is hard
+- In many models, we rely on calculus, and that doesn't work in case of discrete data. For example, the gradients don't backpropagate
+- For images, you actually have to discretize for practical purposes (such as represent a pixel using 3 bytes), but the calculations are all in a continuous space
+- Why it's easy for images, is that you can always map between an integer `[0,1,...255]` and a real number `(0, 1)`
+- You can't do the same for words
+- _My thought: you could actually do that for abstract concepts, the problem is you don't communicate in abstract concepts. You need to fit abstract concepts into words_
+- Because of that, the best approach so far (2023) is to use autoregressive model (very natural for the sequential data)
+- Autoregressive approach is very scalable and naturally fits human languages
+- For anything that is not strictly "left to right", e.g. DNA sequences, this is more problematic
+- Also, due to sequential sampling, it's quite slow
+- And some other issues
+- So the latest research targets extending diffusion models to discrete spaces
+
+
+## Evaluating models
+
+- With so many models and approaches, how do you decide which one is better (more suitable for your problem)?
+- In a classical supervised setup, the evaluation is straightforward
+- In a world of generative models, there are many metrics and techniques, it depends on the model and what you care about
+- For density estimation, you could calculate likelihood on test set, the higher, the better
+- You could evaluate likelihood model by how well it compresses the data
+- If you use longer sequences to encode less frequent data, then better compression means the model "understands" well which data is more frequent
+- This approach has its issues
+- First, it may not represent what you really care about (the quantity of information does not equal importance of that information)
+- Second, many models aren't even based on likelihood
+- **Kernel density estimation** can be used to evaluate the distribution when a model does not produce it explicitly but can only sample from it
+- The idea is you bin samples to produce histograms, and Kernel density estimation allows to smoothen those to get a curvy line (through interpolation)
+- How do you evaluate sample quality?
+- The gold standard is using human evaluation
+- There are methods to guide this evaluation to get quantitative results (e.g. measure how long it takes for a human to tell whether the image is real)
+- **Inception score** runs the generated images through the classifier
+- We are interested in 2 criteria: sharpness and diversity
+- High sharpness implies classifier is confident in making predictions for generated images
+- To achieve high diversity the samples have to come from all the labels, uniformly (all the classes represented in equal numbers)
+- Inception score never looks at the original data, but there exist other metrics that compare generated samples with data (Frechet Inception Distance, Kernel Inception Distance)
+- Besides the pure quality of a sample, you may care about many other aspects of a model (e.g. does it generate offensive content), so you have to be inventive
+- Sometimes your goal is to learn latent features. In that case you could evaluate how your learned features perform on a downstream task
+- If you work with a labeled dataset, you can pretend you don't have labels and cluster datapoints based on learned latent features using some ML algorithm (e.g. k-means) and then see how well that matches labels
+- You can also try to reconstruct original data from latent variables, and see how well it worked
+- For language models, there exist test benches with collections of tasks and metrics that allow evaluating various aspects of a model (e.g. https://crfm.stanford.edu/helm/classic/latest/)

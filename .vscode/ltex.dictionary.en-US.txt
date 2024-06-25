@@ -133,3 +133,6 @@ Langevin
 undertrained
 denoising
 Denoising
+Frechet
+prospectives
+backpropagate

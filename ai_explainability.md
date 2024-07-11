@@ -17,8 +17,8 @@
 - In that scenario, accuracy alone is not enough; and the new legislation is raising to ensure nondiscrimination and safety
 - For an end user affected by the algorithm decisions, the right to explanation is very important
 - How do you even quantify things like fairness? There is an inherent incompleteness of the problem formalization
-- Explainability can be useful even for debugging: the model may make a right prediction (e.g. "this is a cat"), but use the wrong features to do it (e.g. "the milk"), which would be helpful to correct the model
-- But it would be especially important in life-changing scenarios (e.g. "approve loan", "likely criminal offender"), in that case the model prediction is not enough, you need to know how that prediction was made (e.g. "why loan was denied")
+- Explainability can be useful even for debugging: the model may make a right prediction (e.g. "huskey"), but use the wrong features to do it (e.g. "snow"), knowing which would be helpful to correct the model
+- But it would be especially important in life-changing scenarios (e.g. "approve loan", "identify a likely criminal offender"), in that case the model prediction is not enough, you need to know how that prediction was made (e.g. "why loan was denied")
 - First approach to achieve interpretability is to build **inherently interpretable** models (such as decision trees, provided there are few branches); this is good if your problem fits into such a model
 - Second approach is to explain models in a **post-hoc** manner
 - There exist open-source libraries that provide interpretable models and explanation methods; many tech startups focus specifically on this topic
@@ -42,7 +42,7 @@
 - Doctors and judges like it as it is very easy to apply
 - The analogous AI model would learn the list of conditions from data
 - **Generative additive models (GAMs)**: model output as a function of input variables (e.g. linear model)
-- "Additive" means: add several functions of different input variables together
+- "Additive" means: add several functions of different input variables together, to produce a final model
 - Interpretability comes from the visualization of the function (but is questionable)
 - **Prototype selection**: identify K prototypes from the dataset (data points that represent a given class the best), so that, when given a new datapoint, we could classify it by its similarity with one of the K prototypes (with a high probability)
 - Each prototype covers an epsilon-bound neighborhood around it
@@ -127,7 +127,8 @@
 - A way to evaluate fairness: compute faithfulness/stability metrics for datapoints from majority and minority groups, if there is a statistically significant difference, then there is unfairness in the post-hoc explanations
 - Just to stress it: one thing is fairness of a model, another thing is fairness of an explanation of a model
 
-### Challenges
+
+## Challenges
 
 - Hyperparameters can significantly impact explanations (random seed, patch size etc.), although that is generally true for all AI models (not just for explanations)
 - Since the models and explanations are so different, it's very difficult to compare the approaches

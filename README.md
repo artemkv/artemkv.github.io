@@ -50,6 +50,8 @@ Knowledge Base
 
 [Multi-Task & Meta Learning](meta_learning.md)
 
+[Explainability](ai_explainability.md)
+
 ## Networking
 
 [TCP/IP](tcpip.md)

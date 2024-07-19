@@ -252,6 +252,8 @@ TL;DR
 - Search for good hyperparameters with random search, not grid search. Randomly chosen trials are more efficient for hyperparameter optimization than trials on a grid
 - Re-fine the value by doing longer runs with smaller variations of a hyperparameter
 - This way you can discover the best network architecture, learning rate, decay and regularization values
+- Lectures on NLU suggest using statistical hypothesis testing based comparison of model performance with different hyperparameters, mention specifically the Wilcoxon signed-rank test. The main idea is to assess the model performance repeatedly, to see that the model that you want to pick is doing better consistently over multiple experiments
+- They also mention McNemar's test in the situation when it's too expensive to evaluate a model performance repeatedly
 
 
 ## Training - things to track

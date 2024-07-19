@@ -7,6 +7,7 @@
 ## References
 
 - [Stanford CS224N: Natural Language Processing with Deep Learning](https://www.youtube.com/playlist?list=PL3FW7Lu3i5Jsnh1rnUwq_TcylNr7EkRe6)
+- [Stanford CS224U: Natural Language Understanding](https://www.youtube.com/playlist?list=PLoROMvodv4rObpMCir6rNNUlFAn56Js20)
 
 
 ## Intro
@@ -15,11 +16,20 @@
 - Representation learning attempts to automatically learn useful features
 - Natural language is hard, because humans leave a lot of common knowledge out of the communication
 - There is a lot of structural ambiguity: "The Pope's baby steps on gays", "scientists study whales from space", there is a lot of knowledge about the world needed to understand these sentences correctly
+- You can achieve some goals un language understanding through "cheap tricks", not real understanding
+- But what is "real understanding"? What are the criteria? How would you judge whether the system achieved the real understanding?
+- Some options: determine whether the statement is truth, calculate the entailments, take an appropriate action, translate into another language, construct the knowledge graph
+- Philosophical debate: the system understands if its behavior is indistinguishable from a real person's behavior ("The Chinese Room" argument)
+- In 60es, the goal of NLU was seen as an ultimate goal of AI
+- In 2020es, there has been a resurgence of interest for NLU (Siri, Cortana, chatbots etc.)
+- Traditionally NLU scope is written text, the speech have to be first converted into text by a speech recognition algorithm before being passed to the NLU algorithm
 
 ### Application
 
+- The very important task is semantic parsing: convert the text into some structured representation that can be passed on to other components that actually do the required action (_"text my wife on my way"_ → `SendMessage(Recipient(xxx), MessageType.SMS, Subject('on my way'))`)
 - Spell checking, keyword search
 - Extract information from websites: product price, dates, location, company name
+- Future forecast, e.g. based on Twitter posts (most financial trading is nowadays automated)
 - Classifying: detect reading level of school text, positive/negative sentiment
 - Machine translation, complex question answering, automating customer support
 
@@ -34,7 +44,7 @@
 - WordNet is hand-made, so it's very difficult to keep up-to-date, and has more problems
 
 
-## Word2vec
+## Word Vectors
 
 - One way to convert words to vectors is to consider words to be atomic symbols
 - This leads to **one-hot encoding**
@@ -51,8 +61,35 @@
 - You might also expect to do some math like "Germany" + "capital" = "Berlin"
 - Homonyms are packed into the same vector, which is an inherited weakness, and there were attempts to battle it
 - The approach that is currently used is based on the concept of **distributional similarity**: represent a word by means of its neighbors
+- The important insight: if you just build a table of co-occurence of words (from a large collection of text), the resulting representation latently contains lots of information about linguistic meaning
 - The idea goes back to 1957, J.R. Firth: "you shall know a word by the company it keeps"
-- Word2vec is introduced at Google 2013, and it is built around this idea
+- So we could use this representation to convert words into vectors, hoping that those vectors will capture the semantic meaning
+- There is no single right way to do this, there is lots of design choices
+- **Matrix design:** [word x word], [word x document], [adj x noun], [person x product] etc.
+- Co-occurence: the size of a window, the scale of distance: you can count every word in the window as 1 (flat scale), or you can count as `1/n` where `n` is distance from the center word
+- Larger, flatter windows capture more semantic information
+- Small, scaled windows capture more syntactic information
+- **Re-weighting:** word counts → L2 norming, probabilities, PMI index etc.
+- The goal of re-weighting is to amplify the important, the unusual; de-emphasize the mundane and the quirky
+- In addition to L2 norming and probabilities, there are several other choices
+- `expected = (rowsum * colsum) / sum`, high when 2 words occur a lot (so they are expected to co-occur a lot)
+- `oe = x / expected`, observed over expected, high when co-occur a lot, but especially when otherwise rare
+- `pmi = log(oe)` (PMI stands for "pointwise mutual information"), large PMI means the count is larger than expected, smaller PMI (can be negative) means the count is smaller than expected
+- PMI is undefined when `x=0` (why?), so usually it is set to 0 when `x=0`. But this value is in the middle of the possible range, which does not make sense
+- So people often use `ppmi = max(0, pmi)`, even though that throws away a lot of information
+- **Subword modeling** has some advantages. Idea: given a word level VSM (vector space model), the vector for a character level n-gram `x` is the sum of all the vectors of words containing `x`. Represent each word `w` as the sum of its character level n-grams. Add in the representation of `w`, if available
+- Example: "superbly" → `[<w>sup, supe, uper, perb, erbl, rbly, bly</w>]`
+- **Dimensionality reduction:** LSA, PCA, etc.
+- You may consider autoencoder architecture for learning reduced dimensional representations, by passing a whole row from the co-occurence matrix data into it and trying to predict the word. It may be a good idea in that case to use dimensionality reduction technique first
+- **Vector comparison:** euclidean, cosine, KL divergence, etc.
+- Euclidean distance captures magnitude of counts, but you might be more interested in similarity of meaning rather than frequency of use
+- L2 norm of euclidean distance can be helpful with that
+- Cosine distance kind of combines the two, giving you euclidean distance in a normalized space (presumably), a good default choice, equivalent to Euclidean with L2-normalized vectors
+
+
+## Word2vec
+
+- Word2vec is introduced at Google 2013, and it is built around this idea (distributional similarity)
 - As for many other deep learning models, you need a large corpus of text
 - Word2vec is not a singular algorithm, rather, it is a family of model architectures and optimizations that can be used to learn word embeddings from large datasets
 - 2 main algorithms: **Skip-grams (SG)** and **Continuous Bag of Words (CBOW)**
@@ -132,6 +169,7 @@
 ### GloVe
 
 - Word2vec, in essence, tries to capture word meaning by looking at word co-occurences
+- The GloVe objective is very close to PMI (not the same, but uses the same intuition). It tries to learn word vectors whose dot product is proportional to their co-occurence count
 - Idea: why don't we calculate the ratio of co-occurence directly, over entire corpus?
 - We'll go through the entire corpus and fill the co-occurence matrix
 - Similar to Word2vec, we will only consider words in the direct proximity, using a window of a small size (usually 5-10)
@@ -181,6 +219,15 @@
 
 - Instead of using words as inputs, you can split words into subwords: "company" → "com" + "pa" + "ny", and find vector representations for those
 - This dramatically reduces the vocabulary size
+
+### Retrofitting
+
+- _My note: this addresses my concerns about "trying to learn language in the vacuum"_
+- The idea of **retrofitting** is to take word vectors that are based purely on distributional similarity and improve them with the all the additional meaning
+- For example, you can use your vector representation to train the sentiment analysis classifier, then enrich the vector representations with the output of the classifier
+- "Retrofitting Word Vectors to Semantic Lexicons" paper proposes enriching vector representations using some existing graphs of semantic knowledge (e.g. WordNet)
+- The objective used in this paper has 2 parts: the first one drives the resulting vectors to be similar to the original ones, the second one drives the resulting vectors to be similar to the neighboring words in the graph
+- Since retrofitting is post-processing, it can be applied again when more semantic information becomes available
 
 
 ## Word Window Classification
@@ -480,3 +527,123 @@
 - You may want to do multiple passes and calculate several states for the episodic memory module. With each pass you may discover that you need to pay attention to different sentences
 - The power is, you can train this model end-to-end
 - The model struggles with giving answers that it has never seen at training stage, but there are potential improvements
+
+
+## Supervised sentiment analysis
+
+- The task is not that easy, just consider the following examples: "There was an earthquake in California", "The team failed to complete the challenge", "They said it would be great" - is there positive or negative sentiment?
+- Interpretation depends on the context, who is speaking, world knowledge, etc.
+- Just classifying the text as positive or negative (and reporting the ratio) is often not enough, you want to know "why", i.e. the route cause of getting positive or negative statement
+- There exist multiple sentiment datasets to train on (such as IMDB), SST (Stanford Sentiment Treebank) is a Stanford project done in 2013
+- Tokenizing can already be tricky: think about twitter posts, you want to make sure to preserve emoticons (">:-D"), domain-specific markup ("#", "@"), underlying markup (`<strong>`), etc.
+- You will also need to capture masked curses ("#$%ing"), preserve capitalization when meaningful ("this is CRAZY!"), regularize lengthening ("Yaaaaaaay" ⇒ "Yaaay"), extract dates ("Jun 9") etc.
+- The more sentiment-aware tokenizer you use, the better your classifier performance (the difference is not dramatic, and almost disappears as your dataset size goes into infinity, but is there); consider using `nltk.tokenize.casual.TweetTokenizer` (https://www.nltk.org)
+- Stemming collapses distinct word forms (e.g. "tolerant", "tolerable" ⇒ "toler"), but this may destroy the sentiment (clear from the example); some stemmers are even worse
+- So avoid doing stemming, or at least use something like NLTK stemmer
+- Negations are notoriously difficult, the words that flip the sentiment can be far away from the word they negate; one of the approaches is to mark everything that comes after a negative word with a negation mark (questionable)
+- 5-way problem: "very negative", "negative", "neutral", "positive", "very positive"
+- Ternary problem: "negative", "neutral", "positive"
+- Binary problem: "negative", "positive"
+
+### Stanford Sentiment Treebank
+
+- SST is built on top of sentence-level corpus of >10K sentences extracted from Rotten Tomatoes website
+- Stanford went an extra mile and actually 5-way labeled (crowdsourced) all the subparts of the sentences, where subparts were extracted based on syntax rules
+- This produced a huge corpus of fully-labeled syntactic trees with every node having a label
+- What they do in the course is: start with the labeled tree of words that represent a sentence, extract features (e.g. word counts) and pass those to the logistic regression (label is the overall sentiment from the original corpus I guess)
+- They then compare logistic regression to naive bayes to find a better model, comparing 2 models using McNemar's test
+- _My note: I don't really get how they use the SST dataset, because what we want is to get a completely new review and classify it, but how would you produce labeled tree from a completely new review? In SST all the work seem to have been done manually by volunteers. Of course, if your features are just word counts, you can easily extract these from a new sentence, but it throws away a lot of information Stanford spent so much money collecting_
+- Instead of word counts as features, you can do many other things: for example, you can convert the words into vectors, add up all the vectors for all the words in the sentence, and obtain a single vector; that still doesn't use any information from SST
+- Instead of adding the vectors up, you can pass the sequence through an RNN (or LSTMs), the RNN will do the job that is essentially a fancy way to add those vectors together, which is another way to think about RNNs
+- If you are able to represent a sentence in a tree structure, you can run a model on every node recursively, getting inner representations, until you get to the root. Essentially, the adding up in this case happens recursively between every 2 subtrees
+- Since SST dataset has a label for every node, it would allow you to do supervision at every level of a tree
+- _My note: cool, this explains how SST can be really useful, and in this case we are really leveraging the Stanford work, but it's still completely unclear how you would be able to produce the SST-compatible tree from a new sentence at a test time_
+
+### Political polls
+
+- Practical application: candidate polls. Ask people open-end questions, e.g. what qualities they are looking for in a president, and also which party they support (the label)
+- If you then evaluate the individual words as "republican", "democrat" or "neutral", and then visualize them in a 2d space, you can see the groups of issues republicans and democrats care about
+- For example, you might see a group of words related to immigration, or some personal characteristics; this gives you a great insight on why people vote for one or another candidate (e.g. republicans care about issues, democrats just hate Trump)
+
+
+## Relation extraction
+
+- Relation extraction is the task of extracting triples such as "(founders, SpaceX, Elon_Musk)", "(has_spouse, Elon_Musk, Talulah_Riley)" from a natural language
+- Relations are predefined set
+- This would allow building a database of facts about the real world
+- There used to be a free database: Freebase, but it was bought by Google and then Google shut it down (_My note: assholes_)
+- Microsoft, Apple and Google all have their knowledge bases on such relations that they use for commercial purposes
+- First approach: just collect bunch of patterns "X founded Y", "X is Z", you can even use Regex to extract those relations using such patterns
+- This used to be a predominant approach (before 90es)
+- But the language is incredibly varied, so it's very difficult to come up with an exhaustive list of patterns, plus the patterns don't generalize
+- _My note: I somehow doubt it. I think people use all the same exact pre-cooked sentences and most of the language (at least spoken) is just combination of standard phrases. But I can see how this can be a lot of tedious manual work_
+- Instead, we could try to learn the relations from data. We could manually annotate entities and relations and try to learn a model to predict those
+- People did it (90es and 2000s), and it worked, but it required a massive amount of manually annotated data
+- The new approach is the **distant supervision**: using an external resource of truth (https://web.stanford.edu/~jurafsky/mintz.pdf)
+- The approach: find out somehow that "Elon_Musk" is a "founder" of "SpaceX". Go through every sentence in the corpus, and find all the sentences that have "Elon_Musk" and "SpaceX". Assume that sentence expresses relation "is a founder". Label the sentence with that relation
+- Of course, you can only do it for relations you already know; entities may appear in a sentence in any order; and, finally, your assumption may break (the sentence can actually be "Elon Musk likes SpaceX"), so you have noisy labels (labeling the sentence "Elon Musk likes SpaceX" as "is a founder" adds noise)
+- This, however, was a game changer, as it allowed to produce a hundred times of more labeled data than before, which resulted in better models; having more data outweighed noise (Google simply ran this procedure every website on Internet)
+- Once you label your corpus in this way and train the model, you should be able to predict millions of relations that weren't originally in your external resource: this is the whole point of this approach
+- How you do it: get all the sentences that were labeled as "is a founder", and extract a feature representation for a relation "founder" from those. This can be hundreds or thousands of sentences, which is a great source for feature extraction
+- The features that we can extract: sequence of words in between the 2 entities, which entity comes first, a window of `k` words to the left/right of an entity 1/2 etc.
+- If you have access to some more sophisticated language parsers, you could use dependency paths etc.
+- We can also construct negative examples by using pairs of entities that are not related (according to our external source), and finding all the sentences (in the corpus) where those entities co-occur; it's a good idea to balance positive and negative examples
+- There can be multiple relations between 2 entities, in the same sentence. One way to deal with it is to build a binary classifier, that, for every relation, just tells us whether it is true or false (instead of spitting out a relation itself). Basically, the input is a candidate triple, the output is boolean (or probability)
+
+
+## Natural Language Inference (NLI)
+
+- Natural language inference is the task of determining whether a "hypothesis" is true (entailment), false (contradiction), or undetermined (neutral) given a "premise"
+- Example "turtle moved" is a hypothesis, "turtle danced" is a premise. The premise "turtle danced" entails that "turtle moved" (you must move in order to dance)
+- "A soccer game with multiple males playing" entails "Some men are playing a sport"
+- The huge corpus that was collected by Stanford (SNLI) is all manually labeled, each pair by 5 annotators, and the final label determined by a consensus
+- There is a lot of uncertainty about this task, since you need a lot of knowledge about the real world (so we kind of back to square 1). So for the practical purposes the annotators are instructed to adopt some common sense (instead of strict logic) and ignore age cases (such as "maybe we are speaking about 2 different turtles", "maybe it's a kind of special dance where you don't move" etc.)
+- Basically, we want to be able to read and understand the newspaper
+- The emphasis is on variability of linguistic expression, i.e. we want to learn different ways to express the same thing
+- The lecture suggest starting with some hand-crafted features (e.g. word overlap) and using a linear regression, to establish a baseline; then move to more sophisticated models to see if it performs better
+- One popular class of models is: convert words of the premise and the hypothesis into their vector representations, add all the vectors of the premise and the hypothesis together (separately, i.e. you get 1 combined vector for the premise and 1 for the hypothesis, could be a sum or an average), concat those 2 vectors together, and finally, run the concatenated vector through some kind of classifier
+- RNN based model replaces adding the vectors with RNN (similar how it was discussed for the task of sentiment analysis, i.e. seeing an RNN as a fancy sum)
+- And again, very similar to sentiment analysis, if you are able to represent a sentence in a tree structure, you can run a model on every node recursively, getting inner representations, until you get to the root
+- Another way to do it: convert words of the premise and the hypothesis into their vector representations, concat them together in a long sequence (without adding up), run the whole sequence through an RNN, classifier at the end
+- You may decide to add a marker separating the premise and the hypothesis into the sequence, if you want
+- _My note: we seem to be just going through all permutations of possible things you can do_
+- This last model is actually the most powerful of all, especially with attention
+- _My note: I think, intuitively, this model just "swallows" all the hard-coded parts of the architectures above and replaces them with trainable function approximates, meaning, at the extreme, this model can do exactly what every other model did, but it also has freedom to do something else_
+- Attention mechanism ensures more connections between premise and hypothesis (the final hidden state of the premise is not good enough)
+- Using global attention or local attention you would only need to look at the premise (the reason given: unlike machine translation task, the hypothesis is fixed, you are not predicting a sequence, just 1 final state)
+- Global attention means use all the words of a premise, local one means only a subset of those
+- It sounds like you could still look at the hypothesis, why not?; well, in fact, you can do whatever you want, and people do
+- **Word-by-word attention** is designed to include the hypothesis into the calculation
+- The calculation is done for every word of a hypothesis, in an iterative fashion (or recursively, if you look from the last word back), with the value from the previous word `Kprev` carried over into the calculation the value for the next one `Knext`
+- The calculation is not difficult but very tedious to describe in plain English, so look it up
+- To evaluate these models, you don't simply look at precision, you should check whether the model actually captures linguistic properties (e.g. does it understand negation? Double negation? Active-passive tense? Etc.)
+
+
+## Grounding
+
+- Claim: to achieve the ultimate goal of human-level understanding, the algorithm (e.g. chatbot) needs the knowledge of the real world (grounding), which cannot be obtained by simply going through a huge corpus of text
+- Example: "the trophy didn't fit into the suitcase because it was _too small_" vs "the trophy didn't fit into the suitcase because it was _too large_"; you know that in the first case you are speaking about the suitcase, in the second one, about the trophy
+- Informally, **grounding** is linking of text to data or non-textual modality
+- Cognitive Science formally defines grounding as the process of establishing what mutual information is required for successful communication between two interlocutors
+- Children learn: from few examples, by contrasting with negative examples + a lot of grounding (social cues, physical environment etc.)
+- So, seek for the datasets that provide grounding information
+- Simple example: color describer. The dataset of colors together with their human descriptions, the task is to predict the text description of a color from the RGB value of a color. You can test it by generating description and asking a human to guess the corresponding color
+- The color is your grounding, the text is generated not only based on the descriptions it has seen before, but also based on the color (only at the beginning, or you can concat some color information when generating every word)
+- _My note: I think this is beautiful example of scope reduction, i.e. finding the minimal valuable task that works to test the concept before you build anything more complicated. I personally was stuck with the idea of describing a moving dot inside a square box using morse-like code; the color describer sounds waaaay easier but also way more valuable and practical_
+- Color describer is a special case of image captioning
+- You can inverse this task and generate colors from descriptions
+- The way to introduce grounding without the complete model of the world, you can just keep track of some entities (count objects, calculate the reward function based on those counts)
+- Eventually, it goes where I thought it would: 2 agents conversing while playing some game, the game being a grounding factor (my idea of a moving dot)
+- Pragmatic Gricean reasoning: with both speaker and listener assuming they both are cooperative (basically overthinking every sentence haha)
+- Example: both Louis and Grice wear glasses, but only Louis has a beard. At a surface, referring to one of two as "the one with glasses" should give 0.5 probability, and not resolve any disambiguity, but if you assume the speaker is cooperative, you would assume they would say "the one with the beard" when referring to Louis, so you would assume they reserve "the one with glasses" for Grice
+- This reasoning would be nice to achieve with AI, and people try to model it explicitly
+- For example, when generating possible captions for an image, don't simply pick the ones that are true, but also pick the ones that distinguish those images from other related images
+
+
+## Semantic parsing
+
+- Highly strategic for Apple, Google etc.
+- Basically, how to capture the full semantic meaning of a sentence?
+- For some applications, the semantic representation could be SQL query, so that you could run it against a DB
+- [SippyCup](https://github.com/wcmac/sippycup) is a simple semantic parser implementation for didactic purposes
+- What follows is the review of SippyCup capabilities

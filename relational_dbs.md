@@ -118,17 +118,25 @@
 - **Read committed**: statements cannot read data that has been modified but not committed by other transactions. This prevents dirty reads. With some exceptions, this typically is a **default** isolation level
 - **Repeatable read**: statements cannot read data that has been modified but not yet committed by other transactions and no other transactions can modify data that has been read by the current transaction until the current transaction completes. This prevents nonrepeatable reads and lost updates
 - **Serializable**: emulates serial transaction execution for all committed transactions: transactions are guaranteed to produce the same effect as running them one at a time in some order. This prevents phantom reads and serialization anomalies
+- Higher guarantees are acceptable. In fact, neither Oracle nor PostgreSQL never allow reading uncommitted data.
 
 ## Locks
 
 - **Optimistic concurrency** makes the optimistic assumption that collisions between transactions will rarely occur
 - **Pessimistic concurrency** makes the assumption that collisions are commonplace. Pessimistic concurrency relies on **locks** to control concurrent access to shared resources
 - Granularity of locks: the level of an object in a hierarchy that the lock is applied to, e.g. row-level, table-level etc.
-- When number of locks grows, databases may apply **lock escalation**, where fine-grained locks are replaced by a single coarse-grained lock
+- When number of locks grows, some databases may apply **lock escalation**, where fine-grained locks are replaced by a single coarse-grained lock
+- Alternatively, databases might store the locks in-place (in a header of a row), this allows locking as many rows as required at no extra cost (Oracle, PostgreSQL)
 - **Shared mode** allows a resource to be locked by several processes at a time; used for reading
 - **Exclusive locks** are incompatible with all the other types of locks and can only be held by one process at a time; used for writing
 - Locking may result in a **deadlock**, when two transactions are blocking each others progress. Databases usually detect this situation and abort one of the transactions
 - The main rule to avoid deadlocks is to acquire locks on multiple objects in a consistent order
+
+## Multiversioning
+
+- Instead of relying purely on locks, databases offer multiversion model, where each transaction sees a snapshot of data as it was some time ago, regardless of the current state of the underlying data
+- With multiversion model, when one transaction is modifying the data in the table, the original row is stored in some temporary place, so other transactions can read the unchanged data
+- Multiversion model still relies on locks to avoid conflicting updates, however, in such systems readers never block writer and writer never blocks readers
 
 ## Query execution
 

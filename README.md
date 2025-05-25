@@ -8,6 +8,8 @@ Knowledge Base
 
 [Distributed Systems](distributed.md)
 
+[Relational Databases](relational_dbs.md)
+
 ## Math
 
 [Probability, core modules](probability_core.md)

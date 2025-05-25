@@ -122,7 +122,7 @@
 
 ## Locks
 
-- **Optimistic concurrency** makes the optimistic assumption that collisions between transactions will rarely occur
+- **Optimistic concurrency** makes the optimistic assumption that collisions between transactions will rarely occur. Optimistic concurrency relies on row versions to detect changes (see below)
 - **Pessimistic concurrency** makes the assumption that collisions are commonplace. Pessimistic concurrency relies on **locks** to control concurrent access to shared resources
 - Granularity of locks: the level of an object in a hierarchy that the lock is applied to, e.g. row-level, table-level etc.
 - When number of locks grows, some databases may apply **lock escalation**, where fine-grained locks are replaced by a single coarse-grained lock
@@ -134,8 +134,7 @@
 
 ## Multiversioning
 
-- Instead of relying purely on locks, databases offer multiversion model, where each transaction sees a snapshot of data as it was some time ago, regardless of the current state of the underlying data
-- With multiversion model, when one transaction is modifying the data in the table, the original row is stored in some temporary place, so other transactions can read the unchanged data
+- With multiversion model, each transaction sees a snapshot of data as it was some time ago, regardless of the current state of the underlying data. When one transaction is modifying the data in the table, the original row is stored in some temporary place, so other transactions can read the unchanged data
 - Multiversion model still relies on locks to avoid conflicting updates, however, in such systems readers never block writer and writer never blocks readers
 
 ## Query execution

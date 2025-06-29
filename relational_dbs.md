@@ -4,9 +4,30 @@
 * A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
 {:toc}
 
-## Disclaimer
+## Data modeling
 
-- TODO: this is work in progress
+- The data is organized into tables with columns (typically normalized, see below)
+- **Primary key** is a column (or combination of columns) that uniquely identifies one row of the table
+- Primary key has to be **unique**, **minimal** and **stable**
+- **Natural keys** already exist in the data and have real world meaning
+- **Surrogate key**: artificial database-generated identifier (typically autoincremented integer or UUID)
+- **ER model** is made of entities, attributes, and relationships
+- **Entity**: a data object (e.g. "Employee", "Department", "Project")
+- **Attribute**: characteristic of an entity (e.g. "First Name", "Date of Birth")
+- **Relationship**: association between entities (e.g. "Works in")
+- **Cardinality** of relationship: "one", "many"
+- **Optionality** of relationship: "optional", "mandatory"
+- **Many to many**: requires associative table (with the crowfoot on the side of this table)
+- **One to one**: rarely occurs, check if you truly need it
+- **Self-reference**: a recursive relationship (e.g. "Employee" "Is manager of")
+- **Generalization**: "is-a" type of relationship (subtypes and supertypes)
+- **Aggregation**: "part-of" type of relationship
+- **Transferable relationship** may change over time (e.g. "Employee" moving to another "Department")
+- Entities can be **dependent** or **independent**. Independent entities can have an independent existence (e.g. "Department" can exist without any "Employee", but "Invoice line" cannot exist without "Invoice")
+- Top down approach to modeling: conceptual data model -> logical data model -> physical data model
+- **Conceptual data model** is a high-level model that abstracts the technical details. It is a tool for communication between the designer and the end user during the requirements analysis
+- **Logical data model**: detailed model that is independent of any specific database technology. Fully describes entities, their attributes and relationships, primary and foreign keys, many-to-many relationships are transformed into associative tables etc.
+- **Physical data model**: defines how the data is stored within a specific database system. Specifies column data types, constraints, indexes, triggers etc.
 
 ## Data normalization
 
@@ -74,10 +95,10 @@
 - **A partial/filtered index** is an index built over a subset of a table; it contains entries only for those table rows that satisfy the predicate
 - Usually creating a primary key results in creating an index, and you need to decide whether you want that index to be clustered or simply unique
 
-### Best practices:
+### Best practices for indexing
 
 - Consider indexing keys that appear frequently in WHERE clauses
-- Create indexes on foreign key columns
+- As a rule of thumb, create indexes on foreign key columns
 - Use narrow indexes: as small a data type as you can (INTEGER vs VARCHAR)
 - Choose index keys that have high selectivity
 - As a rule of thumb, when indexing by multiple columns, put the most selective column first (but sorting and grouping can affect this)

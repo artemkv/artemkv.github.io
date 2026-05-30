@@ -43,6 +43,12 @@
 - Violations of fourth and fifth normal forms are very rare
 - In some cases, deliberate denormalization is done to achieve better performance; however, this should be done only when there is a very good reason to do so
 
+### Mapping object hierarchies to tables
+
+- **Table-per-hierarchy**: use one table to store the data for all the types in an inheritance hierarchy
+- **Table-per-class**: each subclass gets its own table for the subclass properties
+- **Table-per-concrete-class**: each class gets its own table containing columns for all properties of the class and the base class
+
 ## Buffer pool
 
 - The data is persistently stored on disk in the **data files**
@@ -51,11 +57,18 @@
 - The relational databases are all designed to align with how the disks operate. This is why they also manage their memory in minimal units, called **pages** or **blocks**
 - The typical size of a page is 8K (SQL Server, PostgreSQL, with Oracle allowing pages to be 2K, 4K, 8K or 16K)
 - The pages need to be read into memory to be usable. **Buffer pool** (or **buffer cache**) is an area in main memory where databases store pages read from disk. Each **buffer** can fit exactly one page (plus page header)
-- The amount of data stored on disk can largely exceed the available memory
+- The amount of data stored on disk can largely exceed the available memory (or at least, this was almost universally true in the past. Today, you could arguably fit most of the real life databases in memory, if you wanted)
 - So the buffer pool acts as a cache for most frequently/recently accessed data. The gamble is: most of the user-driven data fetches and writes will require the same pages
 - To ensure that there are enough free buffers, a dedicated process is responsible for writing dirty buffers to disk, which allows them to be re-used for different pages (_The lazywriter_ in SQL Server, _The background writer_ in PostgreSQL etc.)
 - All databases rely on some variation of LRU (least recently used) algorithm to know when to evict a page from memory
 - The page header is typically used to keep the information about the time the page was referenced, together with _is_dirty_ flag
+
+### Why not OS paging?
+
+- OS can flush dirty pages at any time, which would break the transactional guarantees
+- DBMS does not know which pages are in memory. This is completely hidden by OS. OS simply blocks a thread on page fault to give you an illusion of large memory space. This means DBMS threads would be getting blocked by OS all the time
+- If DBMS didn't control loading of a page, it would need to handle SIGBUS (access to an invalid address) at any time
+- Data contention on access to OS page table. If DBMS manages its own page table, it needs to be mutually exclusive only with itself
 
 ## Write-Ahead Log (WAL)
 
@@ -112,7 +125,7 @@
 - Transaction is the unit of activity that is atomic (all or nothing)
 - Database transactions have 4 properties commonly referred as ACID: atomicity, consistency, isolation, and durability
 
-### Acid
+### ACID
 
 - **Atomic**: either all of a transaction happens or none of it happens. If transaction fails, every change is rolled back; the database is left unchanged
 - **Consistency**: a transaction takes the database from one consistent state to the next. By the end of the transaction every constraint is guaranteed to hold, every index is guaranteed to be updated etc.
@@ -139,17 +152,21 @@
 - **Read committed**: statements cannot read data that has been modified but not committed by other transactions. This prevents dirty reads. With some exceptions, this typically is a **default** isolation level
 - **Repeatable read**: statements cannot read data that has been modified but not yet committed by other transactions and no other transactions can modify data that has been read by the current transaction until the current transaction completes. This prevents nonrepeatable reads and lost updates
 - **Serializable**: emulates serial transaction execution for all committed transactions: transactions are guaranteed to produce the same effect as running them one at a time in some order. This prevents phantom reads and serialization anomalies
+- Note that order is not the one in which transaction arrive. It is simply one of possible orderings
+- Also note "same effect" notion is vague. In reality, there are different notions of equivalence that are formally defined
+- One of the most useful is the **Conflict equivalency**, where conflicts are "Read-Write", "Write-Read" and "Write-Write"; for the schedule to be conflict equivalent to a serial schedule, the order of conflicting operations must remain strictly preserved (other operations can be reordered). You can detect if a schedule is conflict serializable by building a dependency graph (**precedence graph**)
 - Higher guarantees are acceptable. In fact, neither Oracle nor PostgreSQL never allow reading uncommitted data.
 
 ## Locks
 
 - **Optimistic concurrency** makes the optimistic assumption that collisions between transactions will rarely occur. Optimistic concurrency relies on row versions to detect changes (see below)
 - **Pessimistic concurrency** makes the assumption that collisions are commonplace. Pessimistic concurrency relies on **locks** to control concurrent access to shared resources
-- Granularity of locks: the level of an object in a hierarchy that the lock is applied to, e.g. row-level, table-level etc.
-- When number of locks grows, some databases may apply **lock escalation**, where fine-grained locks are replaced by a single coarse-grained lock
-- Alternatively, databases might store the locks in-place (in a header of a row), this allows locking as many rows as required at no extra cost (Oracle, PostgreSQL)
 - **Shared mode** allows a resource to be locked by several processes at a time; used for reading
 - **Exclusive locks** are incompatible with all the other types of locks and can only be held by one process at a time; used for writing
+- Granularity of locks: the level of an object in a hierarchy that the lock is applied to, e.g. row-level, table-level etc.
+- Since the transaction can acquire locks at different levels of granularity, a mechanism is needed to indicate that a component of a resource is already locked. For example, if one process tries to lock a table, RDBMS needs a way to determine whether a row (or a page) of that table is already locked. **Intent locks** serve this purpose
+- When number of locks grows, some databases may apply **lock escalation**, where fine-grained locks are replaced by a single coarse-grained lock
+- Alternatively, databases might store the locks in-place (in a header of a row), this allows locking as many rows as required at no extra cost (Oracle, PostgreSQL)
 - Locking may result in a **deadlock**, when two transactions are blocking each others progress. Databases usually detect this situation and abort one of the transactions
 - The main rule to avoid deadlocks is to acquire locks on multiple objects in a consistent order
 
@@ -157,13 +174,16 @@
 
 - With multiversion model, each transaction sees a snapshot of data as it was some time ago, regardless of the current state of the underlying data. When one transaction is modifying the data in the table, the original row is stored in some temporary place, so other transactions can read the unchanged data
 - Multiversion model still relies on locks to avoid conflicting updates, however, in such systems readers never block writer and writer never blocks readers
+- **Snapshot isolation** is susceptible to **Write skew** anomaly
+- The simplest example: tx1 is "turn all the white marbles to black", tx2 is "turn all the black marbles to white". Imagine the snapshot they see is "1 black 1 white". The result is "1 white 1 black". Executing tx1 and tx2 serially would make all the marbles either black or white
 
 ## Query execution
 
 - SQL is a declarative language: queries specify what data to fetch, but not how to fetch it
 - Any query may have several execution paths, the job of the query optimizer is to build an optimal **execution plan**
-- TODO: sequential table scan, index scan
-- TODO: lookups
+- Access methods: sequential table scan, index scan, multi-index scan (bitmap scan in PostgreSQL)
+- Clustered tables/index scans are susceptible to **Halloween problem**: an anomaly when an update operation changes the physical location of a tuple, which causes a scan operator to visit the tuple multiple times
+- When a nonclustered index doesn't have all the data required by the query, the **lookup** is required to access the actual row. Lookups are not cheap and should ideally be avoided
 - Joins are executed using one of three methods: nested loop join, merge join, or hash join
 - **Nested loop join**: the outer loop traverses all the rows of the first set; for each of these rows, the nested loop goes through the rows of the second set
 - **Merge join** requires both inputs to be sorted based on the join column(s). The algorithm then scans both sides and merges the rows

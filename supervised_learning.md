@@ -1,8 +1,9 @@
 # Supervised Learning
+
 {:.no_toc}
 
-* A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
-{:toc}
+- A markdown unordered list which will be replaced with the ToC, excluding the "Contents header" from above
+  {:toc}
 
 ## References
 
@@ -15,10 +16,12 @@
 - For example, if you are predicting whether the person has cancer, the model that simply says "You don't have cancer" to everyone will have more than 99.5% accuracy. However, it will miss all the people who do have cancer - so it's useless
 - You need to look at **precision** and **recall**, the values that are computed from the confusion matrix
 - **Confusion matrix** contains numbers for true positives, false positives, true negatives and false negatives, in the following form:
+
 ```
   [[tp, fp]
    [fn, tn]]
 ```
+
 - **Precision** measures how accurate our positive predictions were = `tp / (tp + fp)`
 - **Recall** measures what fraction of the positives our model identified = `tp / (tp + fn)`
 - Usually the choice of a model involves a trade-off between precision and recall
@@ -39,7 +42,6 @@
 - **Specificity** (true negative rate) measures what fraction of the negatives our model identified: `tn / (tn + fp)`. It's kind of like "recall on negatives"
 - A highly sensitive test rarely overlooks an actual positive. Some positives may be false positives, but you surely catch them all
 - A highly specific test rarely registers a false positive. It might not catch all positives, but once it reports one, you can trust it is one
-
 
 ## Overfitting and underfitting
 
@@ -83,7 +85,6 @@
 - Once you selected the best model, you could re-train it on the complete dataset, taking advantage of extra 30% that you initially selected as your test set
 - **Statistical efficiency** of an algorithm is a rate at which its variance goes to 0 as the size of the dataset goes to infinity
 
-
 ## Learning theory
 
 - Key assumption: all our data comes from some distribution `D`, all our samples are independent, there is a "true" value that we are trying to estimate
@@ -109,7 +110,6 @@
 - Luckily, it can be proven that you can bound the difference between the empirical risk of `h^` and the generalization error of `h*` to some arbitrarily small value `gamma` (margin of error), by increasing the sample size
 - ERMs and MLEs are related under the hood
 
-
 ## Linear regression
 
 - Linear regression attempts to map the input vector (features) to the output vector with a relatively simple linear model: `y = mx + b` (predict `y` given `x`)
@@ -132,7 +132,7 @@
 - In case of regression, the complexity of the model is "measured" by number and magnitude of the coefficients
 - **L1 regularization** adds the sum of absolute values of the coefficients to the error
 - **L2 regularization** adds the sum of squared values of the coefficients to the error
-- L1 regularization can yield sparse models (i.e. models with few coefficients); Some coefficients can become zero and eliminated. Lasso regression uses this method
+- L1 regularization can yield sparse models (i.e. models with few coefficients); Some coefficients can become zero and eliminated (essentially, the model does feature selection). Lasso regression uses this method
 - L2 regularization will not yield sparse models and all coefficients are shrunk by the same factor (none are eliminated). Ridge regression and SVMs use this method
 - We can adjust regularization by `lambda` to favor a simple model (large `lambda`) or a complex model (small `lambda`)
 - Alternatively, consider **Locally Weighted Regression**: a method that performs a regression around a point of interest using only training data that are "local" to that point
@@ -161,7 +161,6 @@
 - This justifies the choice of sum of squares as an error function for linear regression (and the validity of the whole model in theoretical sense)
 - The whole method of linear regression is basically derived from these initial assumptions
 
-
 ## Logistic regression
 
 - The same approach can be used for classification, in this case the line is going to divide the space into 2 categories (classes)
@@ -177,7 +176,7 @@
 - The number `z` we predicted expresses how much we would need to change values of `x1` and `x2` (in terms of `w1` and `w2`) to get to the line, so it is a good measure of the distance from the decision boundary
 - Although it is not an euclidian distance, but rather a manhattan distance
 - Sigmoid approaches 1 and -1 at larger values of `z`, which matches our interpretation: the bigger the `z` is, more certain we are about the prediction
-- If we have `n` features, we are going to use an `n-1`-dimensional plane to separate points instead of a line. In this case the model will look like this: `0 = w1*x1 + w2*x2 + ... + wn*xn + b`
+- If we have `n` features, we are going to use a `n-1`-dimensional plane to separate points instead of a line. In this case the model will look like this: `0 = w1*x1 + w2*x2 + ... + wn*xn + b`
 - Or, using vectors, simply `0 = W.T * X + b`
 - Our goal when training the model is to come up with optimal values of weights `W`
 - As usually, we can come up with an error function, use this function to drive the adjustments in weights (using gradient descent), moderate the adjustments by a learning rate, and re-evaluate the model performance until we are satisfied, then test our model using a testing set
@@ -192,7 +191,6 @@
 - We are not forced to use 0.5 as a threshold after applying sigmoid. We could move it up and down to favor precision or recall. We could use **ROC curve** to visualize the results (see below)
 - When number of features greatly exceeds the dataset size, the logistic regression tend to overfit badly, which can be combatted by adding regularization
 - If, instead of MLE approach, you decide to go bayesian way and do maximum aposterory estimation (MAP), it can be shown that the prior distribution acts as a regularizer. So doing MLE with regularization is kind of "going bayesian"
-
 
 ## Generalized Linear Models
 
@@ -232,7 +230,6 @@
 - Use the `argmax theta` as a parameter of your model
 - Done
 
-
 ## Support vector machines (SVM)
 
 - Built on the same principle as logistic regression, but tries to find the model that not only classifies the best, but also maximizes the distance between the points and the line
@@ -261,7 +258,6 @@
 - There are tons of ways to send points to higher dimensions with corresponding kernels (e.g. RBF kernel)
 - SVMs are among the best "off-the-shelf" supervised learning algorithms, their implementations are very robust and they "just work". Some even argue that they are much better than neural networks (e.g. their inventor)
 
-
 ## Perceptron
 
 - Very similar to logistic regression, except instead of a sigmoid, we use a step function that outputs only 0 or 1
@@ -271,7 +267,6 @@
 - If the data is not linearly separable, it can always be classified using 2 or more lines
 - This leads to an idea of using 2 (or more) perceptrons to train 2 different linear models and then using a third perceptron to combine the results
 - This is a fundamental building block of a neural network
-
 
 ## k-Nearest Neighbors
 
@@ -292,7 +287,6 @@
 - In the extreme case of `k` being >= the total number of datapoints, the model will always simply predict the majority class
 - This approach is memory-inefficient
 - On the flip side, you can improve your model at any time by simply adding more data points
-
 
 ## Naive Bayes
 
@@ -321,13 +315,14 @@
 - You should be careful modeling probability of words you have never seen before as 0. For example, if you never saw word "stanford" in spam emails, it doesn't mean the probability `P("stanford" | spam) = 0`
 - If you do take `P("stanford" | spam) = 0`, you will end up multiplying and dividing by 0 everywhere
 - **Laplace smoothing** suggests "adding one" to all counts. This leads to estimating `P(spam)` as:
+
 ```
 	(# of spam emails) + 1 / ((# of spam emails + 1) (# of non-spam emails + 1))
 ```
-- Pre-processing data with PCA eliminates correlated features, so it might help with satisfying "naive" assumption. But you need to remember that:
-	- a) Correlation of 0 does not imply independence
-	- b) Naive bayes requires conditional independence, not just independence
 
+- Pre-processing data with PCA eliminates correlated features, so it might help with satisfying "naive" assumption. But you need to remember that:
+  - a) Correlation of 0 does not imply independence
+  - b) Naive bayes requires conditional independence, not just independence
 
 ## Gaussian Discriminant Analysis (GDA)
 
@@ -351,7 +346,6 @@
 - But since we are just looking for argmax of `p(y|x)` in respect of y (i.e. which label would give the highest score), we don't need to normalize by `p(x)`
 - GDA has stronger assumptions than linear regression, and if those assumptions turn out to be correct, performs better, especially on smaller datasets
 - This is a theme in ML, when you don't have too much data, you need to compensate by building more knowledge into the model in the form of assumptions
-
 
 ## Decision trees
 
@@ -381,7 +375,6 @@
 - The idea of **boosting** is that, after building a tree, you look at the misclassified examples and give them more weight
 - You then re-build the tree again, this time getting better boundaries
 
-
 ## Data preparation
 
 https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-data
@@ -405,7 +398,6 @@ https://keras.io/preprocessing/image/
 - Verify class distribution. Ideally, you want every class to be equally represented in the training set. In case of images, you could generate new images for underrepresented class by deforming existing ones (or adding some noise to existing ones)
 - Any preprocessing statistics must only be computed on the training data, and then applied to the validation/test data. E.g. computing the mean and subtracting it from every sample across the entire dataset and then splitting the data into validation/test would be a mistake!
 
-
 ## Debugging ML algorithms
 
 - Start with some "quick and dirty" algorithm
@@ -424,7 +416,6 @@ https://keras.io/preprocessing/image/
 - Once you improve one thing, you need to re-evaluate the performance and see what is the next best thing to work on
 - Often you have a complex pipeline of algorithms performing a multistep task. The challenge in this case is to correctly attribute the fraction of the final error to each of individual components. You can do that by plugging in, instead of each component, the manually done perfect implementation and see how this affects the final result
 
-
 ## ROC Curve
 
 - When classifying the points, we could move threshold up and down
@@ -434,11 +425,10 @@ https://keras.io/preprocessing/image/
 - If we plot number of tp and fp, weighted, `(tp / all positives) to (fp / all negatives)`, we can see how exactly the number of fp grow with growth of tp with the respect to threshold
 - Every point on that line will correspond to a certain threshold
 - When we classify randomly (50/50), the dependency is linear: more tp → more fp. Basically, whatever threshold we pick, we always get the exact ratios
-- But when we have a well-trained model and well-sepatated data points, the chart tends to look more like an "r": Initially, lowering the threshold, we are able to catch more and more tp without suffering from increase in fp. But eventually we lower it too much and number of fp begins to grow very fast
+- But when we have a well-trained model and well-separated data points, the chart tends to look more like an "r": Initially, lowering the threshold, we are able to catch more and more tp without suffering from increase in fp. But eventually we lower it too much and number of fp begins to grow very fast
 - The better the model and the better the separation, the more the chart is curved, meaning we can lower the threshold so to catch almost all tp before seeing a sudden increase in fp
 - This can be quantified by taking the square under the curve. The lowest possible value is 0.5, the highest is 1
 - So ROC curve can be used to compare different models (e.g. logistic regression vs random forest)
-
 
 ## SVM optimization
 
@@ -466,13 +456,11 @@ https://keras.io/preprocessing/image/
 - So if you know the dot product, you don't even need the original feature vectors, and that is what kernel functions take advantage of
 - Also, maximizing `||W||^2` can be proven to have a similar effect as adding L2 regularization term, so SVMs have regularization "built-in", which prevents overfitting, even in the infinite dimension feature space
 
-
 ## SVM some intuition about sending points into high-dimensional space
 
-- The intersection of an `n-1`-dimentional plane that separates the points and the new multidimensional surface on which the points lie is a shape described by a high degree polynoms (polynomial kernel)
+- The intersection of an `n-1`-dimensional plane that separates the points and the new multidimensional surface on which the points lie is a shape described by a high degree polynoms (polynomial kernel)
 - For example, by sending point `(x,y)` into 3-dimensional space by using coordinates `(x, y, x^2 + y^2)` we are essentially using the distance from the center as a height of the point. The surface made by this transformation will look as a cone. The plane that classifies the points will separate lower points from the higher points, and the intersection with the cone will give the circle. The formula of the circle is `x^2 + y^2 = 0`, which is exactly what we used for the 3rd coordinate
 - Another way to think of it is to imagine using a circle to classify the points
-
 
 ## Cross-entropy
 
@@ -483,7 +471,6 @@ https://keras.io/preprocessing/image/
 - Cross-entropy compares 2 probability distributions
 - Training set maximizes prediction for every data point, so the entropy is going to be very low
 - Model predictions are between 0 and 1, more confident is the model, the smaller is the entropy
-
 
 ## Some python code
 

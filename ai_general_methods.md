@@ -7,6 +7,7 @@
 ## References
 
 - [MIT 6.034 Artificial Intelligence](https://www.youtube.com/playlist?list=PLUl4u3cNGP63gFHB6xb-kVBiQHYe_4hSi)
+- [Stanford CS221 Artificial Intelligence: Principles and Techniques](https://www.youtube.com/playlist?list=PLoROMvodv4rO1NB9TD4iUZ3qghGEGtqNX)
 
 ## Intro
 
@@ -24,12 +25,13 @@
 - **Problem reduction**: apply transformation to a harder problem to make it an easier problem
 - Symbolic integration algorithm tries to apply 1 of many possible safe transformations (e.g. move constant out) and heuristic transformations (e.g. substitute `x` with `sin(u)` in expression `1-x^2`), then checks against the known logarithms table, if success, reports the solution; if not, continue
 - Sometimes you may be able to apply several transformations, so the tree of possibilities begin to form
+- It is called "goal tree" because, in reverse, it is a step towards solving the original problem, which is our main goal
 - To decide which branch to pursue, you may decide to go for the simplest one first
 - How do you measure simplicity?
 - In this case you could compute the depth of functional composition
 - This program was running on 32K of RAM and was able to solve 52 out of 54 problems that it was given (the problems were taken from freshman test for MIT students)
 - Max depth of the tree was 7, average depth was 3, and average number of unused branches was 1
-- This gives quite a good insight into the nature of the domain (freshman level integration problems)
+- This gives quite a good insight into the nature of the domain (where domain is "freshman level integration problems")
 - This kind of meta knowledge is where the power is
 
 ### Answering questions about its own behavior
@@ -91,8 +93,10 @@ How to speak to domain experts:
 - This is a base case against which all the other search is compared
 - **Depth-first** search: when you build the tree of choices, you always explore the leftmost branch first (until you see the end node, or until you reach the dead end and backtrack)
 - **Breath-first** search: you build the tree of choices level by level, until you see the end node
-- DFS and BFS is almost the same implementation, the only difference is where you put the expanded nodes on the queue (front or back)
+- DFS and BFS is almost the same implementation, the only difference is where you put the expanded nodes on the queue (front or back). That said, BFS has worse space requirements
 - The great optimization is not to expand any node twice (by keeping the nodes we already visited in a separate list)
+- **DFS-ID** (DFS - iterative deepening): set max depth, perform DFS. If found, return. If didn't, increase max depth, repeat (from the root)
+- **Uniform cost search**: when exploring branches, remember the cost of the full path to the current node (from the root). When deciding, which node to expand next, expand the one with the lowest cost (same principle as Dijkstra)
 - **Hill climbing**: when you expand the node, always go into the one that gets you closer to the goal, discard all the rest
 - You just need to use some kind of heuristic that can tell you whether you are getting closer to the goal (so-called informed search)
 - In case of searching for the path on the map, you could measure direct distance between 2 points (how a crow would fly from A to B)
@@ -235,7 +239,7 @@ How to speak to domain experts:
 - The probability of the last ranked individual to reproduce is `(1-Pc)^(N-1)`, i.e. if no one else is selected, the last individual is guaranteed to be selected
 - Rank-based selection preserves the diversity, it gives worse individuals a chance to reproduce and thus to improve
 - On the flipside, it can lead to slower convergence, because there is not much difference between the best individuals
-- Looking at the classroom example, turns out, it can still stick at local maximum
+- Looking at the classroom example, turns out, it can still get stuck at local maximum
 - _My thought: when you model biology, you should not expect results to be different from those that biology produces. In the best case, you are going to be as good as biology is. And I don't think biology cares about being stuck in local optimum_
 - We could factor in the diversity factor: don't select just the most fit, but most fit AND most diverse
 - This helps to discover the true optimum fast, however, it never really converges, as the diversity keeps is spread
@@ -271,7 +275,7 @@ How to speak to domain experts:
 - You want to find determining features that separate positive examples from negative examples (minimal subset of features that still retains enough information about how the 2 words are different)
 - You'll discover that this is a hard task, as there are too many features
 - The solution: pick one positive example to be a **seed** (e.g. "KATS")
-- Then we start generalizing, by "turning off" 1 of the cells in the 14*4 matrix, until we cover (or "match") a negative example, and then we quit
+- Then we start generalizing, by "turning off" 1 of the cells in the 14*4 matrix, until we cover (i.e. "match") a negative example, and then we quit
 - The order we pick cells to turn off is: from the ones that are the closest to the phoneme that we are trying to build the rule for, to the ones that are the furthest
 - There are theories on why it works
 - One explanation: this is a sparse high-dimensional space of features, and it's very easy to find a multidimensional hyperplane that separates positive and negative examples in such a space

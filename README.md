@@ -1,4 +1,4 @@
-# Knowledge Base
+My personal knowledge base
 
 ## General comp science
 

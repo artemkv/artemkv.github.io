@@ -61,11 +61,11 @@
 - We want `m` to be `Theta(n)`, so proportional to a number of keys stored in the table
 - This, of course, means hashing can produce collisions (no magic here)
 - This problem is solved by chaining: if 2 item keys hash into the same integer, store them as a linked list ("Hashing with chaining")
-- This produces the worst case `Theta(n)` (all the keys map to the same hash)
+- This produces the worst case `O(n)` (all the keys map to the same hash)
 - Under assumption that every key is equally likely to be hashed into any slot of the table ("Uniform hashing"), independently of any other key, the expected length of a chain for `n` keys is `n/m = alpha` ("load factor")
 - This is because every key has a probability of `1/m` to get into any of `m` slots, and there are `n` keys
 - As long as you keep `m` proportional to `n`, `n/m` is a constant
-- Since search has to walk the entire list (worst case), and that is constant, it has `O(1)` complexity
+- Since search has to walk the full chain (worst case), and that is constant (`alpha`), it has `O(1)` complexity
 - In real world, uniform hashing is not a realistic assumption
 - Do not use `h(k) = k mod m`, that is bad!
 - Better approach is to use **Universal hashing**: `h(k) = [(a*k + b) mod p] mod m`
@@ -155,7 +155,7 @@
 - There are various universal hash families to pick from
 - _My note: it is not completely clear how, after you picked `h` randomly, you make sure you pick the same one for the same key every time. It seems that you pick a hash function when initializing the hash table, not on every insertion. You might also re-hash if you detect the number of collisions being too big_
 - **Perfect hashing:** instead of linked lists for colliding items, use second level hash tables
-- First level hash table hash function is picked from the universal hash family, so the first level is basically doing hashing with chaining, as usual
+- First level hash table hash function is picked from the universal hash family, so the first level is basically doing hashing with collisions, as expected
 - Let's take `lj` to be a number of keys hashing to the same slot
 - Second level hash table hash function is also picked from the universal hash family, but it maps it into the hashtable of size `lj^2`; this makes second-level collision probability very low
 - To make all of this work, you need a static (known upfront) set of keys, so that you can pre-compute all this stuff (and actually start over if didn't work the first time)

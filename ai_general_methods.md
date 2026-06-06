@@ -146,7 +146,7 @@ How to speak to domain experts:
 - Typically, the branching factor depends on how far you are into the game, so you cannot actually predict how many levels deep you might be able to go in a limited amount of time
 - Unfortunately, with minimax, you start from the leaves, so in many cases you would be either too fast (leaving a better move on the table) or too slow (not being able to finish the analysis and come up with a move in a specified time)
 - But notice that amount of moves to analyze on each level increases by a factor of `d`; that means that doing a calculation up to level `d-1` is `d` times cheaper than doing full calculation; i.e. it would cost only `1/d` of the full cost
-- This means you could do the calculation with `d-1` steps lookahead and use that as an "insurance policy" in case you run out of time doing the full calculation, that would cost you just a `1/d` fraction of the total cost; then try to do the full calculation for d steps lookahead, and if you can, use that better answer; if not, use the insurance policy answer
+- This means you could do the calculation with `d-1` steps lookahead and use that as an "insurance policy" in case you run out of time doing the full calculation, that would cost you just a `1/d` fraction of the total cost; then try to do the full calculation for `d` steps lookahead, and if you can, use that better answer; if not, use the insurance policy answer
 - Actually, you could start with just depth of 1, then, if you still have time, go 1 level deeper, and so on, as deep as you can, until you are out of time: **progressive deepening**
 - But at what extra cost?
 - Cost `S` of progressive deepening up to the level `d-1` is `1 + b + b^2 + ... + b^(d-1)`
